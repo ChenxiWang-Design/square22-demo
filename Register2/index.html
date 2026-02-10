@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="数字分身注册流程" />
   <link rel="manifest" href="/manifest.json" />
@@ -931,6 +931,44 @@
   <script src="../api-config.js"></script>
   <script src="register2.js"></script>
   <script>
+    // 动态调整视口高度，处理浏览器UI遮挡问题
+    function adjustViewportHeight() {
+      const container = document.querySelector('.register2-container');
+      if (!container) return;
+      
+      // 获取实际可用视口高度（排除浏览器UI）
+      const vh = window.innerHeight;
+      const dvh = window.visualViewport ? window.visualViewport.height : vh;
+      
+      // 使用动态视口高度，但不超过793px
+      const targetHeight = Math.min(793, dvh);
+      container.style.height = targetHeight + 'px';
+      
+      // 如果高度小于793px，按比例缩放内容
+      if (dvh < 793) {
+        const scale = dvh / 793;
+        container.style.transform = `scale(${scale})`;
+        container.style.transformOrigin = 'center center';
+      } else {
+        container.style.transform = 'none';
+      }
+    }
+    
+    // 页面加载时调整
+    adjustViewportHeight();
+    
+    // 监听视口变化（浏览器UI显示/隐藏时）
+    window.addEventListener('resize', adjustViewportHeight);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(adjustViewportHeight, 100);
+    });
+    
+    // 使用Visual Viewport API（如果支持）
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', adjustViewportHeight);
+      window.visualViewport.addEventListener('scroll', adjustViewportHeight);
+    }
+    
     // PWA Service Worker 注册
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
