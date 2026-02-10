@@ -1,0 +1,30 @@
+{
+  "version": "2.7",
+  "children": [
+    {
+      "type": "frame",
+      "id": "REGISTER2",
+      "x": 97.40034723648182,
+      "y": 0.27277299294956947,
+      "name": "R1",
+      "rotation": 0.08668193749183803,
+      "width": 360,
+      "height": 793,
+      "fill": "#FFFFFF",
+      "children": [
+        {
+          "type": "rectangle",
+          "id": "fnvnm",
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "./Pic/Register/渐变背景.jpg",
+            "mode": "fill"
+          },
+          "width": 360,
+          "height": 793
+        }
+      ]
+    }
+  ]
+}

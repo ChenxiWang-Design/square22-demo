@@ -1,0 +1,344 @@
+/**
+ * Bubble3 组件样式 · 默认态
+ * 与 bubble3.pen 中「Bubble3-默认态」布局一致：frame 201×111
+ * 从底往上：渐变灰白气泡 → 浅黄矩形 → 噪点（正片叠底）→ 照片 → 红色图钉
+ */
+.preview-page {
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
+  background: #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- 默认态容器：与 frame 尺寸一致 ---------- */
+.bubble3 {
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bubble3__default {
+  position: relative;
+  width: 201px;
+  height: 111px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: transform 280ms ease;
+}
+
+.bubble3__default:hover {
+  transform: scale(1.02);
+}
+
+.bubble3__default.is-long-pressing {
+  transform: scale(0.98);
+}
+
+/* 1. 底层：渐变色灰白气泡（path 155×84，x:3 y:21），描边完整不裁剪 */
+.bubble3__bubble-shape {
+  position: absolute;
+  left: 3px;
+  top: 21px;
+  width: 155px;
+  height: 84px;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.bubble3__bubble-svg {
+  display: block;
+  width: 155px;
+  height: 84px;
+  overflow: visible;
+}
+
+/* 2. 噪点矩形（浅黄矩形 + 噪点一体）：距气泡左边 6px，即 left: 3+6=9 */
+.bubble3__yellow-rect {
+  position: absolute;
+  left: 9px;
+  top: 27px;
+  width: 145px;
+  height: 64px;
+  border-radius: 10px;
+  background: #FFEAB6;
+  border: 1px solid #9E4C05;
+  box-sizing: border-box;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 3. 噪点层：与黄矩形同尺寸同位置，正片叠底 */
+.bubble3__noise-layer {
+  position: absolute;
+  left: 9px;
+  top: 27px;
+  width: 145px;
+  height: 64px;
+  border-radius: 10px;
+  background-image: url("../../Pic/noise.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 文本：黄色矩形中央，字号 14，文本最左边距噪点矩形最左边 12 */
+.bubble3__yellow-text-wrap {
+  position: absolute;
+  left: 21px;
+  top: 27px;
+  width: 96px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.bubble3__yellow-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #333;
+}
+
+/* 4. 照片：严格 73×79，倾斜 -15° */
+.bubble3__photo {
+  position: absolute;
+  left: 115.5px;
+  top: 25.56px;
+  width: 73px;
+  height: 79px;
+  object-fit: cover;
+  transform: rotate(-15deg);
+  z-index: 3;
+  pointer-events: none;
+  display: block;
+}
+
+/* 5. 红色图钉：54×54，叠在右上方 */
+.bubble3__pin {
+  position: absolute;
+  right: 18px;
+  top: 2px;
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* ---------- 展开态：长按默认态后显示 ---------- */
+.bubble3__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 280ms ease, visibility 0s linear 280ms;
+}
+
+.bubble3__overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 280ms ease, visibility 0s;
+}
+
+.bubble3__overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  cursor: pointer;
+  transition: backdrop-filter 280ms ease, -webkit-backdrop-filter 280ms ease;
+}
+
+.bubble3__overlay.is-visible .bubble3__overlay-backdrop {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.bubble3__expanded {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform-origin: left top;
+  z-index: 1;
+  cursor: default;
+}
+
+/* 展开态卡片：与 .pen 帧一致 237×289 */
+.bubble3__expanded-card {
+  position: relative;
+  width: 237px;
+  height: 289px;
+  box-sizing: border-box;
+}
+
+/* 灰白渐变气泡：223×274，描边 1，与图2一致柔和灰白 */
+.bubble3__expanded-bubble {
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  width: 223px;
+  height: 274px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #e0e0e0 0%, #ffffff 100%);
+  border: 1px solid #999;
+  box-sizing: border-box;
+  z-index: 0;
+}
+
+/* 噪点矩形：203×255，圆角 10，描边 1 */
+.bubble3__expanded-yellow-rect {
+  position: absolute;
+  left: 17px;
+  top: 16px;
+  width: 203px;
+  height: 255px;
+  border-radius: 10px;
+  background: #FFEAB6;
+  border: 1px solid #9E4C05;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.bubble3__expanded-noise-layer {
+  position: absolute;
+  left: 17px;
+  top: 16px;
+  width: 203px;
+  height: 255px;
+  border-radius: 10px;
+  background-image: url("../../Pic/noise.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  z-index: 2;
+}
+
+/* 展开态顶部文本：宽度 203-24=179 */
+.bubble3__expanded-text-wrap {
+  position: absolute;
+  left: 29px;
+  top: 22px;
+  width: 179px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* 照片叠层容器：与噪点矩形完全重合，overflow 裁剪，照片不溢出 */
+.bubble3__expanded-photos {
+  position: absolute;
+  left: 17px;
+  top: 16px;
+  width: 203px;
+  height: 255px;
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 4;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.bubble3__expanded-photos-track {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transition: none;
+  will-change: transform;
+}
+
+.bubble3__expanded-photos-track.is-dragging {
+  transition: none;
+}
+
+/* 单张照片：107×134，圆角 16；用 transform 做位移动画；图1=index0 图2=index1 图3=index2 */
+.bubble3__expanded-photo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 107px;
+  height: 134px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: transform 0.45s cubic-bezier(0.34, 1.2, 0.64, 1);
+  will-change: transform;
+}
+.bubble3__expanded-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* 展开态1：三张叠放；--photo-drag-x 为跟手/惯性横向偏移 */
+.bubble3__expanded-photo[data-index="0"] {
+  transform: translate(81.92px, 83px) translateX(var(--photo-drag-x, 0)) rotate(-8.55deg);
+  z-index: 1;
+}
+.bubble3__expanded-photo[data-index="1"] {
+  transform: translate(13px, 104.74px) translateX(var(--photo-drag-x, 0)) rotate(13.92deg);
+  z-index: 2;
+}
+.bubble3__expanded-photo[data-index="2"] {
+  transform: translate(51px, 79px) translateX(var(--photo-drag-x, 0)) rotate(0deg);
+  z-index: 3;
+}
+
+/* 展开态2：左右对调版——图1(index2)在右158，图2(index1)中78，图3(index0)在左18；若仍反则说明理解反了 */
+.bubble3__expanded-card.is-phase2 .bubble3__expanded-photo[data-index="0"] {
+  transform: translate(18px, 102px) translateX(var(--photo-drag-x, 0)) rotate(6deg);
+  z-index: 3;
+}
+.bubble3__expanded-card.is-phase2 .bubble3__expanded-photo[data-index="1"] {
+  transform: translate(78px, 86px) translateX(var(--photo-drag-x, 0)) rotate(-5deg);
+  z-index: 2;
+}
+.bubble3__expanded-card.is-phase2 .bubble3__expanded-photo[data-index="2"] {
+  transform: translate(158px, 96px) translateX(var(--photo-drag-x, 0)) rotate(0deg);
+  z-index: 1;
+}
+
+.bubble3__expanded-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #333;
+}
+
+/* 嵌入主界面时：内容贴左上角，禁止出现滚动条 */
+html.bubble3-embed {
+  overflow: hidden;
+}
+html.bubble3-embed body {
+  overflow: hidden;
+  margin: 0;
+}
+html.bubble3-embed .preview-page {
+  padding: 0;
+  min-height: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+html.bubble3-embed .preview-row {
+  justify-content: flex-start;
+  align-items: flex-start;
+}

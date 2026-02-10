@@ -1,0 +1,19 @@
+Register2 - Bat files (only one is needed)
+==========================================
+
+RECOMMENDED: Double-click "启动服务器.bat" (or "启动服务器-使用我的密钥.bat" - same behavior).
+
+What it does:
+  1. Frees port 3000 (kills any existing node server on 3000)
+  2. Sets your Claude API key
+  3. Runs: node server.js
+
+Only ONE server should run. Do not run multiple bat files at the same time - they would fight for port 3000. Close any CMD window that is already running the server before starting again.
+
+Other bat files:
+  - 用node启动服务器.bat = same as above but no "kill 3000" step (use if you already closed the old server)
+  - 快速启动服务器.bat = starts in a new window, uses npm start (may fail in some terminals)
+  - 结束3000端口并启动服务器.bat = same as 启动服务器.bat
+  - 重启服务器.bat = old script, no key and no kill; prefer 启动服务器.bat
+
+If you get 403: The server now tries multiple Claude models (Haiku first, then Sonnet, then Opus). If your key has no access to any model, you will still see 403 - check https://console.anthropic.com for API key permissions and "Messages API" access.

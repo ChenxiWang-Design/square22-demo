@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="数字分身创建与交互平台" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>主界面 · Frame map 2</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .main-frame {
+      width: 360px;
+      height: 793px;
+      flex-shrink: 0;
+      position: relative;
+      background: transparent url("Pic/Square/Vector Field Generator.jpg") 0 0 / 100% 100% no-repeat;
+      overflow: hidden;
+    }
+    /* 岛屿 SVG 层：从下往上排列，居中对齐，z-index 在底图和气泡之间，整体放大 10% */
+    .island-layer {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%, -50%, 0) scale(1.1);
+      z-index: 5;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+      transition: transform 0.1s ease-out;
+      /* 强制硬件加速 */
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
+    .island-layer.is-dragging {
+      transition: none !important;
+      will-change: transform;
+    }
+    .island-layer img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: block;
+      max-width: none;
+    }
+    .island-color {
+      z-index: 1;
+      filter: blur(0);
+      transition: filter 0.4s ease;
+    }
+    .island-color.is-blurred {
+      filter: blur(30px);
+    }
+    .island-blur {
+      z-index: 2;
+      opacity: 0;
+    }
+    .island {
+      z-index: 3;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+    .island.is-dimmed {
+      opacity: 0.7;
+    }
+    /* islandText 不再居中对齐，改为绝对定位（位置由 JavaScript 动态计算） */
+    .island-text {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translate(0, 0);
+      z-index: 4;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      display: block;
+      max-width: none;
+    }
+    .island-text.is-visible {
+      opacity: 1;
+    }
+    .tab-and-top {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      z-index: 15;
+      opacity: 1;
+      display: block;
+      max-width: none;
+      pointer-events: none;
+    }
+    .tab-and-top.state2-below-overlay {
+      z-index: 15;
+    }
+    .start-button {
+      position: absolute;
+      left: 50%;
+      top: 629px;
+      transform: translateX(-50%);
+      z-index: 15;
+      opacity: 1;
+      display: block;
+      pointer-events: auto;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    /* 状态2：60% 透明黑色遮罩，填充整个 main-frame */
+    .state2-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 14;
+      pointer-events: none;
+      display: none;
+    }
+    .state2-overlay.is-visible {
+      display: block;
+      pointer-events: auto; /* 状态2 时遮罩接收点击，避免穿透到下方气泡 */
+    }
+    /* 状态2：自我介绍卡片，置于遮罩上方，中心点 X 与容器中轴对齐，Y=384 */
+    .state2-intro-card {
+      position: absolute;
+      left: 50%;
+      top: 384px;
+      transform: translate(-50%, -50%);
+      z-index: 16;
+      display: none;
+    }
+    .state2-intro-card.is-visible {
+      display: block;
+    }
+    .state2-intro-card img {
+      display: block;
+      width: 341px;
+      height: 480px;
+    }
+    /* 状态2：自我介绍提示文本（分身说话区域），左上顶点 X32 Y627，宽 196，鸿蒙黑体 16px regular，黑色（状态2 上移 30） */
+    .state2-intro-text {
+      position: absolute;
+      left: 32px;
+      top: 627px;
+      width: 196px;
+      margin: 0;
+      font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #000000;
+      z-index: 17;
+      display: none;
+      pointer-events: none;
+    }
+    .state2-intro-text.is-visible {
+      display: block;
+    }
+    /* 状态2：自我介绍卡片内 SVG 自带的两个按钮用透明可点击层覆盖，尺寸与 SVG 内 rect 一致（viewBox 0 0 341 480） */
+    .state2-intro-card {
+      pointer-events: auto;
+    }
+    .state2-intro-card .state2-intro-card-btn {
+      position: absolute;
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .state2-intro-card .state2-intro-card-btn-skip {
+      left: 8.69312px;
+      top: 431.796px;
+      width: 149.5px;
+      height: 48px;
+    }
+    .state2-intro-card .state2-intro-card-btn-publish {
+      left: 182.693px;
+      top: 431.796px;
+      width: 149.5px;
+      height: 48px;
+    }
+    /* bubble4：默认隐藏，仅当用户从 R6 进入广场且在状态2点击「发布」后才显示 */
+    .main-frame .bubble-wrapper-bubble4.bubble4-hidden-until-published {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+    /* 状态2：轮播对话（来自 bubble4 展开态），置顶显示，1.5 倍放大，向下 150px，视觉宽度 270px */
+    .state2-carousel-wrap {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 270px;
+      top: 206px;
+      min-height: 48px;
+      z-index: 18;
+      display: none;
+      pointer-events: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .state2-carousel-wrap.is-visible {
+      display: flex;
+    }
+    /* 状态2：眼睛动画，置于 X46-314、Y420-513 区域内，置顶层级；容器留足余量避免上下左右移动时被裁切 */
+    .state2-top-eyes {
+      position: absolute;
+      left: 46px;
+      top: 420px;
+      width: 200px;
+      height: 100px;
+      z-index: 19;
+      display: none;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .state2-top-eyes.is-visible {
+      display: block;
+    }
+    .state2-top-eyes svg {
+      position: absolute;
+      left: -215px;
+      top: -310px;
+      width: 360px;
+      height: 793px;
+      transform: scale(1.75);
+      transform-origin: 0 0;
+    }
+    .state2-top-eyes .state2-top-eye {
+      will-change: transform;
+      opacity: 1;
+    }
+    .state2-top-eyes .state2-top-eye-left {
+      transform-origin: 172.5px 206.5px;
+      animation: squareDialogR1EyeLeft 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+    }
+    .state2-top-eyes .state2-top-eye-right {
+      transform-origin: 187.5px 206.5px;
+      animation: squareDialogR1EyeRight 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+    }
+    /* 内容最大 180px，scale(1.5) 后视觉宽度 = 270px */
+    .state2-carousel-content {
+      font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #000000;
+      text-align: center;
+      word-break: break-word;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      max-width: 180px;
+      transform: scale(1.5);
+      transform-origin: center center;
+    }
+    .state2-carousel-content.is-visible {
+      opacity: 1;
+    }
+    .state2-carousel-content.text-large {
+      font-size: 24px;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+    /* 广场对话框：R6 进入广场后替换创建数字分身按钮，相对于 main-frame 左上顶点 X14 Y603（状态2 整体上移 30，80(2) 不动） */
+    .square-dialog {
+      position: absolute;
+      left: 14px;
+      top: 603px;
+      z-index: 15;
+      display: none;
+      pointer-events: auto;
+      width: 339px;
+      height: 92px;
+    }
+    .square-dialog.is-visible {
+      display: block;
+    }
+    .square-dialog-svg {
+      display: block;
+      width: 339px;
+      height: 92px;
+    }
+    .square-dialog img {
+      display: block;
+    }
+    /* 状态2：R6 头像、眼睛、嘴巴（与对话框同显隐，中心点 X309 Y580，状态2 上移 30） */
+    .square-dialog-face {
+      position: absolute;
+      left: 309px;
+      top: 580px;
+      transform: translate(-50%, -50%);
+      width: 180px;
+      height: 180px;
+      overflow: visible;
+      z-index: 2000;
+      pointer-events: none;
+      display: none;
+    }
+    .square-dialog-face.is-visible {
+      display: block;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .square-dialog-face .square-dialog-r6-inner {
+      position: absolute;
+      width: 360px;
+      height: 280px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      transform-origin: 180px 206.5px;
+    }
+    .square-dialog-face .r6-avatar {
+      position: absolute;
+      top: 206.5px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .square-dialog-face .r6-avatar-svg { display: block; width: auto; height: auto; }
+    .square-dialog-face .r6-eyes-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 360px;
+      height: 793px;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .square-dialog-face .r6-eye { will-change: transform; opacity: 1 !important; }
+    .square-dialog-face .r6-eye-left {
+      transform-origin: 172.5px 206.5px;
+      animation: squareDialogR1EyeLeft 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+    }
+    .square-dialog-face .r6-eye-right {
+      transform-origin: 187.5px 206.5px;
+      animation: squareDialogR1EyeRight 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+    }
+    .square-dialog-face .r6-mouth {
+      position: absolute;
+      top: 219.5px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      pointer-events: none;
+      transform-origin: center center;
+      animation: squareDialogR6Mouth 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+    }
+    .square-dialog-face .r6-mouth-svg { display: block; width: auto; height: auto; }
+    /* 状态2：两个头像 ICON；默认收拢在渐变圆中心 0.1 倍，点击右下角头像切换为展开位置 1 倍 */
+    .state2-avatar-icon {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      pointer-events: none;
+      z-index: 2000;
+      display: none;
+      transition: left 0.35s ease, top 0.35s ease, transform 0.35s ease;
+    }
+    .state2-avatar-icon.is-visible { display: block; }
+    /* 默认收拢：与渐变圆中心一致 (309,630)，缩放 0.1 */
+    .state2-avatar-icon.icon-301-584 {
+      left: 309px;
+      top: 630px;
+      transform: translate(-50%, -50%) scale(0.1);
+    }
+    .state2-avatar-icon.icon-251-609 {
+      left: 309px;
+      top: 630px;
+      transform: translate(-50%, -50%) scale(0.1);
+    }
+    /* 展开态：恢复各自位置与 1 倍大小 */
+    .main-frame.state2-avatars-expanded .state2-avatar-icon.icon-301-584 {
+      left: 301px;
+      top: 574px;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .main-frame.state2-avatars-expanded .state2-avatar-icon.icon-251-609 {
+      left: 251px;
+      top: 599px;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .state2-avatar-icon img { width: 100%; height: 100%; display: block; object-fit: contain; }
+    /* 状态2：头像正下方渐变圆；默认收拢 0.1 倍，点击右下角头像切换为 1 倍 */
+    .state2-avatar-glow {
+      position: absolute;
+      left: 309px;
+      top: 630px;
+      width: 240px;
+      height: 240px;
+      transform: translate(-50%, -50%) scale(0.1);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(243, 244, 248, 1) 0%, rgba(243, 244, 248, 0) 100%);
+      z-index: 16;
+      pointer-events: none;
+      display: none;
+      transition: transform 0.35s ease;
+    }
+    .state2-avatar-glow.is-visible { display: block; }
+    .main-frame.state2-avatars-expanded .state2-avatar-glow {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    @keyframes squareDialogR1EyeLeft {
+      0%, 100% { transform: translate(0, 0) scaleY(1); }
+      15% { transform: translate(20px, -12px) scaleY(1); }
+      30% { transform: translate(15px, 16px) scaleY(1); }
+      38% { transform: translate(10px, 18px) scaleY(1); }
+      41% { transform: translate(10px, 18px) scaleY(0.08); }
+      44% { transform: translate(10px, 18px) scaleY(1); }
+      55% { transform: translate(-15px, -15px) scaleY(1); }
+      72% { transform: translate(-18px, 12px) scaleY(1); }
+      85% { transform: translate(-15px, -15px) scaleY(1); }
+    }
+    @keyframes squareDialogR1EyeRight {
+      0%, 100% { transform: translate(0, 0) scaleY(1); }
+      15% { transform: translate(20px, -12px) scaleY(1); }
+      30% { transform: translate(15px, 16px) scaleY(1); }
+      38% { transform: translate(10px, 18px) scaleY(1); }
+      41% { transform: translate(10px, 18px) scaleY(0.08); }
+      44% { transform: translate(10px, 18px) scaleY(1); }
+      55% { transform: translate(-15px, -15px) scaleY(1); }
+      72% { transform: translate(-18px, 12px) scaleY(1); }
+      85% { transform: translate(-15px, -15px) scaleY(1); }
+    }
+    @keyframes squareDialogR6Mouth {
+      0%, 100% { transform: translateX(-50%) translate(0, 0) scale(1); }
+      15% { transform: translateX(-50%) translate(20px, -12px) scale(1.08); }
+      30% { transform: translateX(-50%) translate(15px, 16px) scale(0.9); }
+      38% { transform: translateX(-50%) translate(10px, 18px) scale(0.85); }
+      41% { transform: translateX(-50%) translate(10px, 18px) scale(0.95); }
+      44% { transform: translateX(-50%) translate(10px, 18px) scale(1.1); }
+      55% { transform: translateX(-50%) translate(-15px, -15px) scale(1.2); }
+      72% { transform: translateX(-50%) translate(-18px, 12px) scale(0.88); }
+      85% { transform: translateX(-50%) translate(-15px, -15px) scale(0.92); }
+    }
+    .start-button svg {
+      display: block;
+    }
+    /* 眼睛动画 - 在白色圆球范围内四处张望 */
+    @keyframes eyeLookAround {
+      0%, 100% {
+        transform: translate(0, 0);
+      }
+      15% {
+        transform: translate(6px, -2px);
+      }
+      30% {
+        transform: translate(5px, 2px);
+      }
+      45% {
+        transform: translate(-3px, 3px);
+      }
+      60% {
+        transform: translate(7px, -1px);
+      }
+      75% {
+        transform: translate(4px, 4px);
+      }
+      90% {
+        transform: translate(-2px, -2px);
+      }
+    }
+    .start-button .eye-left,
+    .start-button .eye-right {
+      animation: eyeLookAround 6s ease-in-out infinite;
+      transform-origin: center;
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+    /* 气泡消失动画：先略微放大，然后快速缩小到 0.01%（保持元素存在） */
+    @keyframes bubbleHide {
+      0% {
+        opacity: 1;
+        transform: scale(1) translate(0, 0);
+      }
+      30% {
+        opacity: 1;
+        transform: scale(1.15) translate(0, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.01) translate(0, 0);
+      }
+    }
+    /* 气泡出现动画：从 0.01% 开始放大，先超过100%然后回缩到100%（镜像消失动画） */
+    @keyframes bubbleShow {
+      0% {
+        opacity: 0;
+        transform: scale(0.01) translate(0, 0);
+      }
+      70% {
+        opacity: 1;
+        transform: scale(1.15) translate(0, 0);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translate(0, 0);
+      }
+    }
+    /* iframe 包装容器：用于实现缩放动画 */
+    .bubble-wrapper {
+      position: absolute;
+      transform-origin: center bottom;
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+      z-index: 10;
+      transition: transform 0.1s ease-out, opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: auto;
+      /* 强制硬件加速 */
+      backface-visibility: hidden;
+      perspective: 1000px;
+    }
+    .bubble-wrapper.is-dragging {
+      transition: none !important;
+      will-change: transform, left, top;
+    }
+    .bubble-wrapper.is-hidden {
+      animation: bubbleHide 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      pointer-events: none;
+    }
+    .bubble-wrapper.is-showing {
+      animation: bubbleShow 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      pointer-events: none;
+    }
+    .main-frame iframe {
+      position: absolute;
+      border: none;
+      background: transparent;
+      pointer-events: auto;
+      z-index: 10;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      transition: width 0.28s ease, height 0.28s ease;
+    }
+    /* 按截图布局：右上→左中上→右中→左中→右下，重叠 ≤50×50 */
+    /* bubble1：右上（翻书），默认态 160×90，展开态 230×280 */
+    .main-frame .bubble-wrapper-bubble1 {
+      right: 8px;
+      top: 50px;
+      width: 160px;
+      height: 90px;
+    }
+    .main-frame .iframe-bubble1 {
+      width: 160px;
+      height: 90px;
+      transition: width 0.28s ease, height 0.28s ease;
+    }
+    .main-frame .iframe-bubble1.is-expanded {
+      width: 230px;
+      height: 280px;
+    }
+    .main-frame .bubble-wrapper-bubble1.is-expanded {
+      width: 230px;
+      height: 280px;
+    }
+    /* bubble2：右下（黄块狼人杀），默认态 160×190，展开态 230×280 */
+    .main-frame .bubble-wrapper-bubble2 {
+      right: 8px;
+      top: 530px;
+      width: 160px;
+      height: 190px;
+    }
+    .main-frame .iframe-bubble2 {
+      width: 160px;
+      height: 190px;
+      transition: width 0.28s ease, height 0.28s ease;
+    }
+    .main-frame .iframe-bubble2.is-expanded {
+      width: 230px;
+      height: 280px;
+    }
+    .main-frame .bubble-wrapper-bubble2.is-expanded {
+      width: 230px;
+      height: 280px;
+    }
+    /* bubble3：左中（校园阳光+照片），默认态 201×111，展开态 237×289 */
+    .main-frame .bubble-wrapper-bubble3 {
+      left: 20px;
+      top: 430px;
+      width: 201px;
+      height: 111px;
+    }
+    .main-frame .iframe-bubble3 {
+      width: 201px;
+      height: 111px;
+      transition: width 0.28s ease, height 0.28s ease;
+    }
+    .main-frame .iframe-bubble3.is-expanded {
+      width: 237px;
+      height: 289px;
+    }
+    .main-frame .bubble-wrapper-bubble3.is-expanded {
+      width: 237px;
+      height: 289px;
+    }
+    /* bubble4：右中（Hi! 渐变球），默认态 184×100，展开态 230×280 */
+    .main-frame .bubble-wrapper-bubble4 {
+      right: 8px;
+      top: 350px;
+      width: 184px;
+      height: 100px;
+    }
+    .main-frame .iframe-bubble4 {
+      width: 184px;
+      height: 100px;
+      transition: width 0.28s ease, height 0.28s ease;
+    }
+    .main-frame .iframe-bubble4.is-expanded {
+      width: 230px;
+      height: 280px;
+    }
+    .main-frame .bubble-wrapper-bubble4.is-expanded {
+      width: 230px;
+      height: 280px;
+    }
+    /* bubble5：左中上（电影票 菜仔），默认态 177×174，展开态 260×300（略大以完整显示底部灰色圆角矩形阴影） */
+    .main-frame .bubble-wrapper-bubble5 {
+      left: 20px;
+      top: 150px;
+      width: 177px;
+      height: 174px;
+    }
+    .main-frame .iframe-bubble5 {
+      width: 177px;
+      height: 174px;
+      transition: width 0.28s ease, height 0.28s ease;
+    }
+    .main-frame .iframe-bubble5.is-expanded {
+      width: 260px;
+      height: 300px;
+    }
+    .main-frame .bubble-wrapper-bubble5.is-expanded {
+      width: 260px;
+      height: 300px;
+    }
+    /* 主界面全屏遮罩：仅模糊、不变暗，任一气泡（含 bubble5）长按展开时显示，点击关闭 */
+    .main-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 360px;
+      height: 793px;
+      background: transparent;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      cursor: pointer;
+      transition: opacity 0.28s ease, visibility 0s linear 0.28s;
+    }
+    .main-overlay.is-visible {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.28s ease, visibility 0s;
+    }
+    /* 展开时当前气泡包装容器提到遮罩之上；位置微改用 left/top 使布局盒移动，避免 overflow 裁掉底部 */
+    .main-frame .bubble-wrapper.is-expanded {
+      z-index: 1001;
+    }
+    .main-frame iframe.is-expanded {
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                  transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                  width 0.28s ease, 
+                  height 0.28s ease, 
+                  left 0.28s ease, 
+                  top 0.28s ease;
+    }
+    /* 黑色梯形侧边栏 */
+    .liquid-sidebar {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateX(100%) translateY(-50%);
+      width: 110px;
+      height: 563px;
+      z-index: 2000;
+      pointer-events: none;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: visible;
+    }
+    .liquid-sidebar.is-visible {
+      transform: translateX(0) translateY(-50%);
+      pointer-events: auto;
+    }
+    /* 头像图片容器 - 叠加在SVG上 */
+    .sidebar-avatars {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(calc(-50% + 30px), -50%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 97px;
+      gap: calc((365px - 97px * 5) / 4 / 2);
+      padding: 0;
+      z-index: 1;
+    }
+    .sidebar-avatar {
+      width: 97px;
+      height: auto;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+      position: relative;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .liquid-sidebar svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 110px;
+      height: 563px;
+      display: block;
+      z-index: 0;
+    }
+    .liquid-sidebar-path {
+      fill: #000000;
+    }
+    /* 右边缘点击检测区域（X345-360，即右侧15px） */
+    .right-edge-detector {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 15px;
+      height: 100%;
+      z-index: 2001;
+      pointer-events: auto;
+      background: transparent;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-frame">
+    <!-- 岛屿 SVG 层：从下往上排列 -->
+    <div class="island-layer">
+      <img src="Pic/Square/islandColor.svg" alt="" class="island-color" />
+      <img src="Pic/Square/islandBlur.svg" alt="" class="island-blur" />
+      <img src="Pic/Square/island.svg" alt="" class="island" />
+      <img src="Pic/Square/islandText.svg" alt="" class="island-text" />
+    </div>
+    <!-- Tab and Top SVG - 固定在界面顶部，不随岛屿移动 -->
+    <img src="Pic/TabandTopandSide/80 (2).svg" alt="" class="tab-and-top" id="tab-and-top" />
+    <!-- 创建数字分身按钮 - 点击跳转到 R1，进入 Register2 的 R1-R6 流程；R6 进入广场后隐藏，由广场对话框替换 -->
+    <a href="Register2/index.html" id="start-button" class="start-button" title="创建数字分身">
+      <svg viewBox="0 0 328 117.075" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="328.000000" height="117.075195" fill="none" customFrame="#000000">
+        <defs>
+          <g id="pixso_custom_effect_39">
+            <effect visibility="visible" effectType="gaussianBlur" stdDeviation="30" />
+          </g>
+          <filter id="filter_39" width="247.000000" height="71.000000" x="59.000000" y="46.075195" filterUnits="userSpaceOnUse" customEffect="url(#pixso_custom_effect_39)" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend result="shape" in="SourceGraphic" in2="BackgroundImageFix" mode="normal" />
+            <feGaussianBlur stdDeviation="10" result="effect_layerBlur_1" />
+          </filter>
+          <linearGradient id="paint_linear_51" x1="182.5" x2="182.5" y1="76.0751953" y2="87.0751953" gradientUnits="userSpaceOnUse">
+            <stop stop-color="rgb(248,175,255)" offset="0.61181432" stop-opacity="1" />
+            <stop stop-color="rgb(212,138,236)" offset="1" stop-opacity="0" />
+          </linearGradient>
+          <g id="pixso_custom_effect_40">
+            <effect visibility="visible" effectType="gaussianBlur" stdDeviation="30.0751839" />
+          </g>
+          <filter id="filter_40" width="100.150391" height="100.150391" x="205.924805" y="0.000000" filterUnits="userSpaceOnUse" customEffect="url(#pixso_custom_effect_40)" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend result="shape" in="SourceGraphic" in2="BackgroundImageFix" mode="normal" />
+            <feGaussianBlur stdDeviation="10.0250616" result="effect_layerBlur_1" />
+          </filter>
+          <linearGradient id="paint_linear_52" x1="256" x2="256" y1="30.0751953" y2="70.0751953" gradientUnits="userSpaceOnUse">
+            <stop stop-color="rgb(255,255,255)" offset="0" stop-opacity="1" />
+            <stop stop-color="rgb(251,228,222)" offset="0.350210965" stop-opacity="1" />
+            <stop stop-color="rgb(235,209,254)" offset="0.637130857" stop-opacity="1" />
+            <stop stop-color="rgb(151,241,250)" offset="1" stop-opacity="1" />
+          </linearGradient>
+          <g id="pixso_custom_effect_41">
+            <effect visibility="visible" effectType="gaussianBlur" stdDeviation="30.0751839" />
+          </g>
+          <filter id="filter_41" width="86.315918" height="86.315918" x="212.541260" y="6.917480" filterUnits="userSpaceOnUse" customEffect="url(#pixso_custom_effect_41)" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend result="shape" in="SourceGraphic" in2="BackgroundImageFix" mode="normal" />
+            <feGaussianBlur stdDeviation="10.0250616" result="effect_layerBlur_1" />
+          </filter>
+          <g id="pixso_custom_effect_42">
+            <effect visibility="visible" effectType="gaussianBlur" stdDeviation="30.0751839" />
+          </g>
+          <filter id="filter_42" width="80.902344" height="81.503906" x="215.548828" y="9.323242" filterUnits="userSpaceOnUse" customEffect="url(#pixso_custom_effect_42)" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend result="shape" in="SourceGraphic" in2="BackgroundImageFix" mode="normal" />
+            <feGaussianBlur stdDeviation="10.0250616" result="effect_layerBlur_1" />
+          </filter>
+          <linearGradient id="paint_linear_53" x1="245.624023" x2="266.375916" y1="50.0751305" y2="50.0751305" gradientUnits="userSpaceOnUse">
+            <stop stop-color="rgb(255,255,255)" offset="0" stop-opacity="1" />
+            <stop stop-color="rgb(244,182,234)" offset="0.481012642" stop-opacity="1" />
+            <stop stop-color="rgb(197,117,255)" offset="0.64135021" stop-opacity="1" />
+            <stop stop-color="rgb(151,241,250)" offset="0.869198322" stop-opacity="1" />
+          </linearGradient>
+          <g id="pixso_custom_effect_43">
+            <effect visibility="visible" effectType="gaussianBlur" stdDeviation="30.0751839" />
+          </g>
+          <filter id="filter_43" width="74.917969" height="72.057129" x="212.166992" y="5.095703" filterUnits="userSpaceOnUse" customEffect="url(#pixso_custom_effect_43)" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend result="shape" in="SourceGraphic" in2="BackgroundImageFix" mode="normal" />
+            <feGaussianBlur stdDeviation="10.0250616" result="effect_layerBlur_1" />
+          </filter>
+          <g id="pixso_custom_effect_44">
+            <effect visibility="visible" effectType="gaussianBlur" stdDeviation="30.0751839" />
+          </g>
+          <filter id="filter_44" width="74.917969" height="72.057129" x="226.903809" y="24.644531" filterUnits="userSpaceOnUse" customEffect="url(#pixso_custom_effect_44)" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <feBlend result="shape" in="SourceGraphic" in2="BackgroundImageFix" mode="normal" />
+            <feGaussianBlur stdDeviation="10.0250616" result="effect_layerBlur_1" />
+          </filter>
+          <radialGradient id="paint_radial_5" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(5.48526,-1.63391,2.10526,7.06767,246.714,40.7896)">
+            <stop stop-color="rgb(225,184,230)" offset="0" stop-opacity="1" />
+            <stop stop-color="rgb(0,0,0)" offset="1" stop-opacity="0" />
+          </radialGradient>
+          <radialGradient id="paint_radial_6" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(5.48526,-1.63391,2.10526,7.06767,252.429,40.7896)">
+            <stop stop-color="rgb(225,184,230)" offset="0" stop-opacity="1" />
+            <stop stop-color="rgb(0,0,0)" offset="1" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <g id="下方">
+          <g id="组合_29160">
+            <rect id="矩形_542419" width="195.000000" height="56.000000" x="91.000000" y="22.075195" rx="28.000000" fill="rgb(0,0,0)" />
+            <path id="" d="M111.547 49.686L110.488 48.4995Q112.035 47.3657 113.313 45.9595Q114.645 44.4126 115.687 42.6504L117.238 43.2964Q117.04 43.6392 116.82 44.0698L120.96 47.6514L119.918 48.9126Q117.937 47.0933 115.977 45.3311Q114.645 47.0933 112.953 48.5698L119.145 48.5698Q119.07 50.4595 119 52.4238Q119 52.9292 118.855 53.4126Q118.71 53.8433 118.442 54.1157Q118.152 54.3311 117.884 54.4014Q117.308 54.5464 116.82 54.5464L115.203 54.5464L114.913 53.1445L116.337 53.1445Q116.68 53.1445 116.965 53.0698Q117.163 53.0698 117.238 52.9995Q117.378 52.8545 117.453 52.6392Q117.523 52.3711 117.598 52.0811Q117.598 51.0923 117.668 50.0464L114.012 50.0464L114.012 55.7373Q114.012 56.0933 114.087 56.436Q114.087 56.7261 114.285 56.8711Q114.355 56.9941 114.57 56.9941Q114.913 57.0688 115.348 57.0688L117.453 57.0688Q117.813 57.0688 118.152 56.9941Q118.372 56.9941 118.512 56.8711Q118.64 56.7261 118.71 56.5107Q118.785 56.2207 118.785 55.8779Q118.855 55.1045 118.855 54.2607L120.402 54.5464Q120.402 55.5923 120.332 56.6514Q120.261 57.1392 120.134 57.6445Q119.989 57.9126 119.773 58.1279Q119.36 58.418 118.93 58.4707Q118.297 58.541 117.668 58.541L114.86 58.541Q114.21 58.541 113.652 58.418Q113.239 58.3433 112.878 57.9873Q112.663 57.6973 112.61 57.4292Q112.395 56.7964 112.465 56.1504L112.465 48.9873Q111.96 49.4004 111.547 49.686ZM121.465 57.1392L123.43 57.1392Q123.715 57.1392 124.058 57.0688Q124.203 57.0688 124.418 56.9941Q124.563 56.8711 124.634 56.6514Q124.687 56.3657 124.687 56.0229L124.687 43.1514L126.238 43.1514L126.238 56.7261Q126.238 57.2842 126.11 57.7676Q125.965 58.2026 125.68 58.418Q125.39 58.6157 125.047 58.686Q124.489 58.8311 123.86 58.8311L121.808 58.8311L121.465 57.1392ZM121.32 54.6738L121.32 44.4873L122.872 44.4873L122.872 54.6738L121.32 54.6738ZM129.547 59.1738L128.413 57.9873Q129.692 56.8711 130.663 55.3945Q129.547 53.7026 129.063 51.6504L130.25 51.2373Q130.663 52.7095 131.384 54.041Q132.14 52.2964 132.5 50.3892L129.187 50.3892L129.187 49.0576L132.21 45.5464L129.063 45.5464L129.063 44.1445L134.047 44.1445L134.047 45.5464L131.023 49.0576L133.977 49.0576L133.977 50.3892Q133.687 51.8657 133.273 53.2676Q132.913 54.4014 132.355 55.4473Q133.203 56.3657 134.46 56.7964Q135.163 56.9941 135.884 57.0688Q136.785 57.2095 137.628 57.1392L145.011 57.1392L144.813 58.541L137.558 58.541Q136.64 58.4707 135.739 58.418Q134.895 58.3433 134.122 58.0576Q132.715 57.5698 131.652 56.5811Q130.663 57.9126 129.547 59.1738ZM134.82 50.3892L134.82 49.1279L138.261 49.1279L138.261 47.9238L134.192 47.9238L134.192 46.6626L138.261 46.6626L138.261 45.5464L134.82 45.5464L134.82 44.2676L138.261 44.2676L138.261 42.8657L139.663 42.8657L139.663 44.2676L143.605 44.2676L143.605 46.6626L145.011 46.6626L145.011 47.9238L143.605 47.9238L143.605 50.3892L139.663 50.3892L139.663 51.5933L143.965 51.5933L143.965 52.8545L139.663 52.8545L139.663 53.9707L144.598 53.9707L144.598 55.2495L139.663 55.2495L139.663 56.7261L138.261 56.7261L138.261 55.2495L133.832 55.2495L133.832 53.9707L138.261 53.9707L138.261 52.8545L134.68 52.8545L134.68 51.5933L138.261 51.5933L138.261 50.3892L134.82 50.3892ZM142.203 46.6626L142.203 45.5464L139.663 45.5464L139.663 46.6626L142.203 46.6626ZM139.663 47.9238L139.663 49.1279L142.203 49.1279L142.203 47.9238L139.663 47.9238ZM147.692 55.2495Q148.105 54.5464 148.54 53.7729L146.918 53.7729L146.918 52.4238L149.239 52.4238Q149.511 51.791 149.797 51.1626L151.273 51.5229L150.913 52.4238L154.855 52.4238L154.855 53.7026Q154.227 55.1792 153.163 56.2207Q153.937 56.5811 154.71 56.9238L154.297 57.6973Q155.413 56.9238 156.477 56.0229Q157.25 55.3198 157.878 54.4014Q156.762 52.3711 156.332 49.9761L155.848 50.8198L154.785 49.4707Q156.622 46.4473 157.465 43.0107L159.012 43.2964Q158.652 44.5576 158.239 45.7441L163.082 45.7441L163.082 47.436L161.82 47.436Q161.605 49.541 161.047 51.6504Q160.634 53.1973 159.79 54.5464Q160.418 55.3945 161.192 56.1504Q162.163 57.0688 163.297 57.9126L162.238 59.2441Q160.348 57.7676 158.872 55.8076Q158.098 56.6514 157.32 57.3545Q156.187 58.3433 155.07 59.1738L154.082 57.9873L153.937 58.2729Q152.895 57.6973 151.902 57.2095Q150.86 57.8423 149.797 58.2729Q148.54 58.8311 147.261 59.1738L146.558 57.8423Q147.762 57.4995 148.808 57.1392Q149.582 56.8711 150.355 56.5107Q149.023 55.8779 147.692 55.2495ZM146.918 46.7373L150.645 46.7373L150.645 43.1514L152.122 43.1514L152.122 46.7373L155.36 46.7373L155.36 48.0688L152.122 48.0688L152.122 49.2729L152.895 48.4292Q154.152 49.4004 155.36 50.4595L154.512 51.4526Q153.308 50.4595 152.122 49.4707L152.122 51.2373L150.645 51.2373L150.645 49.3433Q149.098 50.8945 147.187 51.936L146.488 50.6792Q148.54 49.6157 150.14 48.0688L146.918 48.0688L146.918 46.7373ZM157.61 47.436L157.395 47.8711Q157.54 49.3433 157.953 50.8198Q158.313 51.936 158.797 52.9995Q159.355 51.8657 159.715 50.6792Q160.058 49.0576 160.273 47.436L157.61 47.436ZM153.163 53.7729L150.285 53.7729Q150.012 54.2607 149.797 54.7441Q150.79 55.1792 151.761 55.5923Q152.68 54.8892 153.163 53.7729ZM153.739 46.5176L152.605 45.8188Q153.523 44.7026 154.372 43.4238L155.413 44.1973Q154.587 45.4014 153.739 46.5176ZM147.332 44.1445L148.395 43.4238Q149.239 44.6279 150.087 45.7441L148.953 46.4473Q148.18 45.2607 147.332 44.1445ZM164.989 52.5688L172.227 52.5688L172.227 51.6504L175.25 49.8311L167.942 49.8311L167.942 48.2095L178.203 48.2095L178.203 49.7607L173.989 52.2964L173.989 52.5688L180.937 52.5688L180.937 54.1157L173.989 54.1157L173.989 56.5811Q173.989 57.2095 173.848 57.7676Q173.773 58.2026 173.413 58.4707Q173.215 58.6157 172.855 58.7607Q172.297 58.8311 171.668 58.8311L169.128 58.8311L168.86 57.2842L171.04 57.2842Q171.378 57.2842 171.739 57.2095Q171.884 57.2095 172.011 57.0688Q172.152 56.9238 172.152 56.7261Q172.227 56.436 172.227 56.0933L172.227 54.1157L164.989 54.1157L164.989 52.5688ZM165.622 44.9004L172.442 44.9004Q172.011 43.9995 171.523 43.0811L173.29 42.7207L174.402 44.9004L180.378 44.9004L180.378 48.9126L178.687 48.9126L178.687 46.5176L167.313 46.5176L167.313 48.9126L165.622 48.9126L165.622 44.9004ZM184.105 59.3188L182.848 57.9873Q183.762 57.4995 184.663 56.9238Q185.582 56.291 186.285 55.5176Q186.86 54.8188 187.128 54.041Q187.418 53.1445 187.563 52.1514Q187.563 51.7207 187.634 51.3076L185.098 51.3076L185.098 50.1211Q184.395 50.7495 183.692 51.2373L182.703 49.8311Q184.465 48.6445 185.872 47.0229Q187.418 45.186 188.39 43.0811L190.011 43.6392Q188.39 47.1504 185.582 49.686L196.058 49.686Q195.86 52.9995 195.57 56.2207Q195.5 56.8711 195.285 57.4292Q195.087 57.7676 194.797 58.0576Q194.384 58.418 193.808 58.4707Q193.105 58.6157 192.402 58.6157L189.813 58.6157L189.453 57.0688L191.918 57.0688Q192.402 57.0688 192.837 56.9941Q193.18 56.9238 193.465 56.7261Q193.61 56.5811 193.663 56.291Q193.808 55.9526 193.878 55.5176Q194.098 53.4126 194.239 51.3076L189.308 51.3076L189.238 52.2261Q189.163 53.3423 188.895 54.4761Q188.535 55.4473 187.902 56.291Q187.348 56.9941 186.645 57.5698Q185.437 58.541 184.105 59.3188ZM191.848 43.3711L193.395 42.7954Q193.808 43.9995 194.437 45.1157Q195.087 46.1045 195.86 47.0229Q196.489 47.6514 197.192 48.2842Q198.238 49.1279 199.442 49.8311L198.453 51.3779Q197.192 50.6045 196.058 49.6157Q195.012 48.6973 194.239 47.7261Q193.61 46.8779 193.035 46.0342Q192.332 44.7729 191.848 43.3711ZM201.261 58.686L200.703 57.1392Q203.582 56.5811 206.337 55.5923Q208.512 54.8892 210.477 53.8433L201.134 53.8433L201.134 52.4238L203.384 52.4238L203.384 44.5576L206.82 44.5576Q207.238 43.7095 207.668 42.7954L209.413 43.1514L208.71 44.5576L214.563 44.5576L214.563 51.1626Q215.39 50.4595 216.163 49.6157L217.227 50.6792Q216.04 52.0811 214.563 53.1445L214.563 56.5811Q214.563 57.1392 214.348 57.6973Q214.203 58.1279 213.86 58.418Q213.57 58.6157 213.21 58.686Q212.511 58.9014 211.878 58.9014L208.855 58.9014L208.587 57.2842L211.25 57.2842Q211.663 57.2842 212.098 57.2095Q212.384 57.2095 212.582 56.9941Q212.727 56.8711 212.797 56.7261Q212.872 56.3657 212.872 56.0229L212.872 54.2607Q210.547 55.5923 208.011 56.5811Q204.715 57.8423 201.261 58.686ZM212.872 45.9595L204.988 45.9595L204.988 47.2207L212.872 47.2207L212.872 45.9595ZM212.872 48.5698L204.988 48.5698L204.988 49.8311L212.872 49.8311L212.872 48.5698ZM212.872 51.1626L204.988 51.1626L204.988 52.4238L212.872 52.4238L212.872 51.1626Z" fill="rgb(255,255,255)" fill-rule="nonzero" />
+          </g>
+          <g style="mix-blend-mode:hard-light">
+            <g filter="url(#filter_39)">
+              <rect id="矩形_542421" width="187.000000" height="11.000000" x="89.000000" y="76.075195" rx="5.500000" fill="url(#paint_linear_51)" />
+            </g>
+          </g>
+          <g id="右下角脸">
+            <g id="头像">
+              <g id="组合_29156">
+                <g filter="url(#filter_40)">
+                  <circle id="椭圆_16428" cx="256" cy="50.0751953" r="20" fill="url(#paint_linear_52)" />
+                </g>
+                <circle id="椭圆_16429" cx="256" cy="50.0751953" r="20" fill="rgb(255,255,255)" />
+                <g filter="url(#filter_41)">
+                  <circle id="椭圆_16430" cx="255.699402" cy="50.074894" r="13.0827065" fill="rgb(255,255,255)" />
+                </g>
+                <g filter="url(#filter_42)">
+                  <ellipse id="椭圆_16431" rx="10.375940" ry="10.676692" cx="255.999969" cy="50.0751305" fill="url(#paint_linear_53)" />
+                </g>
+                <g filter="url(#filter_43)">
+                  <ellipse id="椭圆_16432" rx="8.421062" ry="4.360913" cx="8.42106247" cy="4.3609128" fill="rgb(252,235,200)" transform="matrix(0.826788,-0.562514,0.562511,0.82679,240.21,42.2559)" />
+                </g>
+                <g filter="url(#filter_44)">
+                  <ellipse id="椭圆_16433" rx="8.421052" ry="4.360902" cx="8.42105198" cy="4.36090183" fill="rgb(252,235,200)" transform="matrix(0.826789,-0.562512,0.562512,0.826789,254.947,61.8047)" />
+                </g>
+              </g>
+            </g>
+            <g id="眼睛" class="eyes-group">
+              <path id="矢量_2816" class="eye-left" d="M247.917 41.9922L247.917 46.2027" stroke="rgb(0,0,0)" stroke-linecap="round" stroke-width="2.40601492" />
+              <path id="矢量_2817" class="eye-right" d="M253.632 41.9922L253.632 46.2027" stroke="rgb(0,0,0)" stroke-linecap="round" stroke-width="2.40601492" />
+            </g>
+          </g>
+        </g>
+      </svg>
+    </a>
+    <!-- 状态2：60% 透明黑色遮罩，覆盖整个容器，置于对话框和头像下方；80(2) SVG 在遮罩下方 -->
+    <div class="state2-overlay" id="state2-overlay"></div>
+    <!-- 状态2：置顶眼睛动画（与 R6 眼睛同款） -->
+    <div class="state2-top-eyes" id="state2-top-eyes">
+      <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg" class="state2-top-eyes-svg">
+        <line class="state2-top-eye state2-top-eye-left" x1="172.5" y1="199.5" x2="172.5" y2="213.5" stroke="#000000" stroke-width="8" stroke-linecap="round" />
+        <line class="state2-top-eye state2-top-eye-right" x1="187.5" y1="199.5" x2="187.5" y2="213.5" stroke="#000000" stroke-width="8" stroke-linecap="round" />
+      </svg>
+    </div>
+    <!-- 状态2：轮播对话（bubble4 展开态文案），置顶 -->
+    <div class="state2-carousel-wrap" id="state2-carousel-wrap">
+      <div class="state2-carousel-content" id="state2-carousel-content"></div>
+    </div>
+    <!-- 状态2：自我介绍卡片（SVG 内自带两个按钮，用透明层覆盖以绑定点击） -->
+    <div class="state2-intro-card" id="state2-intro-card">
+      <img src="Pic/Square/自我介绍卡片2.svg" alt="自我介绍" />
+      <button type="button" class="state2-intro-card-btn state2-intro-card-btn-skip" id="state2-card-btn-skip" aria-label="暂不"></button>
+      <button type="button" class="state2-intro-card-btn state2-intro-card-btn-publish" id="state2-card-btn-publish" aria-label="发布"></button>
+    </div>
+    <!-- 状态2：分身说话，左上顶点 X32 Y660，宽 196，黑色 -->
+    <p class="state2-intro-text" id="state2-intro-text">我生成了一条自我介绍，是否发布让其他人认识你？</p>
+    <!-- 广场对话框 - R6 进入广场后显示，替换创建数字分身按钮（状态2） -->
+    <div class="square-dialog" id="square-dialog">
+      <img src="Pic/Square/广场对话框2.svg" alt="广场" class="square-dialog-svg" />
+    </div>
+    <!-- 状态2：两个头像 ICON，中心分别 X301Y584、X251Y609 -->
+    <div class="state2-avatar-icon icon-301-584" id="state2-avatar-icon-301-584">
+      <img src="Pic/TabandTopandSide/头像ICON (2).svg" alt="" />
+    </div>
+    <div class="state2-avatar-icon icon-251-609" id="state2-avatar-icon-251-609">
+      <img src="Pic/TabandTopandSide/头像ICON (1).svg" alt="" />
+    </div>
+    <!-- 状态2：头像正下方渐变圆（直径 240，中心与头像中心一致） -->
+    <div class="state2-avatar-glow" id="state2-avatar-glow"></div>
+    <!-- 状态2：R6 头像、眼睛、嘴巴（与对话框同显隐，置于 main-frame 顶层，叠在对话框左侧） -->
+    <div class="square-dialog-face" id="square-dialog-face">
+      <div class="square-dialog-r6-inner">
+        <div class="r6-avatar">
+          <img src="Pic/Register/R5/浓郁头像.svg" alt="头像" class="r6-avatar-svg" />
+        </div>
+        <svg class="r6-eyes-container" viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="square-dialog-r6-eye-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#E1B8E6;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <line class="r6-eye r6-eye-left" x1="172.5" y1="199.5" x2="172.5" y2="213.5" stroke="#000000" stroke-width="8" stroke-linecap="round" />
+          <line class="r6-eye r6-eye-right" x1="187.5" y1="199.5" x2="187.5" y2="213.5" stroke="#000000" stroke-width="8" stroke-linecap="round" />
+        </svg>
+        <div class="r6-mouth">
+          <img src="Pic/Register/R6/嘴巴.svg" alt="嘴巴" class="r6-mouth-svg" />
+        </div>
+      </div>
+    </div>
+    <div class="bubble-wrapper bubble-wrapper-bubble1" id="wrapper-bubble1">
+      <iframe
+        class="iframe-bubble1"
+        id="iframe-bubble1"
+        src="components/bubble1/index.html?embed=1"
+        title="Bubble1 组件"
+        scrolling="no"
+      ></iframe>
+    </div>
+    <div class="bubble-wrapper bubble-wrapper-bubble2" id="wrapper-bubble2">
+      <iframe
+        class="iframe-bubble2"
+        id="iframe-bubble2"
+        src="components/bubble2/index.html?embed=1"
+        title="Bubble2 组件"
+      ></iframe>
+    </div>
+    <div class="bubble-wrapper bubble-wrapper-bubble3" id="wrapper-bubble3">
+      <iframe
+        class="iframe-bubble3"
+        id="iframe-bubble3"
+        src="components/bubble3/index.html?embed=1"
+        title="Bubble3 组件"
+        scrolling="no"
+      ></iframe>
+    </div>
+    <div class="bubble-wrapper bubble-wrapper-bubble4 bubble4-hidden-until-published" id="wrapper-bubble4">
+      <iframe
+        class="iframe-bubble4"
+        id="iframe-bubble4"
+        src="components/bubble4/index.html?embed=1"
+        title="Bubble4 组件"
+        scrolling="no"
+      ></iframe>
+    </div>
+    <div class="bubble-wrapper bubble-wrapper-bubble5" id="wrapper-bubble5">
+      <iframe
+        class="iframe-bubble5"
+        id="iframe-bubble5"
+        src="components/bubble5/index.html?embed=1"
+        title="Bubble5 组件"
+        scrolling="no"
+      ></iframe>
+    </div>
+    <div class="main-overlay" id="main-overlay" aria-hidden="true"></div>
+    <!-- 黑色梯形侧边栏 -->
+    <div class="liquid-sidebar" id="liquid-sidebar">
+      <!-- 头像图片容器 -->
+      <div class="sidebar-avatars">
+        <img src="Pic/头像/橙人.png" alt="橙人" class="sidebar-avatar" data-avatar-index="0" />
+        <img src="Pic/头像/红A.png" alt="红A" class="sidebar-avatar" data-avatar-index="1" />
+        <img src="Pic/头像/红人.png" alt="红人" class="sidebar-avatar" data-avatar-index="2" />
+        <img src="Pic/头像/绿人.png" alt="绿人" class="sidebar-avatar" data-avatar-index="3" />
+        <img src="Pic/头像/蓝人.png" alt="蓝人" class="sidebar-avatar" data-avatar-index="4" />
+      </div>
+      <!-- 梯形SVG -->
+      <svg width="110" height="563" viewBox="0 0 110 563" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clip-path="url(#clip0_937_14)">
+          <path d="M109.875 593C108.891 600.893 102.159 607 94 607H-18C-26.1592 607 -32.8907 600.893 -33.875 593H109.875ZM-34 591C-34 591.677 -33.9567 592.345 -33.875 593H-34V591ZM110 593H109.875C109.957 592.345 110 591.677 110 591V593ZM110 531.654C110 525.34 106.286 519.616 100.52 517.043L59.4805 498.73C53.7142 496.157 50.0001 490.433 50 484.119V67.5322C50 60.6453 54.407 54.5313 60.9404 52.3535L99.0596 39.6465C105.593 37.4687 110 31.3547 110 24.4678V531.654ZM110 -29C110 -37.8366 102.837 -45 94 -45H-18C-26.8366 -45 -34 -37.8366 -34 -29V-59H110V-29Z" fill="black"/>
+        </g>
+        <defs>
+          <clipPath id="clip0_937_14">
+            <rect width="110" height="563" fill="white"/>
+          </clipPath>
+        </defs>
+      </svg>
+    </div>
+    <!-- 右边缘点击检测区域（X345-360） -->
+    <div class="right-edge-detector" id="right-edge-detector"></div>
+  </div>
+  <script>
+    (function () {
+      // R6 进入广场后：隐藏创建数字分身按钮，80(2) 置于遮罩下；按状态2/状态3 显示不同内容；bubble4 默认隐藏，仅点击「发布」后显示
+      (function applySquareState() {
+        if (sessionStorage.getItem("enteredSquare") !== "1") return;
+        var startBtn = document.getElementById("start-button");
+        var tabAndTop = document.getElementById("tab-and-top");
+        var state2Overlay = document.getElementById("state2-overlay");
+        var state2CarouselWrap = document.getElementById("state2-carousel-wrap");
+        var state2IntroCard = document.getElementById("state2-intro-card");
+        var state2IntroText = document.getElementById("state2-intro-text");
+        var squareDialog = document.getElementById("square-dialog");
+        var squareDialogFace = document.getElementById("square-dialog-face");
+        var wrapperBubble4 = document.getElementById("wrapper-bubble4");
+        var introDecided = sessionStorage.getItem("introDecided") === "1";
+        var introPublished = sessionStorage.getItem("introPublished") === "1";
+
+        if (startBtn) startBtn.style.display = "none";
+        if (tabAndTop) tabAndTop.classList.add("state2-below-overlay");
+        if (squareDialog) squareDialog.classList.add("is-visible");
+        if (squareDialogFace) squareDialogFace.classList.add("is-visible");
+        var avatarGlow = document.getElementById("state2-avatar-glow");
+        if (avatarGlow) avatarGlow.classList.add("is-visible");
+        var icon301 = document.getElementById("state2-avatar-icon-301-584");
+        var icon251 = document.getElementById("state2-avatar-icon-251-609");
+        if (icon301) icon301.classList.add("is-visible");
+        if (icon251) icon251.classList.add("is-visible");
+
+        // 点击 R6 头像（圆圈出的那个）：切换渐变圆与两个头像 ICON 的收拢/展开
+        if (squareDialogFace) {
+          var mainFrame = document.querySelector(".main-frame");
+          function toggleAvatarsExpand() {
+            if (mainFrame && squareDialogFace.classList.contains("is-visible")) {
+              mainFrame.classList.toggle("state2-avatars-expanded");
+            }
+          }
+          squareDialogFace.addEventListener("click", function(e) { e.stopPropagation(); toggleAvatarsExpand(); });
+          squareDialogFace.addEventListener("touchend", function(e) { e.stopPropagation(); toggleAvatarsExpand(); });
+        }
+
+        if (introDecided) {
+          // 状态3：不显示黑色遮罩、轮播文字、自我介绍卡片、眼睛表情、按钮；保留分身说话并改为状态3文案
+          if (state2Overlay) state2Overlay.classList.remove("is-visible");
+          if (state2CarouselWrap) state2CarouselWrap.classList.remove("is-visible");
+          if (state2IntroCard) state2IntroCard.classList.remove("is-visible");
+          if (state2IntroText) {
+            state2IntroText.textContent = "让我来看看其他数字分身都在干什么！";
+            state2IntroText.classList.add("is-visible");
+          }
+          var state2TopEyes = document.getElementById("state2-top-eyes");
+          if (state2TopEyes) state2TopEyes.classList.remove("is-visible");
+          if (introPublished && wrapperBubble4) wrapperBubble4.classList.remove("bubble4-hidden-until-published");
+          else if (wrapperBubble4) wrapperBubble4.classList.add("bubble4-hidden-until-published");
+        } else {
+          // 状态2：显示遮罩、轮播、卡片、眼睛、提示文字、按钮
+          if (state2Overlay) state2Overlay.classList.add("is-visible");
+          if (state2CarouselWrap) state2CarouselWrap.classList.add("is-visible");
+          if (state2IntroCard) state2IntroCard.classList.add("is-visible");
+          if (state2IntroText) state2IntroText.classList.add("is-visible");
+          var state2TopEyes = document.getElementById("state2-top-eyes");
+          if (state2TopEyes) state2TopEyes.classList.add("is-visible");
+          if (wrapperBubble4) wrapperBubble4.classList.add("bubble4-hidden-until-published");
+        }
+      })();
+
+      // 状态2：点击自我介绍卡片 SVG 自带的「暂不」「发布」按钮（透明层覆盖）进入状态3
+      (function initIntroButtons() {
+        var btnSkip = document.getElementById("state2-card-btn-skip");
+        var btnPublish = document.getElementById("state2-card-btn-publish");
+        function goToState3(published) {
+          sessionStorage.setItem("introDecided", "1");
+          if (published) sessionStorage.setItem("introPublished", "1");
+          else sessionStorage.removeItem("introPublished");
+          var state2Overlay = document.getElementById("state2-overlay");
+          var state2CarouselWrap = document.getElementById("state2-carousel-wrap");
+          var state2IntroCard = document.getElementById("state2-intro-card");
+          var state2IntroText = document.getElementById("state2-intro-text");
+          var state2TopEyes = document.getElementById("state2-top-eyes");
+          var wrapperBubble4 = document.getElementById("wrapper-bubble4");
+          if (state2Overlay) state2Overlay.classList.remove("is-visible");
+          if (state2CarouselWrap) state2CarouselWrap.classList.remove("is-visible");
+          if (state2IntroCard) state2IntroCard.classList.remove("is-visible");
+          if (state2IntroText) {
+            state2IntroText.textContent = "让我来看看其他数字分身都在干什么！";
+            state2IntroText.classList.add("is-visible");
+          }
+          if (state2TopEyes) state2TopEyes.classList.remove("is-visible");
+          if (published && wrapperBubble4) wrapperBubble4.classList.remove("bubble4-hidden-until-published");
+        }
+        if (btnSkip) btnSkip.addEventListener("click", function () { goToState3(false); });
+        if (btnPublish) btnPublish.addEventListener("click", function () { goToState3(true); });
+      })();
+
+      /* 状态2 轮播对话（与 bubble4 展开态一致：Hi！/ 我是星星 / 很高兴认识各位 等），每 2 秒切换 */
+      (function () {
+        var state2CarouselWrap = document.getElementById("state2-carousel-wrap");
+        var state2CarouselContent = document.getElementById("state2-carousel-content");
+        if (!state2CarouselWrap || !state2CarouselContent) return;
+        var avatarName = sessionStorage.getItem("avatarName") || "星星";
+        var carouselTexts = [
+          { text: "Hi！", fontSize: 32 },
+          { text: "我是" + avatarName, fontSize: 14 },
+          { text: "很高兴认识各位", fontSize: 14 },
+          { text: "我平时喜欢看电影和徒步", fontSize: 14 },
+          { text: "欢迎跟我交流这些领域的事情！", fontSize: 14 },
+          { text: "说到电影，大家还记得最近看的电影是什么吗？", fontSize: 14 },
+          { text: "你觉得好看吗？", fontSize: 14 }
+        ];
+        var carouselIndex = 0;
+        var carouselInterval = null;
+        function showState2CarouselText(index) {
+          var data = carouselTexts[index];
+          if (!data) return;
+          state2CarouselContent.classList.remove("is-visible");
+          state2CarouselContent.classList.remove("text-large");
+          setTimeout(function () {
+            state2CarouselContent.textContent = data.text;
+            if (data.fontSize === 32) state2CarouselContent.classList.add("text-large");
+            state2CarouselContent.classList.add("is-visible");
+          }, 150);
+        }
+        function startState2Carousel() {
+          if (carouselInterval) return;
+          carouselIndex = 0;
+          showState2CarouselText(0);
+          carouselInterval = setInterval(function () {
+            carouselIndex = (carouselIndex + 1) % carouselTexts.length;
+            showState2CarouselText(carouselIndex);
+          }, 2000);
+        }
+        if (sessionStorage.getItem("enteredSquare") === "1") {
+          setTimeout(startState2Carousel, 400);
+        }
+      })();
+
+      var overlay = document.getElementById("main-overlay");
+      var iframe1 = document.getElementById("iframe-bubble1");
+      var iframe2 = document.getElementById("iframe-bubble2");
+      var iframe3 = document.getElementById("iframe-bubble3");
+      var iframe4 = document.getElementById("iframe-bubble4");
+      var iframe5 = document.getElementById("iframe-bubble5");
+      var activeIframe = null;
+      var bubblesHidden = false;
+      var mainFrame = document.querySelector(".main-frame");
+
+      /** 展开时若 iframe 超出主框架四边，用 left/top 微调使布局盒移入框内（左/右/上/下均生效） */
+      function clampExpandedPosition(iframe) {
+        if (!iframe || !iframe.classList.contains("is-expanded")) return;
+        var wrapper = iframe.parentElement;
+        if (!wrapper || !wrapper.classList.contains("bubble-wrapper")) return;
+        var main = document.querySelector(".main-frame");
+        if (!main) return;
+        var mr = main.getBoundingClientRect();
+        var wr = wrapper.getBoundingClientRect();
+        var w = wr.width, h = wr.height;
+        var newLeft = wr.left, newTop = wr.top;
+        if (wr.left < mr.left) newLeft = mr.left;
+        else if (wr.right > mr.right) newLeft = mr.right - w;
+        if (wr.top < mr.top) newTop = mr.top;
+        else if (wr.bottom > mr.bottom) newTop = mr.bottom - h;
+        var relLeft = newLeft - mr.left, relTop = newTop - mr.top;
+        wrapper.style.right = "auto";
+        wrapper.style.bottom = "auto";
+        wrapper.style.left = relLeft + "px";
+        wrapper.style.top = relTop + "px";
+        
+        // 更新绝对位置，但不更新相对位置（相对位置保持不变）
+        // 因为展开态的位置调整是临时的，收缩时应该恢复到基于相对位置的默认态位置
+        var wrapperId = wrapper.id;
+        var bubbleIndex = null;
+        if (wrapperId === "wrapper-bubble1") bubbleIndex = 1;
+        else if (wrapperId === "wrapper-bubble2") bubbleIndex = 2;
+        else if (wrapperId === "wrapper-bubble3") bubbleIndex = 3;
+        else if (wrapperId === "wrapper-bubble4") bubbleIndex = 4;
+        else if (wrapperId === "wrapper-bubble5") bubbleIndex = 5;
+        
+        if (bubbleIndex) {
+          bubbleOffsets["bubble" + bubbleIndex] = {
+            x: relLeft,
+            y: relTop
+          };
+          // 注意：不更新 bubbleRelativeOffsets，保持相对位置不变
+        }
+      }
+
+      function clearExpandedPosition(iframe) {
+        if (!iframe) return;
+        var wrapper = iframe.parentElement;
+        if (!wrapper || !wrapper.classList.contains("bubble-wrapper")) return;
+        
+        // 基于相对位置恢复到默认态位置
+        var wrapperId = wrapper.id;
+        var bubbleIndex = null;
+        if (wrapperId === "wrapper-bubble1") bubbleIndex = 1;
+        else if (wrapperId === "wrapper-bubble2") bubbleIndex = 2;
+        else if (wrapperId === "wrapper-bubble3") bubbleIndex = 3;
+        else if (wrapperId === "wrapper-bubble4") bubbleIndex = 4;
+        else if (wrapperId === "wrapper-bubble5") bubbleIndex = 5;
+        
+        if (bubbleIndex && bubbleRelativeOffsets["bubble" + bubbleIndex]) {
+          // 有相对位置记录，基于相对位置恢复到默认态位置
+          var mainRect = mainFrame.getBoundingClientRect();
+          var islandCenterX = mainRect.left + mainRect.width / 2 + islandOffsetX;
+          var islandCenterY = mainRect.top + mainRect.height / 2 + islandOffsetY;
+          
+          var relativeOffset = bubbleRelativeOffsets["bubble" + bubbleIndex];
+          var wrapperRect = wrapper.getBoundingClientRect();
+          var bubbleWidth = wrapperRect.width;
+          var bubbleHeight = wrapperRect.height;
+          
+          // 计算气泡中心位置（基于相对位置，考虑缩放比例）
+          var bubbleCenterX = islandCenterX + relativeOffset.x;
+          var bubbleCenterY = islandCenterY + relativeOffset.y;
+          
+          // 计算气泡左上角位置
+          var defaultX = bubbleCenterX - bubbleWidth / 2 - mainRect.left;
+          var defaultY = bubbleCenterY - bubbleHeight / 2 - mainRect.top;
+          
+          wrapper.style.left = defaultX + "px";
+          wrapper.style.top = defaultY + "px";
+          
+          // 更新绝对位置
+          bubbleOffsets["bubble" + bubbleIndex] = {
+            x: defaultX,
+            y: defaultY
+          };
+        } else {
+          // 没有相对位置记录，清空位置回到 CSS 原始位置
+          wrapper.style.left = "";
+          wrapper.style.top = "";
+        }
+        
+        wrapper.style.right = "";
+        wrapper.style.bottom = "";
+      }
+
+      function showOverlay(iframe) {
+        activeIframe = iframe;
+        var wrapper = iframe.parentElement;
+        if (wrapper && wrapper.classList.contains("bubble-wrapper")) {
+          wrapper.classList.add("is-expanded");
+        }
+        clearExpandedPosition(iframe);
+        iframe.classList.add("is-expanded");
+        overlay.classList.add("is-visible");
+        overlay.setAttribute("aria-hidden", "false");
+        /* 等展开动画（width/height 约 280ms）完成后再测量并微调，否则会按未展开尺寸算导致左右/底部仍溢出 */
+        setTimeout(function () {
+          clampExpandedPosition(iframe);
+        }, 320);
+      }
+
+      function hideOverlay() {
+        if (!activeIframe) return;
+        var wrapper = activeIframe.parentElement;
+        if (wrapper && wrapper.classList.contains("bubble-wrapper")) {
+          wrapper.classList.remove("is-expanded");
+        }
+        clearExpandedPosition(activeIframe);
+        activeIframe.classList.remove("is-expanded");
+        activeIframe.contentWindow && activeIframe.contentWindow.postMessage("collapse", "*");
+        activeIframe = null;
+        overlay.classList.remove("is-visible");
+        overlay.setAttribute("aria-hidden", "true");
+      }
+
+      window.addEventListener("message", function (e) {
+        if (e.data === "bubble1-expanded") {
+          showOverlay(iframe1);
+        } else if (e.data === "bubble2-expanded") {
+          showOverlay(iframe2);
+        } else if (e.data === "bubble3-expanded") {
+          showOverlay(iframe3);
+        } else if (e.data === "bubble4-expanded") {
+          showOverlay(iframe4);
+        } else if (e.data === "bubble5-expanded") {
+          showOverlay(iframe5);
+        } else if (e.data === "bubble1-collapsed" || e.data === "bubble2-collapsed" || e.data === "bubble3-collapsed" || e.data === "bubble4-collapsed" || e.data === "bubble5-collapsed") {
+          if (activeIframe) {
+            var wrapper = activeIframe.parentElement;
+            if (wrapper && wrapper.classList.contains("bubble-wrapper")) {
+              wrapper.classList.remove("is-expanded");
+            }
+            clearExpandedPosition(activeIframe);
+            activeIframe.classList.remove("is-expanded");
+            activeIframe = null;
+          }
+          overlay.classList.remove("is-visible");
+          overlay.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      overlay.addEventListener("click", function () {
+        hideOverlay();
+      });
+
+      /** 计算并设置 islandText 的位置 */
+      function positionIslandText() {
+        var islandLayer = document.querySelector(".island-layer");
+        var islandText = document.querySelector(".island-text");
+        var islandElements = islandLayer.querySelectorAll(".island-color, .island-blur, .island");
+        
+        if (!islandLayer || !islandText || islandElements.length === 0) return;
+        
+        // 获取所有岛屿元素（除了 islandText）的边界框
+        var minLeft = Infinity, maxRight = -Infinity, minTop = Infinity;
+        islandElements.forEach(function(el) {
+          var rect = el.getBoundingClientRect();
+          var layerRect = islandLayer.getBoundingClientRect();
+          // 转换为相对于 islandLayer 的坐标
+          var left = rect.left - layerRect.left;
+          var right = rect.right - layerRect.left;
+          var top = rect.top - layerRect.top;
+          minLeft = Math.min(minLeft, left);
+          maxRight = Math.max(maxRight, right);
+          minTop = Math.min(minTop, top);
+        });
+        
+        // 获取 islandText 的尺寸
+        var textRect = islandText.getBoundingClientRect();
+        var textWidth = textRect.width;
+        
+        // 计算位置：
+        // 最左端距离岛屿最左端 60px：left = minLeft - 60px
+        // 最右端距离岛屿最右端 80px：left = maxRight + 80px - textWidth
+        // 最高点距离岛屿最高点 50px：top = minTop - 50px
+        
+        // 由于要求最左端距离 60px，最右端距离 80px，说明 islandText 在岛屿右侧
+        // 使用最右端约束：left = maxRight + 80px - textWidth
+        // 再向左移动 100px，然后再向左移动 10px
+        var left = maxRight + 80 - textWidth - 100 - 10;
+        // 最高点距离岛屿最高点 50px，然后向下移动 130px
+        var top = minTop - 50 + 130;
+        
+        // 设置位置（相对于 islandLayer，使用像素值）
+        islandText.style.left = left + "px";
+        islandText.style.top = top + "px";
+        islandText.style.transform = "translate(0, 0)";
+      }
+      
+      // 页面加载后计算位置
+      window.addEventListener("load", function() {
+        setTimeout(positionIslandText, 100);
+        // 初始化气泡的相对位置（基于初始状态）
+        initializeBubbleRelativeOffsets();
+      });
+      // 如果图片已加载，立即计算
+      if (document.readyState === "complete") {
+        setTimeout(positionIslandText, 100);
+        initializeBubbleRelativeOffsets();
+      }
+      
+      /** 初始化气泡的相对位置（基于初始状态，只执行一次） */
+      function initializeBubbleRelativeOffsets() {
+        // 如果已经初始化过，不再重复初始化
+        if (Object.keys(bubbleRelativeOffsets).length > 0) return;
+        
+        var mainFrame = document.querySelector(".main-frame");
+        var islandLayer = document.querySelector(".island-layer");
+        if (!mainFrame || !islandLayer) return;
+        
+        var mainRect = mainFrame.getBoundingClientRect();
+        // 岛屿中心在主框架中的位置（初始状态，islandOffsetX/Y = 0）
+        var islandCenterX = mainRect.left + mainRect.width / 2;
+        var islandCenterY = mainRect.top + mainRect.height / 2;
+        
+        var wrappers = [
+          document.getElementById("wrapper-bubble1"),
+          document.getElementById("wrapper-bubble2"),
+          document.getElementById("wrapper-bubble3"),
+          document.getElementById("wrapper-bubble4"),
+          document.getElementById("wrapper-bubble5")
+        ];
+        
+        wrappers.forEach(function(wrapper, index) {
+          if (wrapper) {
+            var wrapperRect = wrapper.getBoundingClientRect();
+            var bubbleCenterX = wrapperRect.left + wrapperRect.width / 2;
+            var bubbleCenterY = wrapperRect.top + wrapperRect.height / 2;
+            
+            // 计算相对位置（气泡中心相对于岛屿中心，基于初始状态）
+            bubbleRelativeOffsets["bubble" + (index + 1)] = {
+              x: bubbleCenterX - islandCenterX,
+              y: bubbleCenterY - islandCenterY
+            };
+          }
+        });
+      }
+
+      /** 切换所有气泡的显示/隐藏状态，带随机延迟 */
+      function toggleBubblesVisibility() {
+        bubblesHidden = !bubblesHidden;
+        var wrappers = [
+          document.getElementById("wrapper-bubble1"),
+          document.getElementById("wrapper-bubble2"),
+          document.getElementById("wrapper-bubble3"),
+          document.getElementById("wrapper-bubble4"),
+          document.getElementById("wrapper-bubble5")
+        ];
+        var islandText = document.querySelector(".island-text");
+        var maxDelay = 0;
+        var animationDuration = 500; // 气泡隐藏动画时长（ms）
+        
+        wrappers.forEach(function(wrapper) {
+          if (wrapper) {
+            if (bubblesHidden) {
+              // 隐藏：随机延迟 0-500ms
+              var delay = Math.random() * 500;
+              maxDelay = Math.max(maxDelay, delay);
+              setTimeout(function() {
+                // 移除显示动画类（如果存在）
+                wrapper.classList.remove("is-showing");
+                // 强制浏览器重新计算样式，确保从当前状态开始动画
+                void wrapper.offsetWidth;
+                // 添加隐藏动画类
+                wrapper.classList.add("is-hidden");
+              }, delay);
+            } else {
+              // 显示：随机延迟 0-500ms
+              var delay = Math.random() * 500;
+              setTimeout(function() {
+                // 清除拖拽/惯性设置的内联 transform 和 transition，避免覆盖显示动画和最终状态
+                wrapper.style.transform = "";
+                wrapper.style.transition = "";
+                // 移除隐藏动画类
+                wrapper.classList.remove("is-hidden");
+                // 强制浏览器重新计算样式，确保从 scale(0.01) 状态开始动画
+                void wrapper.offsetWidth;
+                // 添加显示动画类
+                wrapper.classList.add("is-showing");
+                // 动画结束后（0.5s）移除 is-showing 类，恢复默认可见状态
+                setTimeout(function() {
+                  wrapper.classList.remove("is-showing");
+                }, 500);
+              }, delay);
+            }
+          }
+        });
+        
+        // 控制 islandText、island 和 islandColor 的显示/隐藏
+        var islandText = document.querySelector(".island-text");
+        var island = document.querySelector(".island");
+        var islandColor = document.querySelector(".island-color");
+        
+        if (bubblesHidden) {
+          // 气泡隐藏时，等所有气泡完成缩小动画后再显示 islandText，同时调整 island 和 islandColor
+          setTimeout(function() {
+            if (islandText) {
+              islandText.classList.add("is-visible");
+            }
+            if (island) {
+              island.classList.add("is-dimmed");
+            }
+            if (islandColor) {
+              islandColor.classList.add("is-blurred");
+            }
+          }, maxDelay + animationDuration);
+        } else {
+          // 气泡显示时，立即隐藏 islandText，恢复 island 和 islandColor
+          if (islandText) {
+            islandText.classList.remove("is-visible");
+          }
+          if (island) {
+            island.classList.remove("is-dimmed");
+          }
+          if (islandColor) {
+            islandColor.classList.remove("is-blurred");
+          }
+        }
+      }
+
+      /** 判断点击目标是否是气泡区域 */
+      function isBubbleArea(target) {
+        if (!target) return false;
+        // 检查是否是 iframe 本身或包装容器
+        if (target.tagName === "IFRAME" || target.classList.contains("bubble-wrapper")) return true;
+        // 检查是否在气泡包装容器或 iframe 内部（通过检查父元素）
+        var parent = target.parentElement;
+        while (parent) {
+          if (parent.tagName === "IFRAME" || parent.classList.contains("bubble-wrapper") || parent.classList.contains("main-frame")) {
+            return parent.tagName === "IFRAME" || parent.classList.contains("bubble-wrapper");
+          }
+          parent = parent.parentElement;
+        }
+        return false;
+      }
+
+      /** 是否点击在状态2 半透明层及其上方元素上（不触发气泡缩放/拖拽） */
+      function isState2Layer(target) {
+        if (!target || !target.closest) return false;
+        var overlay = document.getElementById("state2-overlay");
+        if (!overlay || !overlay.classList.contains("is-visible")) return false;
+        var introCard = document.getElementById("state2-intro-card");
+        var introText = document.getElementById("state2-intro-text");
+        var carouselWrap = document.getElementById("state2-carousel-wrap");
+        var topEyes = document.getElementById("state2-top-eyes");
+        function contains(el, t) { return el && (t === el || el.contains(t)); }
+        return contains(overlay, target) || contains(introCard, target) || contains(introText, target) || contains(carouselWrap, target) || contains(topEyes, target);
+      }
+
+      /** 长按拖拽功能 */
+      var longPressTimer = null;
+      var isDragging = false;
+      var dragStartX = 0;
+      var dragStartY = 0;
+      var islandLayer = document.querySelector(".island-layer");
+      var islandOffsetX = 0;
+      var islandOffsetY = 0;
+      var bubbleOffsets = {}; // 存储每个气泡的绝对位置（相对于主框架）
+      var bubbleRelativeOffsets = {}; // 存储每个气泡相对于岛屿的相对位置（基于 scale=1.1 时的初始位置）
+      
+      /** 获取气泡包装容器的布局宽高（不受 transform: scale 影响，用于隐藏态时正确计算位置） */
+      function getBubbleLayoutSize(wrapper) {
+        if (!wrapper) return { width: 0, height: 0 };
+        if (wrapper.classList.contains("is-hidden")) {
+          var cs = window.getComputedStyle(wrapper);
+          return {
+            width: parseFloat(cs.width) || 0,
+            height: parseFloat(cs.height) || 0
+          };
+        }
+        var r = wrapper.getBoundingClientRect();
+        return { width: r.width, height: r.height };
+      }
+      
+      function startDrag(e) {
+        isDragging = true;
+        dragStartX = e.clientX || (e.touches && e.touches[0].clientX);
+        dragStartY = e.clientY || (e.touches && e.touches[0].clientY);
+        
+        if (!dragStartX || !dragStartY) return;
+        
+        // 先移除所有 transition，避免延迟
+        islandLayer.classList.add("is-dragging");
+        islandLayer.style.transition = "none";
+        islandLayer.style.willChange = "transform"; // 提示浏览器优化
+        
+        // 使用缓存的 DOM 引用
+        var wrappers = getWrappers();
+        
+        // 先移除所有 transition，避免延迟
+        wrappers.forEach(function(wrapper) {
+          if (wrapper) {
+            wrapper.classList.add("is-dragging");
+            wrapper.style.transition = "none";
+            wrapper.style.willChange = "transform, left, top"; // 提示浏览器优化
+          }
+        });
+        
+        // 批量获取位置信息，减少 reflow 次数
+        // 只调用一次 getBoundingClientRect，然后缓存结果
+        var mainRect = mainFrame.getBoundingClientRect();
+        var layerRect = islandLayer.getBoundingClientRect();
+        
+        // 计算岛屿中心相对于主框架中心的偏移
+        islandOffsetX = (layerRect.left + layerRect.width / 2) - (mainRect.left + mainRect.width / 2);
+        islandOffsetY = (layerRect.top + layerRect.height / 2) - (mainRect.top + mainRect.height / 2);
+        
+        // 批量获取气泡位置，减少 reflow
+        wrappers.forEach(function(wrapper, index) {
+          if (wrapper) {
+            // 优先使用内联样式，避免 getComputedStyle 和 getBoundingClientRect
+            var leftValue = parseFloat(wrapper.style.left);
+            var topValue = parseFloat(wrapper.style.top);
+            
+            // 如果内联样式不存在，才使用 getBoundingClientRect 或相对位置计算
+            if (isNaN(leftValue) || isNaN(topValue)) {
+              if (wrapper.classList.contains("is-hidden") && bubbleRelativeOffsets["bubble" + (index + 1)]) {
+                // 隐藏态时 getBoundingClientRect 会得到缩放后的错误位置，改用相对位置计算
+                var layerRect = islandLayer.getBoundingClientRect();
+                var islandCenterX = layerRect.left + layerRect.width / 2;
+                var islandCenterY = layerRect.top + layerRect.height / 2;
+                var rel = bubbleRelativeOffsets["bubble" + (index + 1)];
+                var size = getBubbleLayoutSize(wrapper);
+                leftValue = islandCenterX + rel.x - size.width / 2 - mainRect.left;
+                topValue = islandCenterY + rel.y - size.height / 2 - mainRect.top;
+              } else {
+                var wrapperRect = wrapper.getBoundingClientRect();
+                leftValue = wrapperRect.left - mainRect.left;
+                topValue = wrapperRect.top - mainRect.top;
+              }
+            }
+            
+            // 保存绝对位置（相对于主框架）
+            bubbleOffsets["bubble" + (index + 1)] = {
+              x: leftValue,
+              y: topValue
+            };
+            
+            // 相对位置应该在页面加载时初始化，这里不需要重新计算
+            // 如果相对位置不存在，说明页面还没初始化完成，跳过
+            if (!bubbleRelativeOffsets["bubble" + (index + 1)]) {
+              // 延迟初始化（如果页面加载时初始化失败）
+              setTimeout(function() {
+                initializeBubbleRelativeOffsets();
+              }, 100);
+            }
+          }
+        });
+        
+        // 初始化速度跟踪（使用 performance.now() 更精确）
+        prevClientX = dragStartX;
+        prevClientY = dragStartY;
+        prevTime = performance.now();
+        velocityX = 0;
+        velocityY = 0;
+        
+        // 立即绑定事件监听器，使用 capture 模式确保优先处理
+        document.addEventListener("mousemove", onDrag, true);
+        document.addEventListener("mouseup", endDrag, true);
+        document.addEventListener("touchmove", onDrag, { passive: false, capture: true });
+        document.addEventListener("touchend", endDrag, true);
+      }
+      
+      // 缓存 DOM 元素引用，避免重复查询（思路4）
+      var cachedWrappers = null;
+      function getWrappers() {
+        if (!cachedWrappers) {
+          cachedWrappers = [
+            document.getElementById("wrapper-bubble1"),
+            document.getElementById("wrapper-bubble2"),
+            document.getElementById("wrapper-bubble3"),
+            document.getElementById("wrapper-bubble4"),
+            document.getElementById("wrapper-bubble5")
+          ];
+        }
+        return cachedWrappers;
+      }
+      
+      // 速度跟踪变量
+      var prevClientX = 0;
+      var prevClientY = 0;
+      var prevTime = 0;
+      
+      function onDrag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        var clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        var clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        
+        if (!clientX || !clientY) return;
+        
+        // 实时计算速度（使用更精确的时间差）
+        var currentTime = performance.now(); // 使用 performance.now() 更精确
+        var deltaTime = currentTime - prevTime;
+        
+        // 只在有有效时间差时计算速度
+        if (prevTime > 0 && deltaTime > 0 && deltaTime < 50) {
+          var moveDeltaX = clientX - prevClientX;
+          var moveDeltaY = clientY - prevClientY;
+          // 实时速度（像素/毫秒 * 16，归一化到帧率）
+          velocityX = moveDeltaX / deltaTime * 16;
+          velocityY = moveDeltaY / deltaTime * 16;
+        } else {
+          // 初始化或时间间隔太大时，速度设为0
+          velocityX = 0;
+          velocityY = 0;
+        }
+        
+        // 更新前一个位置和时间
+        prevClientX = clientX;
+        prevClientY = clientY;
+        prevTime = currentTime;
+        
+        var deltaX = clientX - dragStartX;
+        var deltaY = clientY - dragStartY;
+        
+        // 思路1：避免 calc() 计算，直接计算像素值，使用 transform3d 强制硬件加速
+        var newIslandX = islandOffsetX + deltaX;
+        var newIslandY = islandOffsetY + deltaY;
+        
+        // 思路2：使用 transform3d 而不是 transform，强制 GPU 加速
+        islandLayer.style.transform = "translate3d(calc(-50% + " + newIslandX + "px), calc(-50% + " + newIslandY + "px), 0) scale(1.1)";
+        
+        // 思路4：使用缓存的 DOM 引用
+        var wrappers = getWrappers();
+        
+        // 实时移动所有气泡，应用实时惯性跟随效果（减少延迟）
+        // 获取岛屿中心的新位置
+        var mainRect = mainFrame.getBoundingClientRect();
+        var newIslandCenterX = mainRect.left + mainRect.width / 2 + newIslandX;
+        var newIslandCenterY = mainRect.top + mainRect.height / 2 + newIslandY;
+        
+        for (var i = 0; i < wrappers.length; i++) {
+          var wrapper = wrappers[i];
+          if (wrapper && bubbleRelativeOffsets["bubble" + (i + 1)]) {
+            var relativeOffset = bubbleRelativeOffsets["bubble" + (i + 1)];
+            
+            // 基于相对位置计算新位置；隐藏态时用布局尺寸，否则 getBoundingClientRect 会得到缩放后的错误尺寸
+            var size = getBubbleLayoutSize(wrapper);
+            var bubbleWidth = size.width;
+            var bubbleHeight = size.height;
+            
+            // 气泡中心的新位置 = 岛屿中心 + 相对偏移 * 缩放比例
+            // 相对位置是基于 scale=1.1 时的初始位置，需要根据当前缩放比例调整
+            var bubbleCenterX = newIslandCenterX + relativeOffset.x;
+            var bubbleCenterY = newIslandCenterY + relativeOffset.y;
+            
+            // 应用实时惯性跟随效果（减小系数，让跟随更紧密，延迟更小）
+            var inertiaFactor = 0.1; // 进一步减小惯性系数，减少延迟
+            var delayFactor = (i + 1) * 0.05; // 进一步减小延迟系数，让效果更实时
+            var inertiaX = velocityX * inertiaFactor * delayFactor;
+            var inertiaY = velocityY * inertiaFactor * delayFactor;
+            
+            // 计算气泡左上角位置（中心位置 - 宽度/2 + 惯性偏移）
+            // 注意：惯性只影响视觉位置，不影响相对位置
+            var baseX = bubbleCenterX - bubbleWidth / 2 - mainRect.left + inertiaX;
+            var baseY = bubbleCenterY - bubbleHeight / 2 - mainRect.top + inertiaY;
+            
+            // 实时更新位置，应用惯性跟随（立即响应）
+            wrapper.style.left = baseX + "px";
+            wrapper.style.top = baseY + "px";
+            wrapper.style.right = "auto";
+            wrapper.style.bottom = "auto";
+            
+            // 更新绝对位置（包含惯性）
+            bubbleOffsets["bubble" + (i + 1)] = {
+              x: baseX,
+              y: baseY
+            };
+            // 相对位置保持不变（因为岛屿和气泡都移动了相同的距离，惯性只是视觉效果）
+            // bubbleRelativeOffsets 不需要更新
+          }
+        }
+      }
+      
+      function endDrag(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        var clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
+        var clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
+        
+        var wrappers = [
+          document.getElementById("wrapper-bubble1"),
+          document.getElementById("wrapper-bubble2"),
+          document.getElementById("wrapper-bubble3"),
+          document.getElementById("wrapper-bubble4"),
+          document.getElementById("wrapper-bubble5")
+        ];
+        
+        if (clientX && clientY) {
+          var deltaX = clientX - dragStartX;
+          var deltaY = clientY - dragStartY;
+          
+          // 更新岛屿的最终位置（已经在 onDrag 中实时更新了，这里只是确认）
+          var finalIslandX = islandOffsetX + deltaX;
+          var finalIslandY = islandOffsetY + deltaY;
+          islandOffsetX = finalIslandX; // 更新岛屿偏移
+          islandOffsetY = finalIslandY;
+          islandLayer.style.left = "50%";
+          islandLayer.style.top = "50%";
+          islandLayer.style.transform = "translate3d(calc(-50% + " + finalIslandX + "px), calc(-50% + " + finalIslandY + "px), 0) scale(1.1)";
+          
+          // 更新所有气泡的相对位置（清除惯性偏移，恢复到最终相对位置）
+          var mainRect = mainFrame.getBoundingClientRect();
+          var finalIslandCenterX = mainRect.left + mainRect.width / 2 + finalIslandX;
+          var finalIslandCenterY = mainRect.top + mainRect.height / 2 + finalIslandY;
+          var wrappers = getWrappers();
+          
+          wrappers.forEach(function(wrapper, index) {
+            if (wrapper && bubbleRelativeOffsets["bubble" + (index + 1)]) {
+              var relativeOffset = bubbleRelativeOffsets["bubble" + (index + 1)];
+              // 清除惯性偏移，恢复到最终相对位置；隐藏态时用布局尺寸
+              var size = getBubbleLayoutSize(wrapper);
+              var bubbleWidth = size.width;
+              var bubbleHeight = size.height;
+              
+              // 计算最终位置（基于相对位置，但需要从相对位置中提取基础偏移，去掉惯性部分）
+              // 基于相对位置计算最终位置（清除惯性，考虑缩放比例）
+              var bubbleCenterX = finalIslandCenterX + relativeOffset.x;
+              var bubbleCenterY = finalIslandCenterY + relativeOffset.y;
+              
+              var finalX = bubbleCenterX - bubbleWidth / 2 - mainRect.left;
+              var finalY = bubbleCenterY - bubbleHeight / 2 - mainRect.top;
+              
+              wrapper.style.left = finalX + "px";
+              wrapper.style.top = finalY + "px";
+              wrapper.style.right = "auto";
+              wrapper.style.bottom = "auto";
+              
+              // 更新绝对位置（清除惯性）
+              bubbleOffsets["bubble" + (index + 1)] = {
+                x: finalX,
+                y: finalY
+              };
+              // 相对位置保持不变（因为岛屿和气泡都移动了相同的距离）
+            }
+          });
+          
+          // 应用惯性摆动效果（基于最后的速度）
+          applyInertiaSwing(finalIslandX, finalIslandY, wrappers);
+        }
+        
+        // 移除拖拽类，恢复 transition
+        islandLayer.classList.remove("is-dragging");
+        islandLayer.style.transition = "";
+        var wrappers = getWrappers();
+        wrappers.forEach(function(wrapper) {
+          if (wrapper) {
+            wrapper.classList.remove("is-dragging");
+            wrapper.style.transition = "";
+          }
+        });
+        
+        document.removeEventListener("mousemove", onDrag, true);
+        document.removeEventListener("mouseup", endDrag, true);
+        document.removeEventListener("touchmove", onDrag, true);
+        document.removeEventListener("touchend", endDrag, true);
+        
+        // 移除 willChange 优化提示
+        islandLayer.style.willChange = "";
+        var wrappers = getWrappers();
+        wrappers.forEach(function(wrapper) {
+          if (wrapper) {
+            wrapper.style.willChange = "";
+          }
+        });
+        
+        // 重置速度跟踪
+        velocityX = 0;
+        velocityY = 0;
+        prevClientX = 0;
+        prevClientY = 0;
+        prevTime = 0;
+        
+        // 重置长按状态
+        wasLongPress = false;
+      }
+      
+      /** 应用惯性摆动效果：松开后根据最后的速度产生摆动 */
+      function applyInertiaSwing(islandX, islandY, wrappers) {
+        // 限制速度范围，避免摆动过大
+        var maxVelocity = 10;
+        var dampedVelocityX = Math.max(-maxVelocity, Math.min(maxVelocity, velocityX * 0.6));
+        var dampedVelocityY = Math.max(-maxVelocity, Math.min(maxVelocity, velocityY * 0.6));
+        
+        // 如果速度太小，不应用摆动
+        if (Math.abs(dampedVelocityX) < 0.5 && Math.abs(dampedVelocityY) < 0.5) return;
+        
+        // 为每个气泡添加不同的摆动延迟和幅度，产生波浪效果
+        wrappers.forEach(function(wrapper, index) {
+          if (wrapper && bubbleOffsets["bubble" + (index + 1)]) {
+            var delay = index * 15; // 减小延迟：从 25ms 改为 15ms
+            var amplitude = 0.7 + Math.random() * 0.3; // 随机幅度 0.7-1.0
+            
+            setTimeout(function() {
+              // 获取当前的 scale 值（从 is-hidden 或 is-showing 类判断）
+              var currentScale = wrapper.classList.contains("is-hidden") ? 0.01 : 
+                                 wrapper.classList.contains("is-showing") ? 1 : 1;
+              
+              // 计算摆动幅度（基于速度和方向）- 进一步减小幅度系数
+              var swingX = dampedVelocityX * amplitude * 3; // 从 6 减小到 3，进一步缩小摆动幅度
+              var swingY = dampedVelocityY * amplitude * 3;
+              
+              // 缩短摆动时间：从 0.6s 改为 0.3s，更快完成
+              wrapper.style.transition = "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+              wrapper.style.transform = "translate3d(" + swingX + "px, " + swingY + "px, 0) scale(" + currentScale + ")";
+              
+              // 缩短回弹时间：从 0.4s 改为 0.2s，从 600ms 延迟改为 300ms
+              setTimeout(function() {
+                wrapper.style.transition = "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)";
+                wrapper.style.transform = "translate3d(0, 0, 0) scale(" + currentScale + ")";
+              }, 300);
+            }, delay);
+          }
+        });
+      }
+      
+      /** 主界面点击/长按事件：点击非气泡区域时切换气泡显示/隐藏，长按时拖拽（气泡不消失） */
+      var clickStartTime = 0;
+      var clickStartX = 0;
+      var clickStartY = 0;
+      var hasMoved = false;
+      var wasLongPress = false;
+      var lastDragX = 0;
+      var lastDragY = 0;
+      var velocityX = 0;
+      var velocityY = 0;
+      var lastTime = 0;
+      var currentMouseX = 0; // 实时跟踪当前鼠标位置
+      var currentMouseY = 0;
+      var preDragMoveHandler = null; // 预拖拽移动处理器
+      var preDragUpHandler = null; // 预拖拽抬起处理器
+      
+      mainFrame.addEventListener("mousedown", function(ev) {
+        // 如果点击的是气泡区域，不处理
+        if (isBubbleArea(ev.target)) return;
+        // 如果点击的是遮罩层，不处理（遮罩层有自己的处理逻辑）
+        if (ev.target === overlay || overlay.contains(ev.target)) return;
+        // 状态2：点击半透明层及其上方元素（卡片、轮播、眼睛等）不触发气泡缩放/拖拽
+        if (isState2Layer(ev.target)) return;
+        // 如果点击的是岛屿层，不处理
+        if (islandLayer && (ev.target === islandLayer || islandLayer.contains(ev.target))) return;
+        
+        clickStartTime = Date.now();
+        clickStartX = ev.clientX;
+        clickStartY = ev.clientY;
+        currentMouseX = ev.clientX; // 初始化当前鼠标位置
+        currentMouseY = ev.clientY;
+        hasMoved = false;
+        wasLongPress = false;
+        velocityX = 0;
+        velocityY = 0;
+        lastTime = Date.now();
+        lastDragX = ev.clientX;
+        lastDragY = ev.clientY;
+        
+        // 清除之前的长按计时器
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+        
+        // 立即绑定 mousemove 和 mouseup，用于跟踪鼠标位置
+        preDragMoveHandler = function(moveEv) {
+          // 实时更新当前鼠标位置
+          currentMouseX = moveEv.clientX;
+          currentMouseY = moveEv.clientY;
+          
+          if (longPressTimer) {
+            // 检查是否移动了
+            var moveX = Math.abs(moveEv.clientX - clickStartX);
+            var moveY = Math.abs(moveEv.clientY - clickStartY);
+            if (moveX > 5 || moveY > 5) {
+              hasMoved = true;
+            }
+          }
+        };
+        
+        preDragUpHandler = function(upEv) {
+          // 清理预拖拽事件监听器
+          document.removeEventListener("mousemove", preDragMoveHandler);
+          document.removeEventListener("mousemove", preDragStartHandler);
+          document.removeEventListener("mouseup", preDragUpHandler);
+          preDragMoveHandler = null;
+          preDragStartHandler = null;
+          preDragUpHandler = null;
+          
+          if (longPressTimer) {
+            // 如果只是点击（没有长按），清除计时器并切换显示状态
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+            
+            // 如果没有移动，且是快速点击（不是长按），切换气泡显示/隐藏
+            if (!hasMoved && Date.now() - clickStartTime < 500 && !wasLongPress) {
+              toggleBubblesVisibility();
+            }
+          }
+          // 如果不是长按拖拽，重置状态
+          if (!isDragging) {
+            wasLongPress = false;
+          }
+        };
+        
+        document.addEventListener("mousemove", preDragMoveHandler);
+        document.addEventListener("mouseup", preDragUpHandler);
+        
+        // 思路7：在预拖拽阶段就开始跟踪移动，一旦检测到移动就立即开始拖拽
+        var preDragStartHandler = function(moveEv) {
+          // 如果鼠标移动超过阈值，立即开始拖拽（不等500ms）
+          var moveX = Math.abs(moveEv.clientX - clickStartX);
+          var moveY = Math.abs(moveEv.clientY - clickStartY);
+          if ((moveX > 10 || moveY > 10) && longPressTimer) {
+            // 立即开始拖拽
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+            wasLongPress = true;
+            
+            // 清理预拖拽事件监听器
+            document.removeEventListener("mousemove", preDragMoveHandler);
+            document.removeEventListener("mousemove", preDragStartHandler);
+            document.removeEventListener("mouseup", preDragUpHandler);
+            preDragMoveHandler = null;
+            preDragStartHandler = null;
+            preDragUpHandler = null;
+            
+            // 立即开始拖拽
+            var currentEv = { 
+              clientX: currentMouseX, 
+              clientY: currentMouseY,
+              touches: ev.touches
+            };
+            startDrag(currentEv);
+          }
+        };
+        
+        // 设置长按计时器（500ms）
+        longPressTimer = setTimeout(function() {
+          longPressTimer = null;
+          wasLongPress = true;
+          
+          // 清理预拖拽事件监听器
+          document.removeEventListener("mousemove", preDragMoveHandler);
+          document.removeEventListener("mousemove", preDragStartHandler);
+          document.removeEventListener("mouseup", preDragUpHandler);
+          preDragMoveHandler = null;
+          preDragStartHandler = null;
+          preDragUpHandler = null;
+          
+          // 长按后开始拖拽（气泡不消失）
+          // 使用当前实时鼠标位置初始化拖拽，而不是500ms前的位置！
+          var currentEv = { 
+            clientX: currentMouseX, 
+            clientY: currentMouseY,
+            touches: ev.touches
+          };
+          startDrag(currentEv);
+        }, 500);
+        
+        // 思路7：立即绑定移动检测，一旦移动就立即开始拖拽
+        document.addEventListener("mousemove", preDragStartHandler);
+      });
+      
+      mainFrame.addEventListener("mousemove", function(ev) {
+        // 这个监听器保留用于其他用途，但预拖拽跟踪已移到 document 级别
+      });
+      
+      mainFrame.addEventListener("mouseup", function(ev) {
+        // mouseup 处理已移到 preDragUpHandler，这里保留用于其他情况
+      });
+      
+      var preDragTouchMoveHandler = null;
+      var preDragTouchEndHandler = null;
+      
+      mainFrame.addEventListener("touchstart", function(ev) {
+        // 如果点击的是气泡区域，不处理
+        if (isBubbleArea(ev.target)) return;
+        // 如果点击的是遮罩层，不处理
+        if (ev.target === overlay || overlay.contains(ev.target)) return;
+        // 状态2：点击半透明层及其上方元素（卡片、轮播、眼睛等）不触发气泡缩放/拖拽
+        if (ev.touches.length > 0 && isState2Layer(ev.target)) return;
+        // 如果点击的是岛屿层，不处理
+        if (islandLayer && (ev.target === islandLayer || islandLayer.contains(ev.target))) return;
+        
+        var touch = ev.touches[0];
+        clickStartTime = Date.now();
+        clickStartX = touch.clientX;
+        clickStartY = touch.clientY;
+        currentMouseX = touch.clientX; // 初始化当前触摸位置
+        currentMouseY = touch.clientY;
+        hasMoved = false;
+        wasLongPress = false;
+        velocityX = 0;
+        velocityY = 0;
+        lastTime = Date.now();
+        lastDragX = touch.clientX;
+        lastDragY = touch.clientY;
+        
+        // 清除之前的长按计时器
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+        
+        // 立即绑定 touchmove 和 touchend，用于跟踪触摸位置
+        preDragTouchMoveHandler = function(moveEv) {
+          if (moveEv.touches.length > 0) {
+            var currentTouch = moveEv.touches[0];
+            // 实时更新当前触摸位置
+            currentMouseX = currentTouch.clientX;
+            currentMouseY = currentTouch.clientY;
+            
+            if (longPressTimer) {
+              var moveX = Math.abs(currentTouch.clientX - clickStartX);
+              var moveY = Math.abs(currentTouch.clientY - clickStartY);
+              if (moveX > 5 || moveY > 5) {
+                hasMoved = true;
+              }
+            }
+          }
+        };
+        
+        preDragTouchEndHandler = function(endEv) {
+          // 清理预拖拽事件监听器
+          document.removeEventListener("touchmove", preDragTouchMoveHandler);
+          document.removeEventListener("touchend", preDragTouchEndHandler);
+          preDragTouchMoveHandler = null;
+          preDragTouchEndHandler = null;
+          
+          if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+            
+            if (!hasMoved && Date.now() - clickStartTime < 500 && !wasLongPress) {
+              toggleBubblesVisibility();
+            }
+          }
+          if (!isDragging) {
+            wasLongPress = false;
+          }
+        };
+        
+        document.addEventListener("touchmove", preDragTouchMoveHandler, { passive: false });
+        document.addEventListener("touchend", preDragTouchEndHandler);
+        
+        // 设置长按计时器（500ms）
+        longPressTimer = setTimeout(function() {
+          longPressTimer = null;
+          wasLongPress = true;
+          
+          // 清理预拖拽事件监听器
+          document.removeEventListener("touchmove", preDragTouchMoveHandler);
+          document.removeEventListener("touchend", preDragTouchEndHandler);
+          preDragTouchMoveHandler = null;
+          preDragTouchEndHandler = null;
+          
+          // 长按后开始拖拽（气泡不消失）
+          // 使用当前实时触摸位置初始化拖拽，而不是500ms前的位置！
+          var currentTouch = ev.touches[0];
+          startDrag({ 
+            clientX: currentMouseX, 
+            clientY: currentMouseY,
+            touches: ev.touches
+          });
+        }, 500);
+      });
+      
+      mainFrame.addEventListener("touchmove", function(ev) {
+        // 这个监听器保留用于其他用途，但预拖拽跟踪已移到 document 级别
+      });
+      
+      mainFrame.addEventListener("touchend", function(ev) {
+        if (longPressTimer) {
+          // 如果只是点击（没有长按），清除计时器并切换显示状态
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+          
+          // 如果没有移动，且是快速点击，切换气泡显示/隐藏
+          if (!hasMoved && Date.now() - clickStartTime < 500 && !wasLongPress) {
+            toggleBubblesVisibility();
+          }
+        }
+      });
+
+      /* 黑色梯形侧边栏：在X345-360区域点击显示 */
+      (function initLiquidSidebar() {
+        var liquidSidebar = document.getElementById("liquid-sidebar");
+        var rightEdgeDetector = document.getElementById("right-edge-detector");
+        if (!liquidSidebar || !rightEdgeDetector) return;
+
+        var isSidebarVisible = false;
+
+        // 点击检测区域（X345-360，右侧15px）切换侧边栏显示
+        rightEdgeDetector.addEventListener("click", function(e) {
+          e.stopPropagation();
+          isSidebarVisible = !isSidebarVisible;
+          if (isSidebarVisible) {
+            liquidSidebar.classList.add("is-visible");
+          } else {
+            liquidSidebar.classList.remove("is-visible");
+          }
+        });
+
+        // 触摸事件支持
+        rightEdgeDetector.addEventListener("touchend", function(e) {
+          e.stopPropagation();
+          isSidebarVisible = !isSidebarVisible;
+          if (isSidebarVisible) {
+            liquidSidebar.classList.add("is-visible");
+          } else {
+            liquidSidebar.classList.remove("is-visible");
+          }
+        });
+
+        // 点击主界面其他区域关闭侧边栏
+        mainFrame.addEventListener("click", function(e) {
+          if (isSidebarVisible && !liquidSidebar.contains(e.target) && !rightEdgeDetector.contains(e.target)) {
+            var rect = mainFrame.getBoundingClientRect();
+            var clickX = e.clientX - rect.left;
+            
+            // 如果点击在侧边栏左侧区域，关闭侧边栏
+            if (clickX < rect.width - 110) {
+              isSidebarVisible = false;
+              liquidSidebar.classList.remove("is-visible");
+            }
+          }
+        });
+
+        // 触摸事件：点击主界面其他区域关闭
+        mainFrame.addEventListener("touchstart", function(e) {
+          if (isSidebarVisible && !liquidSidebar.contains(e.target) && !rightEdgeDetector.contains(e.target)) {
+            var touch = e.touches[0];
+            var rect = mainFrame.getBoundingClientRect();
+            var touchX = touch.clientX - rect.left;
+            
+            if (touchX < rect.width - 110) {
+              isSidebarVisible = false;
+              liquidSidebar.classList.remove("is-visible");
+            }
+          }
+        }, { passive: true });
+
+        // 头像点击热区处理：每个图片以中心为原点，半径20px的圆形热区
+        var sidebarAvatars = document.querySelectorAll(".sidebar-avatar");
+        var hotZoneRadius = 20; // 热区半径20px
+
+        sidebarAvatars.forEach(function(avatar, index) {
+          // 点击事件
+          avatar.addEventListener("click", function(e) {
+            e.stopPropagation(); // 阻止事件冒泡，避免关闭侧边栏
+            var rect = avatar.getBoundingClientRect();
+            var centerX = rect.left + rect.width / 2;
+            var centerY = rect.top + rect.height / 2;
+            var clickX = e.clientX;
+            var clickY = e.clientY;
+            var distance = Math.sqrt(
+              Math.pow(clickX - centerX, 2) + Math.pow(clickY - centerY, 2)
+            );
+            if (distance <= hotZoneRadius && index === 1) {
+              window.location.href = "B1chat/index.html";
+            }
+          });
+
+          // 触摸事件支持
+          avatar.addEventListener("touchend", function(e) {
+            e.stopPropagation(); // 阻止事件冒泡
+            var rect = avatar.getBoundingClientRect();
+            var centerX = rect.left + rect.width / 2;
+            var centerY = rect.top + rect.height / 2;
+            var touch = e.changedTouches[0];
+            var clickX = touch.clientX;
+            var clickY = touch.clientY;
+            var distance = Math.sqrt(
+              Math.pow(clickX - centerX, 2) + Math.pow(clickY - centerY, 2)
+            );
+            if (distance <= hotZoneRadius && index === 1) {
+              window.location.href = "B1chat/index.html";
+            }
+          });
+        });
+      })();
+    })();
+
+    // PWA Service Worker 注册
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('Service Worker 注册成功:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('Service Worker 注册失败:', error);
+          });
+      });
+    }
+
+  </script>
+</body>
+</html>

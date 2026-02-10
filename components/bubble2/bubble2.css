@@ -1,0 +1,306 @@
+/**
+ * Bubble2 组件样式
+ * 默认态 + 展开态，与 bubble2.pen 中「Bubble2-默认态」「Bubble2-展开态」对应
+ * 交互：长按默认态 → 展开态浮层
+ */
+:root {
+  --bubble2-transition-duration: 280ms;
+  --bubble2-transition-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --bubble2-expand-scale-start: 0.25;
+  --bubble2-long-press-ms: 500;
+}
+
+/* ---------- 默认态（Bubble2-默认态）：上方黄色矩形（两图横排）+ 下方黄色气泡（一图） ---------- */
+.bubble2 {
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bubble2__default {
+  position: relative;
+  width: 150px;
+  /* 上方矩形 H110 + 间距 10 + 下方气泡 H41 + 尾巴 12 = 173 */
+  height: 173px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 上下两个黄色块左对齐 */
+  padding: 0;
+  gap: 0;
+  transition: transform var(--bubble2-transition-duration) var(--bubble2-transition-ease);
+}
+
+.bubble2__default:focus {
+  outline: none;
+}
+
+.bubble2__default:focus-visible {
+  outline: 2px solid #ffdf3c;
+  outline-offset: 2px;
+}
+
+/* 上方：黄色矩形 W150、H110，里面图片到矩形边距离 6 */
+.bubble2__top {
+  width: 150px;
+  height: 110px;
+  background: #FFDF3C;
+  border-radius: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start; /* 左图贴左，与左侧保持 padding 6px */
+  gap: 2px; /* 内容区 138px，103+2+33=138，右图距右边 6px */
+  padding: 6px; /* 图片到矩形四边距离 6 */
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
+
+.bubble2__top-img {
+  object-fit: contain;
+  display: block;
+}
+
+/* 左图：Group 27，内容区 (150-12)×(110-12)=138×98 内适配 */
+.bubble2__top-img--left {
+  width: 103px;
+  height: 94px;
+}
+
+/* 右图：Group 24，.pen 中 33×58 */
+.bubble2__top-img--right {
+  width: 33px;
+  height: 58px;
+}
+
+/* 下方：独立黄色气泡（不含三角）W118、H41 */
+.bubble2__bottom {
+  position: relative;
+  width: 118px;
+  height: 41px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bubble2__bottom-shape {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 118px;
+  height: 41px;
+  border-radius: 16px;
+  background: #FFDF3C;
+  z-index: 0;
+}
+
+/* 气泡内一图：Group 28，在 118×41 内居中 */
+.bubble2__bottom-img {
+  position: relative;
+  z-index: 1;
+  width: 107px;
+  height: 21px;
+  object-fit: contain;
+}
+
+/* 气泡尾巴：朝下且略偏左（图1），与气泡底边衔接 */
+.bubble2__default-tail {
+  position: absolute;
+  left: 28%; /* 略偏左，非居中 */
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  z-index: 2;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 12px solid #FFDF3C;
+}
+
+.bubble2__default:hover {
+  transform: scale(1.02);
+}
+
+.bubble2__default.is-long-pressing {
+  transform: scale(0.98);
+}
+
+/* ---------- 展开态（Bubble2-展开态）：深色卡片 223×274，黄色描边 ---------- */
+.bubble2__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition: opacity var(--bubble2-transition-duration) ease,
+              visibility 0s linear var(--bubble2-transition-duration),
+              backdrop-filter var(--bubble2-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble2-transition-duration) ease;
+}
+
+.bubble2__overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity var(--bubble2-transition-duration) ease,
+              backdrop-filter var(--bubble2-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble2-transition-duration) ease;
+}
+
+.bubble2__expanded {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform-origin: left top;
+  transform: scale(var(--bubble2-expand-scale-start, 0.25));
+  opacity: 0;
+  transition: transform var(--bubble2-transition-duration) var(--bubble2-transition-ease),
+              opacity var(--bubble2-transition-duration) ease;
+  z-index: 1;
+  cursor: default;
+}
+
+.bubble2__overlay.is-visible .bubble2__expanded {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* 展开态卡片：与 .pen 中「展开态卡片」一致（黑→#0c1076 渐变，6px 黄色描边） */
+.bubble2__expanded-card {
+  width: 223px;
+  height: 274px;
+  border-radius: 16px;
+  border: 6px solid #ffdf3c;
+  background: linear-gradient(180deg, #000000 0%, #0c1076 100%);
+  box-sizing: border-box;
+  box-shadow: 0 3px 3.5px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 展开态聊天区域：可滚动，右侧显示滚动条 */
+.bubble2__expanded-chat {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 6px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  /* 右侧滚动条样式（保留一定宽度便于滑动） */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+.bubble2__expanded-chat::-webkit-scrollbar {
+  width: 6px;
+}
+.bubble2__expanded-chat::-webkit-scrollbar-track {
+  background: transparent;
+}
+.bubble2__expanded-chat::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 3px;
+}
+.bubble2__expanded-chat::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* 单条消息 */
+.bubble2__chat-msg {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #fff;
+  word-break: break-word;
+}
+
+/* 系统消息：居中、灰色背景 */
+.bubble2__chat-msg--system {
+  align-self: center;
+  text-align: center;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 90%;
+}
+
+/* 玩家消息：左侧、微信式气泡 */
+.bubble2__chat-msg--other {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  max-width: 92%;
+}
+.bubble2__chat-name {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.65);
+  padding-left: 2px;
+}
+.bubble2__chat-bubble {
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #1a1a1a;
+  border-radius: 8px 8px 8px 2px;
+  font-size: 12px;
+  line-height: 1.45;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+
+.bubble2__overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+/* ---------- 预览页布局 ---------- */
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: transparent;
+}
+
+.preview-page {
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.preview-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+/* 嵌入主界面时：内容与 270×330 frame 左上对齐，两状态完整呈现 */
+.bubble2-embed .preview-page {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  align-items: flex-start;
+}
+
+.bubble2-embed .preview-row {
+  margin: 0;
+}
+
+/* 嵌入时：遮罩和模糊由主界面负责，组件内展开层不绘制遮罩 */
+.bubble2-embed .bubble2__overlay.is-visible {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}

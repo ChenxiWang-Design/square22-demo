@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bubble4 预览</title>
+  <link rel="stylesheet" href="bubble4.css" />
+</head>
+<body>
+  <div class="preview-page">
+    <div class="preview-row">
+      <div class="bubble4">
+        <div class="bubble4__default" id="bubble4-default" role="button" tabindex="0" aria-label="长按展开">
+          <!-- 气泡形状 -->
+          <svg class="bubble4__shape" viewBox="0 0 155 84" aria-hidden="true">
+            <path d="M16 0L139 0Q155 0 155 16L155 60Q155 76 139 76L87.5 76L77.5 84L67.5 76L16 76Q0 76 0 60L0 16Q0 0 16 0Z" fill="#ffffff" />
+          </svg>
+          
+          <!-- 渐变矩形 -->
+          <div class="bubble4__gradient-rect" aria-hidden="true"></div>
+          
+          <!-- 默认态上半部分文案 -->
+          <div class="bubble4__default-greeting" aria-hidden="true">Hi!</div>
+          
+          <!-- 蒙版容器（包含图片和脸部元素） -->
+          <div class="bubble4__mask-container">
+            <!-- 圆球图片 -->
+            <div class="bubble4__image-wrapper">
+              <img src="../../Pic/AgentBall.png" alt="" class="bubble4__ball-image" />
+              
+              <!-- 脸部元素组 -->
+              <div class="bubble4__face-group">
+                <!-- 左眼 -->
+                <div class="bubble4__eye bubble4__eye--left" id="bubble4-left-eye"></div>
+                <!-- 右眼 -->
+                <div class="bubble4__eye bubble4__eye--right" id="bubble4-right-eye"></div>
+                <!-- 嘴巴（切掉一半的椭圆，6×12，显示下半部分） -->
+                <svg class="bubble4__mouth" id="bubble4-mouth" viewBox="0 0 6 12" width="6" height="12" style="overflow: hidden;">
+                  <!-- 绘制下半椭圆：从左边底部(0,6)经过底部(3,12)到右边底部(6,6)，然后闭合 -->
+                  <path d="M 0 6 A 3 6 0 0 0 3 12 A 3 6 0 0 0 6 6 Z" fill="#000000" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 展开态浮层：长按默认态后显示 -->
+  <div class="bubble4__overlay" id="bubble4-overlay" aria-hidden="true">
+    <div class="bubble4__overlay-backdrop" id="bubble4-backdrop"></div>
+    <div class="bubble4__expanded" id="bubble4-expanded">
+      <div class="bubble4__expanded-container">
+        <!-- 白色圆角矩形背景 -->
+        <div class="bubble4__expanded-bg"></div>
+        
+        <!-- 渐变矩形 -->
+        <div class="bubble4__expanded-gradient-rect"></div>
+        
+        <!-- 文本显示区域（上半部分） -->
+        <div class="bubble4__expanded-text-container" id="bubble4-expanded-text">
+          <div class="bubble4__expanded-text-content"></div>
+        </div>
+        
+        <!-- 蒙版容器（包含图片和脸部元素） -->
+        <div class="bubble4__expanded-mask-container">
+          <div class="bubble4__expanded-image-wrapper">
+            <img src="../../Pic/AgentBall.png" alt="" class="bubble4__expanded-ball-image" />
+            
+            <!-- 脸部元素组（等比放大2.4146倍） -->
+            <div class="bubble4__expanded-face-group">
+              <!-- 左眼 -->
+              <div class="bubble4__expanded-eye bubble4__expanded-eye--left" id="bubble4-expanded-left-eye"></div>
+              <!-- 右眼 -->
+              <div class="bubble4__expanded-eye bubble4__expanded-eye--right" id="bubble4-expanded-right-eye"></div>
+              <!-- 嘴巴（切掉一半的椭圆，显示下半部分） -->
+              <svg class="bubble4__expanded-mouth" id="bubble4-expanded-mouth" viewBox="0 0 6 12" width="14.5" height="29" style="overflow: hidden;">
+                <!-- 绘制下半椭圆：从左边底部(0,6)经过底部(3,12)到右边底部(6,6)，然后闭合 -->
+                <path d="M 0 6 A 3 6 0 0 0 3 12 A 3 6 0 0 0 6 6 Z" fill="#000000" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="bubble4.js"></script>
+</body>
+</html>

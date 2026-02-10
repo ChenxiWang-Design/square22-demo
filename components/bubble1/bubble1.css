@@ -1,0 +1,304 @@
+/**
+ * Bubble1 组件样式
+ * 默认态 + 展开态，与 bubble1.pen 中「Bubble1-默认态」「Bubble1-展开态」对应
+ *
+ * StPageFlip 内页柔软卷曲（非封面生硬翻页）：两页均为软页，固定尺寸，内容随页翻动。
+ */
+:root {
+  --bubble1-transition-duration: 280ms;
+  --bubble1-transition-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --bubble1-expand-scale-start: 0.25;
+}
+
+/* ---------- 默认态（Bubble1-默认态）：白底 + 绿面两层，绿面可翻页 ---------- */
+.bubble1 {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bubble1__default {
+  position: relative;
+  width: 143px;
+  height: 60px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  overflow: visible;   /* 保证底部小三角不被裁切 */
+  transition: transform var(--bubble1-transition-duration) var(--bubble1-transition-ease);
+}
+
+/* 白色圆角矩形（底层，充当描边） */
+.bubble1__default-border {
+  position: absolute;
+  inset: 0;
+  width: 143px;
+  height: 60px;
+  border-radius: 16px;
+  background: #ffffff;
+  z-index: 0;
+}
+
+/* 固定翻书区域：StPageFlip 固定尺寸，容器不飘动 */
+.bubble1__flipbook-wrap {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 131px;
+  height: 48px;
+  z-index: 1;
+  overflow: visible;
+}
+
+.bubble1__flipbook-wrap #bubble-flipbook {
+  width: 131px;
+  height: 48px;
+  margin: 0;
+  overflow: visible;
+  display: block;
+}
+
+/* StPageFlip 注入的包装需填满容器并接收点击 */
+.bubble1__flipbook-wrap #bubble-flipbook.stf__parent,
+.bubble1__flipbook-wrap #bubble-flipbook .stf__wrapper,
+.bubble1__flipbook-wrap #bubble-flipbook .stf__block {
+  width: 100%;
+  height: 100%;
+  min-width: 131px;
+  min-height: 48px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* 内页柔软卷曲：绿色页与展开页均为软页，无 data-density="hard" */
+.bubble1__flipbook .page {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bubble1-page--green .page-content,
+.bubble1-page--green {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background: linear-gradient(
+    -119.14deg,
+    #d6ff80 0%,
+    #8fc47c 100%
+  );
+  border-radius: 10px;
+}
+
+/* 垫在翻动页下方的静态页：纯灰，不随翻页动 */
+.bubble1-page--expanded .page-content,
+.bubble1-page--expanded {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background: #EDEDED;
+  border-radius: 10px;
+}
+
+.bubble1__default:hover {
+  transform: scale(1.02);
+}
+
+/* 默认态底部小三角（与 bubble2 等一致：宽 20 高 12，白色，顶边与气泡底边衔接） */
+.bubble1__tail {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.bubble1__tail::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 12px solid #ffffff;
+}
+
+.bubble1-page__text {
+  position: relative;
+  z-index: 2;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.5;
+  color: #000000;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 100%;
+}
+
+/* ---------- 展开态（Bubble1-展开态，以默认态左上角为中心放大） ---------- */
+.bubble1__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition: opacity var(--bubble1-transition-duration) ease,
+              visibility 0s linear var(--bubble1-transition-duration),
+              backdrop-filter var(--bubble1-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble1-transition-duration) ease;
+}
+
+.bubble1__overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity var(--bubble1-transition-duration) ease,
+              backdrop-filter var(--bubble1-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble1-transition-duration) ease;
+}
+
+/* 展开卡片：position 由 JS 设为默认态左上角，以左上角为原点缩放 */
+.bubble1__expanded {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 223px;
+  height: 274px;
+  border-radius: 16px;
+  border: 6px solid #ffffff;
+  background: linear-gradient(
+    -119.14deg,
+    #d6ff80 0%,
+    #8fc47c 100%
+  );
+  box-sizing: border-box;
+  padding: 22px 20px;
+  box-shadow: 0 3px 3.5px rgba(0, 0, 0, 0.25);
+  transform-origin: left top;
+  transform: scale(var(--bubble1-expand-scale-start, 0.25));
+  opacity: 0;
+  transition: transform var(--bubble1-transition-duration) var(--bubble1-transition-ease),
+              opacity var(--bubble1-transition-duration) ease;
+}
+
+.bubble1__overlay.is-visible .bubble1__expanded {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* 展开态左上角蓝色胶带贴纸（约为原尺寸两倍），向右、向下各移 10px 以完整呈现 */
+.bubble1__expanded-tape {
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 88px;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.bubble1__expanded-text {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.5;
+  color: #000000;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+  max-width: 180px;
+  margin-top: 42px;
+}
+
+/* 点击遮罩关闭 */
+.bubble1__overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+/* 展开卡片不响应点击关闭（仅遮罩关闭） */
+.bubble1__expanded {
+  position: relative;
+  z-index: 1;
+  cursor: default;
+}
+
+/* ---------- 预览页布局 ---------- */
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: transparent;
+}
+
+.preview-page {
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* 嵌入主界面时：内容与 270×330 frame 左上对齐，禁止出现滚动条 */
+html.bubble1-embed {
+  overflow: hidden;
+}
+html.bubble1-embed body {
+  overflow: hidden;
+  margin: 0;
+}
+.bubble1-embed .preview-page {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  align-items: flex-start;
+  overflow: visible;   /* 允许默认态底部小三角露出 */
+}
+.bubble1-embed .preview-row {
+  margin: 0;
+}
+
+/* 嵌入时：遮罩和模糊由主界面负责，组件内展开层不绘制遮罩 */
+.bubble1-embed .bubble1__overlay.is-visible {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.preview-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.preview-hint {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}

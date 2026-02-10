@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注册流程</title>
+  <link rel="stylesheet" href="register.css">
+</head>
+<body>
+  <div class="register-container">
+    <div class="page-wrapper">
+      <!-- R1 页面 -->
+      <div class="page page-1 active" data-page="1">
+        <div class="page-content page-1-content">
+          <!-- R1 背景 SVG -->
+          <div class="register-svg-container">
+            <img src="../Pic/Register/R1.svg" alt="" class="register-svg" />
+          </div>
+          
+          <!-- 头像 + 眼睛叠加层 -->
+          <div class="register-avatar-overlay">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <image href="../Pic/Register/头像.svg" x="0" y="0" width="360" height="793" />
+            </svg>
+          </div>
+          
+          <!-- 输入框 SVG 叠加层 -->
+          <div class="register-input-overlay">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <image href="../Pic/Register/R1输入框.svg" x="0" y="0" width="360" height="793" />
+            </svg>
+          </div>
+          
+          <!-- 文本和进度点叠加层 -->
+          <div class="register-text-overlay">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <!-- AI说文本 -->
+              <image href="../Pic/Register/R1AI说.svg" x="0" y="0" width="360" height="793" />
+              <!-- 菜单称呼文本（隐藏，仅用于数据同步） -->
+              <text id="register-menu-text-svg" class="register-menu-text" x="180" y="400" fill="transparent" style="display: none;"></text>
+              <!-- 举例文本 -->
+              <text id="register-example-text-svg" class="register-example-text" x="180" y="420" fill="transparent" style="display: none;"></text>
+              <!-- 进度点 -->
+              <circle class="progress-dot" cx="180" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="210" cy="750" r="4" fill="white" opacity="0.1" />
+              <circle class="progress-dot" cx="240" cy="750" r="4" fill="white" opacity="0.1" />
+              <circle class="progress-dot" cx="270" cy="750" r="4" fill="white" opacity="0.1" />
+              <circle class="progress-dot" cx="300" cy="750" r="4" fill="white" opacity="0.1" />
+            </svg>
+          </div>
+          
+          <!-- 输入框和按钮（HTML元素） -->
+          <input 
+            type="text" 
+            id="register-avatar-name-input" 
+            class="register-avatar-name-input" 
+            placeholder="请输入分身名字"
+          />
+          
+          <!-- 称呼选择下拉菜单 -->
+          <div id="register-title-trigger" class="register-title-selector register-title-trigger">
+            <span id="register-title-display">本人 - 正式通用的称呼</span>
+            <span class="register-title-arrow">▼</span>
+          </div>
+          <div id="register-title-menu" class="register-title-menu">
+            <div class="register-title-option" data-value="1">
+              <span class="register-title-option-text">本人 - 正式通用的称呼</span>
+            </div>
+            <div class="register-title-option" data-value="2">
+              <span class="register-title-option-text">本尊 - 威风凛凛的称呼</span>
+            </div>
+            <div class="register-title-option" data-value="3">
+              <span class="register-title-option-text">正主 - 娱乐轻松的称呼</span>
+            </div>
+          </div>
+          
+          <!-- 错误提示文本 -->
+          <div id="register-name-error-text" class="register-name-error-text" style="display: none; opacity: 0;">
+            请输入分身名字
+          </div>
+          
+          <!-- 下一步按钮 -->
+          <div id="register-next-button" class="register-next-button-clickable register-next-button-disabled">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <image href="../Pic/Register/下一步按钮.svg" x="22" y="712" width="316" height="81" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <!-- R2 页面 -->
+      <div class="page page-2" data-page="2">
+        <div class="page-content page-2-content">
+          <!-- R2 背景 -->
+          <img src="../Pic/Register/渐变背景.jpg" alt="" class="register-r2-background" />
+          
+          <!-- R2 内容叠加层 -->
+          <div class="register-r2-content-overlay">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <!-- Header -->
+              <image href="../Pic/Register/R2/header.svg" x="0" y="0" width="360" height="793" />
+              
+              <!-- 分身名字文本 -->
+              <text id="register-r2-avatar-name" class="register-r2-avatar-name" x="72" y="54" font-size="16" fill="black"></text>
+              
+              <!-- AI说文本 -->
+              <image href="../Pic/Register/R2/R2AI说.svg" x="0" y="0" width="360" height="793" />
+              
+              <!-- 进度点 -->
+              <circle class="progress-dot" cx="180" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="210" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="240" cy="750" r="4" fill="white" opacity="0.1" />
+              <circle class="progress-dot" cx="270" cy="750" r="4" fill="white" opacity="0.1" />
+              <circle class="progress-dot" cx="300" cy="750" r="4" fill="white" opacity="0.1" />
+            </svg>
+          </div>
+          
+          <!-- R2 头像叠加层 -->
+          <div class="register-r2-avatar-overlay">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <g class="register-r2-ball-float">
+                <image href="../Pic/Register/头像.svg" x="0" y="0" width="360" height="793" />
+                <!-- 眼睛 -->
+                <g class="register-r2-eye register-r2-eye-left">
+                  <line class="register-r2-eye-line" x1="158.75" y1="231" x2="158.75" y2="231" stroke="black" stroke-width="2" />
+                </g>
+                <g class="register-r2-eye register-r2-eye-right">
+                  <line class="register-r2-eye-line" x1="191.25" y1="231" x2="191.25" y2="231" stroke="black" stroke-width="2" />
+                </g>
+              </g>
+            </svg>
+          </div>
+          
+          <!-- 返回按钮 -->
+          <div id="register-r2-back-button" class="register-r2-back-button"></div>
+          
+          <!-- 拍照按钮 -->
+          <div id="register-camera-button" class="register-camera-button-clickable">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <image href="../Pic/Register/R2/拍照按钮.svg" x="0" y="0" width="360" height="793" />
+            </svg>
+          </div>
+          
+          <!-- 自动生成按钮 -->
+          <div id="register-auto-generate-button" class="register-auto-generate-button-clickable">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <image href="../Pic/Register/R2/自动生成按钮.svg" x="0" y="0" width="360" height="793" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <!-- R3 页面 -->
+      <div class="page page-3" data-page="3">
+        <div class="page-content page-3-content">
+          <!-- R3 背景 -->
+          <img src="../Pic/Register/渐变背景.jpg" alt="" class="register-r3-background" />
+          
+          <!-- R3 内容叠加层 -->
+          <div class="register-r3-content-overlay">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <!-- Header -->
+              <image href="../Pic/Register/R2/header.svg" x="0" y="0" width="360" height="793" />
+              
+              <!-- 分身名字文本 -->
+              <text id="register-r3-avatar-name" class="register-r3-avatar-name" x="72" y="54" font-size="16" fill="black"></text>
+              
+              <!-- AI说文本 -->
+              <image href="../Pic/Register/R3/R3AI说.svg" x="0" y="0" width="360" height="793" />
+              
+              <!-- 进度点 -->
+              <circle class="progress-dot" cx="180" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="210" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="240" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="270" cy="750" r="4" fill="white" opacity="0.1" />
+              <circle class="progress-dot" cx="300" cy="750" r="4" fill="white" opacity="0.1" />
+            </svg>
+          </div>
+          
+          <!-- R3 头像叠加层 -->
+          <div class="register-r3-avatar-overlay">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <g class="register-r3-ball-float">
+                <image href="../Pic/Register/R3/深色头像.svg" x="0" y="0" width="360" height="793" />
+                <!-- 眼睛 -->
+                <g class="register-r3-eye register-r3-eye-left">
+                  <line class="register-r3-eye-line" x1="158.75" y1="231" x2="158.75" y2="231" stroke="black" stroke-width="2" />
+                </g>
+                <g class="register-r3-eye register-r3-eye-right">
+                  <line class="register-r3-eye-line" x1="191.25" y1="231" x2="191.25" y2="231" stroke="black" stroke-width="2" />
+                </g>
+              </g>
+            </svg>
+          </div>
+          
+          <!-- R3 用户头像加载动画 -->
+          <div class="register-r3-avatar-loading">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <g transform="translate(180, 486)">
+                <!-- 8个小球加载动画 -->
+                <g class="register-r3-loader-ball" style="--i: 0;">
+                  <g class="register-r3-loader-ball-inner">
+                    <circle cx="0" cy="0" r="3" fill="white" />
+                  </g>
+                </g>
+                <g class="register-r3-loader-ball" style="--i: 1;">
+                  <g class="register-r3-loader-ball-inner">
+                    <circle cx="0" cy="0" r="3" fill="white" />
+                  </g>
+                </g>
+                <g class="register-r3-loader-ball" style="--i: 2;">
+                  <g class="register-r3-loader-ball-inner">
+                    <circle cx="0" cy="0" r="3" fill="white" />
+                  </g>
+                </g>
+                <g class="register-r3-loader-ball" style="--i: 3;">
+                  <g class="register-r3-loader-ball-inner">
+                    <circle cx="0" cy="0" r="3" fill="white" />
+                  </g>
+                </g>
+                <g class="register-r3-loader-ball" style="--i: 4;">
+                  <g class="register-r3-loader-ball-inner">
+                    <circle cx="0" cy="0" r="3" fill="white" />
+                  </g>
+                </g>
+                <g class="register-r3-loader-ball" style="--i: 5;">
+                  <g class="register-r3-loader-ball-inner">
+                    <circle cx="0" cy="0" r="3" fill="white" />
+                  </g>
+                </g>
+                <g class="register-r3-loader-ball" style="--i: 6;">
+                  <g class="register-r3-loader-ball-inner">
+                    <circle cx="0" cy="0" r="3" fill="white" />
+                  </g>
+                </g>
+                <g class="register-r3-loader-ball" style="--i: 7;">
+                  <g class="register-r3-loader-ball-inner">
+                    <circle cx="0" cy="0" r="3" fill="white" />
+                  </g>
+                </g>
+              </g>
+            </svg>
+          </div>
+          
+          <!-- R3 用户头像图片 -->
+          <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg" class="register-r3-user-avatar">
+            <image 
+              id="register-r3-user-avatar-img" 
+              class="register-r3-user-avatar-clickable" 
+              href="../Pic/Register/R3/用户头像.png" 
+              x="60" 
+              y="366" 
+              width="240" 
+              height="240" 
+              preserveAspectRatio="xMidYMid slice" 
+            />
+          </svg>
+          
+          <!-- 返回按钮 -->
+          <div id="register-r3-back-button" class="register-r3-back-button"></div>
+          
+          <!-- 下一步按钮 -->
+          <div id="register-r3-next-button" class="register-r3-next-button-clickable register-r3-next-button-disabled">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <image href="../Pic/Register/下一步按钮.svg" x="22" y="712" width="316" height="81" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <!-- R4 页面（占位，待完善） -->
+      <div class="page page-4" data-page="4">
+        <div class="page-content page-4-content">
+          <!-- R4 背景 -->
+          <img src="../Pic/Register/渐变背景.jpg" alt="" class="register-r4-background" />
+          
+          <!-- R4 内容叠加层 -->
+          <div class="register-r4-content-overlay">
+            <svg viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <!-- Header -->
+              <image href="../Pic/Register/R2/header.svg" x="0" y="0" width="360" height="793" />
+              
+              <!-- 分身名字文本 -->
+              <text id="register-r4-avatar-name" class="register-r4-avatar-name" x="72" y="54" font-size="16" fill="black"></text>
+              
+              <!-- 进度点 -->
+              <circle class="progress-dot" cx="180" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="210" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="240" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="270" cy="750" r="4" fill="white" opacity="1" />
+              <circle class="progress-dot" cx="300" cy="750" r="4" fill="white" opacity="0.1" />
+            </svg>
+          </div>
+          
+          <!-- 返回按钮 -->
+          <div id="register-r4-back-button" class="register-r4-back-button"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 拍照界面覆盖层 -->
+    <div id="register-camera-overlay" class="register-camera-overlay" style="display: none;">
+      <div class="register-camera-container">
+        <video id="register-camera-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+        <canvas id="register-camera-canvas" style="display: none;"></canvas>
+        <img id="register-camera-captured" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
+        
+        <div class="register-camera-controls">
+          <button id="register-camera-retake" style="display: none;">重拍</button>
+          <button id="register-camera-capture">拍摄</button>
+          <button id="register-camera-confirm" style="display: none;">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="register.js"></script>
+</body>
+</html>

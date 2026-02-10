@@ -1,0 +1,381 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "rectangle",
+      "cornerRadius": 10,
+      "id": "UoxKo",
+      "x": -85,
+      "y": 312,
+      "name": "圆角矩形背景",
+      "fill": {
+        "type": "gradient",
+        "gradientType": "linear",
+        "enabled": true,
+        "rotation": 0,
+        "size": {
+          "height": 1
+        },
+        "colors": [
+          {
+            "color": "#ecbeff",
+            "position": 0
+          },
+          {
+            "color": "#94a4ff",
+            "position": 1
+          }
+        ]
+      },
+      "width": 203,
+      "height": 255,
+      "stroke": {
+        "align": "inside",
+        "thickness": 1
+      }
+    },
+    {
+      "type": "frame",
+      "id": "bi8Au",
+      "x": 0,
+      "y": 3,
+      "name": "Bubble4-默认态",
+      "clip": true,
+      "width": 160,
+      "height": 88,
+      "fill": {
+        "type": "color",
+        "color": "#a8a8a8ff",
+        "enabled": false
+      },
+      "layout": "none",
+      "children": [
+        {
+          "type": "path",
+          "id": "QbMOE",
+          "x": 2.5,
+          "y": 0,
+          "name": "气泡形状",
+          "geometry": "M16 0l123 0q16 0 16 16l0 44q0 16-16 16l-46 0-15.5 8-15.5-8-46 0q-16 0-16-16l0-44q0-16 16-16z",
+          "fill": "#ffffffff",
+          "width": 155,
+          "height": 84
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 10,
+          "id": "1Noh4",
+          "x": 8.5,
+          "y": 6,
+          "name": "gradientRect",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 180,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#94A4FF",
+                "position": 0
+              },
+              {
+                "color": "#ECBEFF",
+                "position": 1
+              }
+            ]
+          },
+          "width": 143,
+          "height": 64
+        },
+        {
+          "type": "frame",
+          "id": "6sPx9",
+          "x": 8.5,
+          "y": 6,
+          "name": "maskFrame",
+          "clip": true,
+          "width": 143,
+          "height": 64,
+          "cornerRadius": 10,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Og7eg",
+              "x": -94.5,
+              "y": -84,
+              "name": "imageFrame",
+              "width": 328,
+              "height": 328,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "./Pic/AgentBall.png",
+                "mode": "fill"
+              },
+              "children": [
+                {
+                  "type": "group",
+                  "id": "fZSst",
+                  "name": "faceGroup",
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "ukCQo",
+                      "x": 150,
+                      "y": 140,
+                      "name": "leftEye",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": 180,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#000000",
+                            "position": 0
+                          },
+                          {
+                            "color": "#ECBEFF",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "width": 8,
+                      "height": 12
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "9uqYt",
+                      "x": 170,
+                      "y": 140,
+                      "name": "rightEye",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": 180,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#000000",
+                            "position": 0
+                          },
+                          {
+                            "color": "#ECBEFF",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "width": 8,
+                      "height": 12
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "5ZpFF",
+                      "x": 156,
+                      "y": 160,
+                      "name": "mouth",
+                      "sweepAngle": 180,
+                      "fill": "#000000",
+                      "width": 16,
+                      "height": 20
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "rectangle",
+      "cornerRadius": 10,
+      "id": "M1ByV",
+      "x": 0,
+      "y": 295,
+      "name": "圆角矩形背景",
+      "fill": {
+        "type": "gradient",
+        "gradientType": "linear",
+        "enabled": true,
+        "rotation": 0,
+        "size": {
+          "height": 1
+        },
+        "colors": [
+          {
+            "color": "#ecbeff",
+            "position": 0
+          },
+          {
+            "color": "#94a4ff",
+            "position": 1
+          }
+        ]
+      },
+      "width": 203,
+      "height": 255,
+      "stroke": {
+        "align": "inside",
+        "thickness": 1
+      }
+    },
+    {
+      "type": "frame",
+      "id": "JUKTI",
+      "x": 217,
+      "y": 15,
+      "name": "Bubble4-展开态",
+      "width": 230,
+      "height": 280,
+      "fill": {
+        "type": "color",
+        "color": "#ffffffff",
+        "enabled": false
+      },
+      "layout": "none",
+      "children": [
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "lPXsl",
+          "x": 0,
+          "y": 0,
+          "fill": "#ffffffff",
+          "width": 223,
+          "height": 274,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 10,
+          "id": "go5HR",
+          "x": 6,
+          "y": 6,
+          "name": "expandedGradientRect",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 180,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#94A4FF",
+                "position": 0
+              },
+              {
+                "color": "#ECBEFF",
+                "position": 1
+              }
+            ]
+          },
+          "width": 211,
+          "height": 262
+        },
+        {
+          "type": "frame",
+          "id": "9chiD",
+          "x": 6,
+          "y": 6,
+          "name": "expandedMaskFrame",
+          "clip": true,
+          "width": 211,
+          "height": 262,
+          "cornerRadius": 10,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "gxsas",
+              "x": -294.5,
+              "y": -88.5,
+              "name": "expandedImageFrame",
+              "width": 792,
+              "height": 792,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "./Pic/AgentBall.png",
+                "mode": "fill"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "JGrOo",
+      "x": -463,
+      "y": -58,
+      "fill": "#CCCCCC",
+      "width": 155,
+      "height": 89
+    },
+    {
+      "type": "rectangle",
+      "id": "Em7xA",
+      "x": -280,
+      "y": 193,
+      "fill": "#CCCCCC",
+      "width": 155,
+      "height": 9
+    },
+    {
+      "type": "path",
+      "id": "LhMaE",
+      "x": -138,
+      "y": -143,
+      "name": "气泡形状",
+      "geometry": "M12 0l131 0q12 0 12 12l0 52q0 12-12 12l-54 0-11.5 4.5-11.5-4.5-54 0q-12 0-12-12l0-52q0-12 12-12z",
+      "fill": "#ffffffff",
+      "width": 155,
+      "height": 85,
+      "stroke": {
+        "align": "inside",
+        "thickness": 1
+      }
+    },
+    {
+      "type": "rectangle",
+      "id": "m9VS5",
+      "x": -203,
+      "y": -9,
+      "fill": "#CCCCCC",
+      "width": 155,
+      "height": 82
+    },
+    {
+      "type": "rectangle",
+      "cornerRadius": 10,
+      "id": "hV4QM",
+      "x": 551,
+      "y": 3,
+      "name": "圆角矩形背景",
+      "fill": "#FFEAB6",
+      "width": 203,
+      "height": 255,
+      "stroke": {
+        "align": "inside",
+        "thickness": 1,
+        "fill": "#9E4C05"
+      }
+    }
+  ]
+}

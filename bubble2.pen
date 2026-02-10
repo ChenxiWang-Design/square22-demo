@@ -1,0 +1,148 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "0zNjl",
+      "x": 27,
+      "y": -546,
+      "name": "Bubble2-默认态",
+      "width": 161,
+      "height": 191,
+      "layout": "none",
+      "children": [
+        {
+          "type": "group",
+          "id": "4wB4n",
+          "x": -6,
+          "y": -4,
+          "children": [
+            {
+              "type": "path",
+              "id": "PrOqn",
+              "x": 6,
+              "y": 4,
+              "geometry": "M134 0c8.83701 0 16 7.163 16 16l0 78c0 8.837-7.16299 16-16 16l-118 0c-8.837 0-16-7.163-16-16l0-78c0-8.837 7.163-16 16-16l118 0z",
+              "fill": "#FFDF3C",
+              "width": 150,
+              "height": 110
+            }
+          ]
+        },
+        {
+          "type": "rectangle",
+          "id": "xpXAZ",
+          "x": 114,
+          "y": 26,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images\\Group 24.png",
+            "mode": "fill"
+          },
+          "width": 33,
+          "height": 58
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "oAVDp",
+          "x": 0,
+          "y": 124,
+          "fill": "#ffdf3cff",
+          "width": 118,
+          "height": 41
+        },
+        {
+          "type": "rectangle",
+          "id": "asoi4",
+          "x": 5.0909090909090935,
+          "y": 135,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images\\Group 28.png",
+            "mode": "fill"
+          },
+          "width": 107,
+          "height": 21
+        },
+        {
+          "type": "path",
+          "id": "MCiCA",
+          "x": 48,
+          "y": 157,
+          "geometry": "M12.91498 15.222c-0.37892 0.48702-0.96144 0.77186-1.5785 0.77186-0.61707 0-1.19958-0.28484-1.5785-0.77186l-9.333-11.994c-1.022-1.313-0.085-3.228 1.579-3.228l18.665 0c1.665 0 2.601 1.915 1.57901 3.228l-9.33301 11.994z",
+          "fill": "#FFDF3C",
+          "width": 22.673144787549973,
+          "height": 15.993856430053711
+        },
+        {
+          "type": "rectangle",
+          "id": "lB01w",
+          "x": 9,
+          "y": 8,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images\\Group 27.png",
+            "mode": "fill"
+          },
+          "width": 103,
+          "height": 94
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "uxHLT",
+      "x": 513,
+      "y": -546,
+      "name": "Bubble2-展开态",
+      "width": 270,
+      "height": 330,
+      "fill": {
+        "type": "color",
+        "color": "#ffffffff",
+        "enabled": false
+      },
+      "layout": "none",
+      "children": [
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "Yd9Yh",
+          "x": 23,
+          "y": 22,
+          "name": "展开态卡片",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#000000ff",
+                "position": 0
+              },
+              {
+                "color": "#0c1076",
+                "position": 1
+              }
+            ]
+          },
+          "width": 223,
+          "height": 274,
+          "stroke": {
+            "align": "inside",
+            "thickness": 6,
+            "fill": "#ffdf3cff"
+          }
+        }
+      ]
+    }
+  ]
+}

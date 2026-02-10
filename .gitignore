@@ -1,0 +1,41 @@
+# 环境变量和敏感信息
+.env
+.env.local
+*.key
+*.pem
+
+# 包含API密钥的文件（不应提交）
+*使用我的密钥.bat
+*包含密钥.bat
+
+# 历史记录文件（可能包含敏感信息）
+.specstory/history/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+*.tmp
+*.log
+*.cache
+
+# 构建输出
+dist/
+build/
+*.min.js
+*.min.css

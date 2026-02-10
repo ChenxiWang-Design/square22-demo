@@ -1,0 +1,3018 @@
+/* 重置默认样式 */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000;
+}
+
+/* Register2 主容器：360x793 */
+.register2-container {
+  width: 360px;
+  height: 793px;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+  flex-shrink: 0; /* 防止容器被压缩 */
+}
+
+/* 页面包装器 */
+.page-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 页面通用样式 */
+.page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1;
+}
+
+.page.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 10;
+}
+
+/* 页面内容 */
+.page-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden; /* 确保图片不会溢出 */
+}
+
+.page-content-layer {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 按钮样式 */
+.btn-next,
+.btn-prev {
+  padding: 12px 24px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px;
+}
+
+.btn-next {
+  background-color: #007AFF;
+  color: white;
+}
+
+.btn-next:hover {
+  background-color: #0056CC;
+  transform: translateY(-2px);
+}
+
+.btn-prev {
+  background-color: #8E8E93;
+  color: white;
+}
+
+.btn-prev:hover {
+  background-color: #6E6E73;
+  transform: translateY(-2px);
+}
+
+.btn-next:disabled,
+.btn-prev:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 进度指示器 */
+.progress-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+  background-color: rgba(255, 255, 255, 1);
+  transform: scale(1.2);
+}
+
+/* R1 页面特定样式 */
+.page-1-content {
+  position: relative;
+}
+
+/* 所有页面通用背景图片样式 */
+/* 原始图片尺寸1440x3172（容器360x793的4倍），缩小到1/4填满容器 */
+.page-background-image {
+  width: 360px; /* 缩小到1/4宽度（1440/4=360），正好是容器宽度 */
+  height: 793px; /* 缩小到1/4高度（3172/4=793），正好是容器高度 */
+  min-width: 360px; /* 确保最小宽度 */
+  min-height: 793px; /* 确保最小高度 */
+  max-width: 360px; /* 确保最大宽度 */
+  max-height: 793px; /* 确保最大高度 */
+  object-fit: fill; /* 填充整个容器 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  display: block; /* 确保图片作为块级元素显示 */
+}
+
+/* R1 Header */
+.r1-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.r1-header-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* R1 左上角返回按钮（跳转主界面） */
+.r1-back-button {
+  position: absolute;
+  left: 5.97%;
+  top: 6.31%;
+  width: 11.11%;
+  height: 5.05%;
+  cursor: pointer;
+  z-index: 302;
+  pointer-events: all;
+  transition: opacity 0.2s ease;
+}
+
+.r1-back-button:hover {
+  opacity: 0.7;
+}
+
+/* R1 AI说 SVG */
+.r1-ai-say {
+  position: absolute;
+  top: 297px; /* 顶端对齐Y297 */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  z-index: 5;
+  display: flex;
+  align-items: flex-start; /* 顶部对齐 */
+  justify-content: center;
+}
+
+.r1-ai-say-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R1 输入框 */
+.r1-input {
+  position: absolute;
+  top: 400px; /* 顶端Y在400 */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  z-index: 5;
+  display: flex;
+  align-items: flex-start; /* 顶部对齐 */
+  justify-content: center;
+  position: relative; /* 为可点击区域提供定位上下文 */
+}
+
+.r1-input-svg {
+  display: block;
+  width: auto;
+  height: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* R1 输入框可点击区域 */
+.r1-input-clickable {
+  position: absolute;
+  top: 432px; /* Y432 */
+  left: 40px; /* X40 */
+  width: 280px; /* W280 */
+  height: 56px; /* H56 */
+  cursor: text;
+  z-index: 100; /* 提高z-index确保可点击 */
+  background: transparent;
+  pointer-events: all; /* 确保可点击 */
+}
+
+/* R1 分身名称显示文本 */
+.r1-avatar-name-display {
+  position: absolute;
+  top: 448px; /* 顶端Y在448 */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.38); /* 黑色，透明度38% */
+  text-align: center;
+  white-space: nowrap;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* R1 隐藏的输入框 */
+.r1-avatar-name-input {
+  position: absolute;
+  top: 448px; /* 与显示文本位置对齐 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  padding: 0;
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.38); /* 黑色，透明度38% */
+  border: none;
+  background: transparent;
+  outline: none;
+  text-align: center;
+  z-index: 100;
+}
+
+/* R1 用户称呼下拉菜单 */
+.r1-title-selector {
+  position: absolute;
+  top: 552px; /* Y552 */
+  left: 40px; /* X40 */
+  width: 280px; /* W280 */
+  z-index: 200; /* 置顶，确保不被遮挡 */
+}
+
+/* R1 下拉菜单触发器 - 透明背景，因为SVG中已有白色矩形 */
+.r1-title-trigger {
+  width: 280px; /* W280 */
+  height: 56px; /* H56 */
+  background: transparent; /* 透明，因为SVG中已有白色圆角矩形 */
+  border: none;
+  border-radius: 16px;
+  padding: 0 20px;
+  cursor: pointer;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.r1-title-trigger:hover {
+  opacity: 0.8;
+}
+
+.r1-title-trigger.active {
+  opacity: 0.9;
+}
+
+.r1-title-trigger-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* 箭头靠右显示 */
+  width: 100%;
+  padding-right: 20px; /* 右侧内边距 */
+}
+
+.r1-title-display {
+  display: none; /* 隐藏触发器内的文本显示 */
+}
+
+/* R1 下拉箭头（放在橙色位置：文本"本人-正式通用的称呼"的右侧） */
+.r1-title-arrow {
+  position: absolute;
+  /* 箭头位置：在用户称呼显示文本的右侧 */
+  /* 用户称呼文本在Y568，居中显示，文本"本人-正式通用的称呼"宽度约160-180px */
+  /* 箭头应该在文本右侧约8px的位置，垂直居中对齐 */
+  left: calc(50% + 90px); /* 容器中心(180px) + 文本一半宽度(约90px) + 间距(约8px) */
+  top: 578px; /* Y568 + 10px（向下移动10） */
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  z-index: 201;
+  pointer-events: all;
+}
+
+.r1-title-arrow.active {
+  transform: rotate(180deg); /* 只旋转，不移动位置 */
+}
+
+/* R1 下拉菜单 */
+.r1-title-menu {
+  position: absolute;
+  top: 60px; /* 菜单在触发器下方 */
+  left: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: none;
+  z-index: 201; /* 置顶，确保在最上层 */
+}
+
+.r1-title-menu.show {
+  display: block;
+}
+
+.r1-title-option {
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.r1-title-option:last-child {
+  border-bottom: none;
+}
+
+.r1-title-option:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.r1-title-option-text {
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.87);
+  user-select: none;
+}
+
+/* R1 用户称呼显示文本 */
+.r1-user-title-display {
+  position: absolute;
+  top: 568px; /* 顶端Y在568 */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.38); /* 黑色，透明度38% */
+  text-align: center;
+  white-space: nowrap;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* R1 称呼简短文本（"本人"/"本尊"/"正主"） */
+.r1-title-short-display {
+  position: absolute;
+  top: 615px; /* Y615 */
+  left: 217px; /* X217 */
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgb(0, 0, 0); /* 黑色 */
+  white-space: nowrap;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* R1 头像 */
+.r1-avatar {
+  position: absolute;
+  top: 206.5px; /* 中心位置在Y206.5 */
+  left: 50%; /* 水平居中 */
+  transform: translate(-50%, -50%); /* 让SVG中心点对齐到Y206.5 */
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: r1AvatarBreathing 3.2s ease-in-out infinite; /* 呼吸感浮动动画 */
+}
+
+/* R1 头像呼吸感浮动动画 */
+@keyframes r1AvatarBreathing {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-8px); /* 向上浮动8px */
+  }
+}
+
+.r1-avatar-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R1 眼睛容器 */
+.r1-eyes-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 793px;
+  pointer-events: none;
+  z-index: 100; /* 确保在最顶层 */
+}
+
+/* R1 眼睛基础样式 */
+.r1-eye {
+  will-change: transform;
+  opacity: 1 !important; /* 确保可见 */
+}
+
+/* R1 左眼动画：四处张望 + 眨眼 */
+.r1-eye-left {
+  transform-origin: 172.5px 206.5px;
+  animation: r1EyeLookAroundLeft 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R1 右眼动画：四处张望 + 眨眼 */
+.r1-eye-right {
+  transform-origin: 187.5px 206.5px;
+  animation: r1EyeLookAroundRight 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R1 左眼动画关键帧 */
+@keyframes r1EyeLookAroundLeft {
+  0%, 100% {
+    transform: translate(0, 0) scaleY(1);
+  }
+  15% {
+    transform: translate(20px, -12px) scaleY(1);
+  }
+  30% {
+    transform: translate(15px, 16px) scaleY(1);
+  }
+  38% {
+    transform: translate(10px, 18px) scaleY(1);
+  }
+  /* 眨眼 */
+  41% {
+    transform: translate(10px, 18px) scaleY(0.08);
+  }
+  44% {
+    transform: translate(10px, 18px) scaleY(1);
+  }
+  55% {
+    transform: translate(-15px, -15px) scaleY(1);
+  }
+  72% {
+    transform: translate(-18px, 12px) scaleY(1);
+  }
+  85% {
+    transform: translate(-15px, -15px) scaleY(1);
+  }
+}
+
+/* R1 右眼动画关键帧 */
+@keyframes r1EyeLookAroundRight {
+  0%, 100% {
+    transform: translate(0, 0) scaleY(1);
+  }
+  15% {
+    transform: translate(20px, -12px) scaleY(1);
+  }
+  30% {
+    transform: translate(15px, 16px) scaleY(1);
+  }
+  38% {
+    transform: translate(10px, 18px) scaleY(1);
+  }
+  /* 眨眼 */
+  41% {
+    transform: translate(10px, 18px) scaleY(0.08);
+  }
+  44% {
+    transform: translate(10px, 18px) scaleY(1);
+  }
+  55% {
+    transform: translate(-15px, -15px) scaleY(1);
+  }
+  72% {
+    transform: translate(-18px, 12px) scaleY(1);
+  }
+  85% {
+    transform: translate(-15px, -15px) scaleY(1);
+  }
+}
+
+/* Header文字1：数字分身 */
+.header-text-1 {
+  position: absolute;
+  /* 返回按钮位置：left: 5.97%, top: 6.31%, width: 11.11%, height: 5.05% */
+  /* 返回按钮中心Y: top + height/2 = 6.31% + 5.05%/2 */
+  /* 返回按钮右边缘X: left + width = 5.97% + 11.11% */
+  /* 文本左边缘: 返回按钮右边缘 + 8px - 4px（向左移动4px） */
+  left: calc(5.97% + 11.11% + 8px - 4px); /* 返回按钮右边缘 + 8px间距 - 4px（向左移动） */
+  top: calc(6.31% + 5.05% / 2 + 55px); /* 返回按钮中心Y位置 + 55px（向下移动） */
+  transform: translateY(-50%); /* 向上偏移自身高度的一半，实现垂直居中 */
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000000;
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* R1 内容层布局 */
+.page-1-content .page-content-layer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 40px;
+  pointer-events: none; /* 允许点击穿透到按钮 */
+}
+
+/* R1 进度点容器 */
+.r1-progress-dots {
+  position: absolute;
+  left: 50%;
+  top: 693px; /* 进度点最高处所在的高度 */
+  transform: translateX(-50%); /* 水平居中对齐 */
+  width: 94px; /* 整体宽度94px */
+  display: flex;
+  justify-content: space-between; /* 五个点均匀分布 */
+  align-items: flex-start; /* 顶部对齐，确保最高处在693px */
+  z-index: 10;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* R1 进度点样式 */
+.r1-progress-dot {
+  width: 6px; /* 直径6px */
+  height: 6px; /* 直径6px */
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.1); /* 默认透明度10% */
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.r1-progress-dot.active {
+  background-color: rgba(0, 0, 0, 1); /* 第一个点透明度100% */
+}
+
+/* R1 按钮 */
+.r1-button {
+  position: absolute;
+  top: 712px; /* 最顶端位置在Y712 */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  z-index: 10;
+  pointer-events: all; /* 确保按钮可点击 */
+  display: flex;
+  align-items: flex-start; /* 顶部对齐，确保顶部在712px */
+  justify-content: center;
+}
+
+.r1-button:hover:not(.r1-button-disabled) {
+  opacity: 0.9;
+}
+
+.r1-button:active:not(.r1-button-disabled) {
+  opacity: 0.8;
+}
+
+/* R1 按钮禁用状态 */
+.r1-button-disabled {
+  cursor: not-allowed;
+  pointer-events: all; /* 仍然可以点击，但会检查状态 */
+  opacity: 0.5; /* 降低透明度表示禁用 */
+  filter: grayscale(50%); /* 添加灰度效果，进一步区分禁用状态 */
+}
+
+.r1-button-disabled:hover {
+  opacity: 0.5; /* 禁用状态下hover不改变透明度 */
+}
+
+.r1-button-svg {
+  display: block;
+  width: auto;
+  height: auto;
+  /* 移除max-width限制，保持SVG原始尺寸 */
+  pointer-events: none;
+}
+
+/* R2 页面特定样式 */
+.page-2-content {
+  position: relative;
+}
+
+/* R2 Header */
+.r2-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  z-index: 300; /* 置顶 */
+  pointer-events: none;
+}
+
+/* R2 AI说 SVG */
+.r2-ai-say {
+  position: absolute;
+  top: 297px; /* 与R1的R1AI说SVG位置一致：顶端对齐Y297 */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  z-index: 202; /* 置顶，确保在最上层 */
+  display: flex;
+  align-items: flex-start; /* 顶部对齐 */
+  justify-content: center;
+}
+
+.r2-ai-say-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+.r2-header-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* R2 Header分身名称文本 */
+.r2-header-avatar-name {
+  position: absolute;
+  /* 返回按钮位置：left: 5.97%, top: 6.31%, width: 11.11%, height: 5.05% */
+  /* 返回按钮中心Y: top + height/2 = 6.31% + 5.05%/2 */
+  /* 返回按钮右边缘X: left + width = 5.97% + 11.11% */
+  /* 文本左边缘: 返回按钮右边缘 + 8px - 4px（向左移动4px） */
+  left: calc(5.97% + 11.11% + 8px - 4px); /* 返回按钮右边缘 + 8px间距 - 4px（向左移动） */
+  top: calc(6.31% + 5.05% / 2 + 55px); /* 返回按钮中心Y位置 + 55px（向下移动） */
+  transform: translateY(-50%); /* 向上偏移自身高度的一半，实现垂直居中 */
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000000;
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 301; /* 置顶 */
+}
+
+/* R2 返回按钮 */
+.r2-back-button {
+  position: absolute;
+  left: 5.97%;
+  top: 6.31%;
+  width: 11.11%;
+  height: 5.05%;
+  cursor: pointer;
+  z-index: 302; /* 置顶，确保可点击 */
+  pointer-events: all;
+  transition: opacity 0.2s ease;
+}
+
+.r2-back-button:hover {
+  opacity: 0.7;
+}
+
+/* R2 进度点容器 */
+.r2-progress-dots {
+  position: absolute;
+  left: 50%;
+  top: 693px; /* 进度点最高处所在的高度 */
+  transform: translateX(-50%); /* 水平居中对齐 */
+  width: 94px; /* 整体宽度94px */
+  display: flex;
+  justify-content: space-between; /* 五个点均匀分布 */
+  align-items: flex-start; /* 顶部对齐，确保最高处在693px */
+  z-index: 10;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* R2 进度点样式 */
+.r2-progress-dot {
+  width: 6px; /* 直径6px */
+  height: 6px; /* 直径6px */
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.1); /* 默认透明度10% */
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.r2-progress-dot.active {
+  background-color: rgba(0, 0, 0, 1); /* 激活的点透明度100% */
+}
+
+/* R2 前两个进度点透明度100% */
+.r2-progress-dots .r2-progress-dot:nth-child(1),
+.r2-progress-dots .r2-progress-dot:nth-child(2) {
+  background-color: rgba(0, 0, 0, 1); /* 前两个点透明度100% */
+}
+
+/* R2 自动生成按钮 */
+.r2-auto-generate-button {
+  position: absolute;
+  top: 712px; /* 最顶端在Y712（和R1下一步按钮位置一致） */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  z-index: 10;
+  display: flex;
+  align-items: flex-start; /* 顶部对齐，确保顶部在712px */
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  pointer-events: all;
+}
+
+.r2-auto-generate-button:hover {
+  opacity: 0.9;
+}
+
+.r2-auto-generate-button:active {
+  opacity: 0.8;
+}
+
+.r2-auto-generate-button-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R2 拍照按钮 */
+.r2-camera-button {
+  position: absolute;
+  top: 516px; /* 中心位置在Y516（向下移动30px） */
+  left: 50%; /* 水平居中 */
+  transform: translate(-50%, -50%); /* 水平居中，垂直居中（以中心点为基准） */
+  z-index: 203; /* 置顶，确保在最上层 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.r2-camera-button:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.r2-camera-button:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+.r2-camera-button-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R2 头像和眼睛整体容器 */
+.r2-avatar-eyes-container {
+  position: absolute;
+  top: -193.5px; /* 206.5px - 400px = -193.5px（向上移动400） */
+  left: 50%; /* 水平居中 */
+  transform-origin: 50% 0%; /* 以顶端中心为放大原点（相对于容器顶部中心） */
+  transform: translate(-50%, -50%) scale(5.4); /* 先居中，然后以顶部中心为原点放大5.4倍 */
+  z-index: 6; /* 在header之上，但在进度点和按钮之下 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* 不阻挡点击事件 */
+}
+
+/* R2 头像 */
+.r2-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.r2-avatar-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R2 眼睛容器（独立容器，与头像容器同级） */
+.r2-eyes-container {
+  position: absolute;
+  top: 100px; /* 容器top在100px，眼睛Y坐标206.5，实际显示在306.5px，在Y200-400范围内 */
+  left: 50%; /* 水平居中 */
+  width: 360px;
+  height: 793px;
+  pointer-events: none;
+  z-index: 201; /* 眼睛单独设置最高z-index，确保在最顶层 */
+  transform: translateX(-50%); /* 水平居中，不缩放，先让眼睛可见 */
+}
+
+/* R2 眼睛基础样式 */
+.r2-eye {
+  will-change: transform;
+  transform: scale(2.18); /* 放大到总高度48px（22px * 2.18 ≈ 48px） */
+}
+
+/* R2 左眼动画：在橙色椭圆区域内移动 + 眨眼 */
+.r2-eye-left {
+  transform-origin: 172.5px 206.5px;
+  animation: r2EyeLookAroundLeft 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R2 右眼动画：在橙色椭圆区域内移动 + 眨眼 */
+.r2-eye-right {
+  transform-origin: 205.2px 206.5px; /* 更新为新的右眼中心位置 */
+  animation: r2EyeLookAroundRight 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R2 左眼动画关键帧（限制在橙色椭圆区域内移动） */
+@keyframes r2EyeLookAroundLeft {
+  0%, 100% {
+    transform: scale(2.18) translate(0, -30px) scaleY(1); /* 向上移动30 */
+  }
+  15% {
+    transform: scale(2.18) translate(20px, -35px) scaleY(1); /* Y: -8缩小到-5，再向上30=-35 */
+  }
+  30% {
+    transform: scale(2.18) translate(12px, -27px) scaleY(1); /* Y: 10缩小到3，再向上30=-27 */
+  }
+  38% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(1); /* Y: 12缩小到5，再向上30=-25 */
+  }
+  /* 眨眼 */
+  41% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(0.08);
+  }
+  44% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(1);
+  }
+  55% {
+    transform: scale(2.18) translate(-10px, -35px) scaleY(1); /* Y: -8缩小到-5，再向上30=-35 */
+  }
+  72% {
+    transform: scale(2.18) translate(-12px, -30px) scaleY(1); /* Y: 6缩小到0，再向上30=-30 */
+  }
+  85% {
+    transform: scale(2.18) translate(-10px, -35px) scaleY(1); /* Y: -8缩小到-5，再向上30=-35 */
+  }
+}
+
+/* R2 右眼动画关键帧（限制在橙色椭圆区域内移动） */
+@keyframes r2EyeLookAroundRight {
+  0%, 100% {
+    transform: scale(2.18) translate(0, -30px) scaleY(1); /* 向上移动30 */
+  }
+  15% {
+    transform: scale(2.18) translate(20px, -35px) scaleY(1); /* Y: -8缩小到-5，再向上30=-35 */
+  }
+  30% {
+    transform: scale(2.18) translate(12px, -27px) scaleY(1); /* Y: 10缩小到3，再向上30=-27 */
+  }
+  38% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(1); /* Y: 12缩小到5，再向上30=-25 */
+  }
+  /* 眨眼 */
+  41% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(0.08);
+  }
+  44% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(1);
+  }
+  55% {
+    transform: scale(2.18) translate(-10px, -35px) scaleY(1); /* Y: -8缩小到-5，再向上30=-35 */
+  }
+  72% {
+    transform: scale(2.18) translate(-12px, -30px) scaleY(1); /* Y: 6缩小到0，再向上30=-30 */
+  }
+  85% {
+    transform: scale(2.18) translate(-10px, -35px) scaleY(1); /* Y: -8缩小到-5，再向上30=-35 */
+  }
+}
+
+/* R3 页面特定样式 */
+.page-3-content {
+  position: relative;
+}
+
+/* ==================== R3 页面样式 ==================== */
+
+/* R3 Header */
+.r3-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  z-index: 300; /* 置顶 */
+  pointer-events: none;
+}
+
+.r3-header-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* R3 Header分身名称文本 */
+.r3-header-avatar-name {
+  position: absolute;
+  left: calc(5.97% + 11.11% + 8px - 4px);
+  top: calc(6.31% + 5.05% / 2 + 55px);
+  transform: translateY(-50%);
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000000;
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 301; /* 置顶 */
+}
+
+/* R3 返回按钮 */
+.r3-back-button {
+  position: absolute;
+  left: 5.97%;
+  top: 6.31%;
+  width: 11.11%;
+  height: 5.05%;
+  cursor: pointer;
+  z-index: 302; /* 置顶，确保可点击 */
+  pointer-events: all;
+  transition: opacity 0.2s ease;
+}
+
+.r3-back-button:hover {
+  opacity: 0.7;
+}
+
+/* R3 AI说 SVG */
+.r3-ai-say {
+  position: absolute;
+  top: 297px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 202;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.r3-ai-say-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R3 头像和眼睛整体容器 */
+.r3-avatar-eyes-container {
+  position: absolute;
+  top: -193.5px;
+  left: 50%;
+  transform-origin: 50% 0%;
+  transform: translate(-50%, -50%) scale(5.4);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* R3 头像 */
+.r3-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.r3-avatar-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R3 眼睛容器（独立容器，与头像容器同级） */
+.r3-eyes-container {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  width: 360px;
+  height: 793px;
+  pointer-events: none;
+  z-index: 201;
+  transform: translateX(-50%);
+}
+
+/* R3 眼睛基础样式 */
+.r3-eye {
+  will-change: transform;
+  transform: scale(2.18);
+}
+
+/* R3 左眼动画 */
+.r3-eye-left {
+  transform-origin: 172.5px 206.5px;
+  animation: r3EyeLookAroundLeft 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R3 右眼动画 */
+.r3-eye-right {
+  transform-origin: 205.2px 206.5px;
+  animation: r3EyeLookAroundRight 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R3 左眼动画关键帧 */
+@keyframes r3EyeLookAroundLeft {
+  0%, 100% {
+    transform: scale(2.18) translate(0, -30px) scaleY(1);
+  }
+  15% {
+    transform: scale(2.18) translate(20px, -35px) scaleY(1);
+  }
+  30% {
+    transform: scale(2.18) translate(12px, -27px) scaleY(1);
+  }
+  38% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(1);
+  }
+  41% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(0.08);
+  }
+  44% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(1);
+  }
+  55% {
+    transform: scale(2.18) translate(-10px, -35px) scaleY(1);
+  }
+  72% {
+    transform: scale(2.18) translate(-12px, -30px) scaleY(1);
+  }
+  85% {
+    transform: scale(2.18) translate(-10px, -35px) scaleY(1);
+  }
+}
+
+/* R3 右眼动画关键帧 */
+@keyframes r3EyeLookAroundRight {
+  0%, 100% {
+    transform: scale(2.18) translate(0, -30px) scaleY(1);
+  }
+  15% {
+    transform: scale(2.18) translate(20px, -35px) scaleY(1);
+  }
+  30% {
+    transform: scale(2.18) translate(12px, -27px) scaleY(1);
+  }
+  38% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(1);
+  }
+  41% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(0.08);
+  }
+  44% {
+    transform: scale(2.18) translate(6px, -25px) scaleY(1);
+  }
+  55% {
+    transform: scale(2.18) translate(-10px, -35px) scaleY(1);
+  }
+  72% {
+    transform: scale(2.18) translate(-12px, -30px) scaleY(1);
+  }
+  85% {
+    transform: scale(2.18) translate(-10px, -35px) scaleY(1);
+  }
+}
+
+
+/* R3 进度点容器 */
+.r3-progress-dots {
+  position: absolute;
+  left: 50%;
+  top: 693px;
+  transform: translateX(-50%);
+  width: 94px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 10;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* R3 进度点样式 */
+.r3-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.r3-progress-dot.active {
+  background-color: rgba(0, 0, 0, 1);
+}
+
+/* R3 前两个进度点透明度100%（与R2一致） */
+.r3-progress-dots .r3-progress-dot:nth-child(1),
+.r3-progress-dots .r3-progress-dot:nth-child(2) {
+  background-color: rgba(0, 0, 0, 1);
+}
+
+/* R3 下一步按钮 */
+.r3-button {
+  position: absolute;
+  top: 712px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  z-index: 10;
+  pointer-events: all;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.r3-button:hover {
+  opacity: 0.9;
+}
+
+.r3-button:active {
+  opacity: 0.8;
+}
+
+.r3-button-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R3 用户头像 */
+.r3-user-avatar {
+  position: absolute;
+  top: 496px; /* 上移20px：516px - 20px = 496px */
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.1); /* 放大到1.1倍 */
+  z-index: 203;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.5s ease;
+  opacity: 0; /* 初始隐藏，等待load动画完成 */
+}
+
+.r3-user-avatar.show {
+  opacity: 1;
+}
+
+.r3-user-avatar-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* R3 Load动画容器 - 放大到1.1倍 */
+.r3-load-animation {
+  position: absolute;
+  top: 496px; /* 上移20px，与用户头像位置一致：516px - 20px = 496px */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 202;
+  width: 44px; /* 40px * 1.1 = 44px */
+  height: 44px; /* 40px * 1.1 = 44px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.r3-load-circle {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* R3 Load圆球 - 放大到1.1倍 */
+.r3-load-dot {
+  position: absolute;
+  width: 3px; /* 保持3px，或可以设为4px */
+  height: 3px;
+  border-radius: 50%;
+  background-color: #000000;
+  top: 50%;
+  left: 50%;
+  /* 12个圆球均匀分布在圆周上，每个间隔30度 */
+  /* 半径约19px（17px * 1.1 ≈ 18.7px），从中心向外排列 */
+  transform-origin: center;
+  /* 先旋转到对应角度，再沿Y轴向上移动19px */
+  transform: rotate(calc(var(--index) * 30deg)) translateY(-19px);
+  animation: r3LoadBounce 0.4s ease-in-out;
+  /* 每个球依次弹跳：前一个球跳完（0.4s）后，下一个球才开始 */
+  animation-delay: calc(var(--index) * 0.4s);
+  animation-fill-mode: both;
+}
+
+/* R3 Load动画：圆球沿半径方向跳起 - 依次进行 */
+@keyframes r3LoadBounce {
+  0%, 100% {
+    transform: rotate(calc(var(--index) * 30deg)) translateY(-19px) scale(1);
+  }
+  50% {
+    transform: rotate(calc(var(--index) * 30deg)) translateY(-25px) scale(1.2); /* 跳起6px（5px * 1.1 ≈ 5.5px，设为6px） */
+  }
+}
+
+/* R3 Load动画隐藏状态 */
+.r3-load-animation.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ==================== R4 页面样式 ==================== */
+
+/* R4 页面特定样式 */
+.page-4-content {
+  position: relative;
+}
+
+/* R4 Header */
+.r4-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  z-index: 300; /* 置顶 */
+  pointer-events: none;
+}
+
+.r4-header-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* R4 Header分身名称文本 */
+.r4-header-avatar-name {
+  position: absolute;
+  left: calc(5.97% + 11.11% + 8px - 4px);
+  top: calc(6.31% + 5.05% / 2 + 55px);
+  transform: translateY(-50%);
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000000;
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 301; /* 置顶 */
+}
+
+/* R4 返回按钮 */
+.r4-back-button {
+  position: absolute;
+  left: 5.97%;
+  top: 6.31%;
+  width: 11.11%;
+  height: 5.05%;
+  cursor: pointer;
+  z-index: 302; /* 置顶，确保可点击 */
+  pointer-events: all;
+  transition: opacity 0.2s ease;
+}
+
+.r4-back-button:hover {
+  opacity: 0.7;
+}
+
+/* R4 头像和眼睛容器（作为一个整体） */
+.r4-avatar-eyes-wrapper {
+  position: absolute;
+  top: 228px; /* 中心Y坐标（178 + 50 = 228） */
+  left: 38px; /* 中心X坐标（46 - 8 = 38） */
+  transform: translate(-50%, -50%) scale(0.333); /* 缩小到1/3，中心对齐 */
+  transform-origin: center center;
+  z-index: 100;
+  width: 360px;
+  height: 793px;
+  pointer-events: none;
+}
+
+/* R4 头像（复制R1的头像） */
+.r4-avatar {
+  position: absolute;
+  top: 206.5px; /* 中心位置在Y206.5 */
+  left: 50%; /* 水平居中 */
+  transform: translate(-50%, -50%); /* 让SVG中心点对齐到Y206.5 */
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: r4AvatarBreathing 3.2s ease-in-out infinite; /* 呼吸感浮动动画 */
+}
+
+/* R4 头像呼吸感浮动动画 */
+@keyframes r4AvatarBreathing {
+  0%, 100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-8px); /* 向上浮动8px */
+  }
+}
+
+.r4-avatar-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R4 眼睛容器（复制R1的眼睛动画组合） */
+.r4-eyes-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 793px;
+  pointer-events: none;
+  z-index: 100; /* 确保在最顶层 */
+}
+
+/* R4 眼睛基础样式 */
+.r4-eye {
+  will-change: transform;
+  opacity: 1 !important; /* 确保可见 */
+}
+
+/* R4 左眼动画：四处张望 + 眨眼 */
+.r4-eye-left {
+  transform-origin: 172.5px 206.5px;
+  animation: r4EyeLookAroundLeft 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R4 右眼动画：四处张望 + 眨眼 */
+.r4-eye-right {
+  transform-origin: 187.5px 206.5px;
+  animation: r4EyeLookAroundRight 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R4 左眼动画关键帧 */
+@keyframes r4EyeLookAroundLeft {
+  0%, 100% {
+    transform: translate(0, 0) scaleY(1);
+  }
+  15% {
+    transform: translate(20px, -12px) scaleY(1);
+  }
+  30% {
+    transform: translate(15px, 16px) scaleY(1);
+  }
+  38% {
+    transform: translate(10px, 18px) scaleY(1);
+  }
+  /* 眨眼 */
+  41% {
+    transform: translate(10px, 18px) scaleY(0.08);
+  }
+  44% {
+    transform: translate(10px, 18px) scaleY(1);
+  }
+  55% {
+    transform: translate(-15px, -15px) scaleY(1);
+  }
+  72% {
+    transform: translate(-18px, 12px) scaleY(1);
+  }
+  85% {
+    transform: translate(-15px, -15px) scaleY(1);
+  }
+}
+
+/* R4 右眼动画关键帧 */
+@keyframes r4EyeLookAroundRight {
+  0%, 100% {
+    transform: translate(0, 0) scaleY(1);
+  }
+  15% {
+    transform: translate(20px, -12px) scaleY(1);
+  }
+  30% {
+    transform: translate(15px, 16px) scaleY(1);
+  }
+  38% {
+    transform: translate(10px, 18px) scaleY(1);
+  }
+  /* 眨眼 */
+  41% {
+    transform: translate(10px, 18px) scaleY(0.08);
+  }
+  44% {
+    transform: translate(10px, 18px) scaleY(1);
+  }
+  55% {
+    transform: translate(-15px, -15px) scaleY(1);
+  }
+  72% {
+    transform: translate(-18px, 12px) scaleY(1);
+  }
+  85% {
+    transform: translate(-15px, -15px) scaleY(1);
+  }
+}
+
+/* R4 文本内容 */
+.r4-text-content {
+  position: absolute;
+  left: 16px;
+  top: 210px; /* 头像下方（260 - 50 = 210） */
+  width: 328px; /* 360 - 16*2 = 328 */
+  z-index: 101;
+  pointer-events: none;
+}
+
+/* R4 文本标题 */
+.r4-text-title {
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  color: #000000;
+  line-height: 1.5;
+  margin-bottom: 16px; /* 与第二段文本的间距 */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* R4 文本标题显示状态 */
+.r4-text-title.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* R4 文本正文（已移至对话区域，保留样式用于AI消息） */
+.r4-text-body {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #000000;
+  line-height: 1.5;
+  white-space: normal;
+}
+
+/* R4 对话区域容器 */
+.r4-chat-container {
+  position: absolute;
+  left: 15px; /* 往左移动8px（23-8=15） */
+  top: 269px;
+  width: 326px; /* 349 - 23 = 326 */
+  height: 414px; /* 683 - 269 = 414 */
+  z-index: 50;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* R4 对话区域滚动条样式 */
+.r4-chat-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.r4-chat-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.r4-chat-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.38);
+  border-radius: 2px;
+}
+
+/* R4 AI初始消息 */
+.r4-ai-message {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #000000;
+  line-height: 1.5;
+  white-space: normal;
+  margin-bottom: 16px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* R4 AI初始消息显示状态 */
+.r4-ai-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* R4 小艺语音输入-文本输入按钮（位置与R1下一步按钮一致） */
+.r4-input-button {
+  position: absolute;
+  top: 712px; /* 最顶端位置在Y712（和R1下一步按钮位置一致） */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  cursor: pointer;
+  user-select: none;
+  z-index: 10;
+  pointer-events: all;
+  display: flex;
+  align-items: flex-start; /* 顶部对齐，确保顶部在712px */
+  justify-content: center;
+}
+
+.r4-input-button-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R4 输入文本显示 */
+.r4-input-text-display {
+  position: absolute;
+  left: 78.5px;
+  top: 726px; /* 向上移动10px（736 - 10 = 726） */
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.38); /* 黑色，透明度38% */
+  line-height: 1.5;
+  z-index: 11;
+  pointer-events: none;
+  white-space: normal; /* 允许换行 */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 215px; /* 字符长度控制在215以内 */
+  max-height: 30px; /* 限制最大高度（缩短至当前的一半：60/2=30） */
+  overflow-y: auto; /* 显示滚动条 */
+  overflow-x: hidden;
+}
+
+/* R4 输入文本显示 - 隐藏状态（当用户开始输入时） */
+.r4-input-text-display.hidden {
+  display: none;
+}
+
+/* R4 隐藏的输入框（textarea支持多行） */
+.r4-input-text-input {
+  position: absolute;
+  left: 78.5px;
+  top: 726px; /* 向上移动10px（736 - 10 = 726） */
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.38); /* 黑色，透明度38% */
+  background: transparent;
+  border: none;
+  outline: none;
+  z-index: 12;
+  pointer-events: all;
+  width: 215px; /* 字符长度控制在215以内 */
+  max-height: 30px; /* 限制最大高度（缩短至当前的一半：60/2=30） */
+  padding: 0;
+  line-height: 1.5;
+  resize: none; /* 禁止手动调整大小 */
+  overflow-y: auto; /* 显示滚动条 */
+  overflow-x: hidden;
+  white-space: pre-wrap; /* 保留换行和空格 */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* R4 发送按钮 */
+.r4-send-button {
+  position: absolute;
+  left: 303px;
+  top: 726px; /* 往下移动3px（723+3=726） */
+  width: 23px;
+  height: 23px;
+  cursor: pointer;
+  z-index: 13;
+  pointer-events: all;
+  transition: opacity 0.2s ease;
+}
+
+.r4-send-button:hover {
+  opacity: 0.8;
+}
+
+.r4-send-button:active {
+  opacity: 0.6;
+}
+
+.r4-send-button svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ========== R4 语音输入组件（与下方原 SVG 顶端位置一致：top 712px） ========== */
+.page-4 .r4-voice-wrap {
+  position: absolute;
+  left: 50%;
+  top: 712px;
+  transform: translateX(-50%);
+  width: 334px;
+  height: 125px;
+  z-index: 10;
+  pointer-events: all;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-layer {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  display: none;
+  pointer-events: none;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-layer.active {
+  display: block;
+}
+
+/* 按下输入态：整体上移 51px */
+.page-4 .r4-voice-wrap .r4-voice-layer.r4-voice-recording.active {
+  transform: translateX(-50%) translateY(-51px);
+}
+
+.page-4 .r4-voice-wrap .r4-voice-layer.r4-voice-result.active {
+  z-index: 15;
+  pointer-events: auto;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-layer img {
+  display: block;
+  vertical-align: top;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-hit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.page-4 .r4-voice-wrap.r4-voice-state-result .r4-voice-hit {
+  display: none;
+}
+
+.page-4 .r4-voice-wave-container {
+  position: absolute;
+  left: 50%;
+  bottom: 58px;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.page-4 .r4-voice-wave-container svg {
+  display: block;
+  width: 192px;
+  height: 20px;
+}
+
+.page-4 .r4-voice-wave-container .r4-voice-wave-bar {
+  transition: transform 0.08s ease-out;
+  transform-origin: center center;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-result-inner {
+  position: relative;
+  width: 314px;
+  min-height: 73px;
+  transform: translateY(10px);
+}
+
+.page-4 .r4-voice-wrap .r4-voice-result-svg-wrap {
+  position: relative;
+  width: 314px;
+  height: 73px;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-result-svg-wrap img {
+  display: block;
+  width: 314px;
+  height: 73px;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-result-text {
+  position: absolute;
+  left: 44px;
+  top: calc(50% - 10px);
+  transform: translateY(-50%);
+  width: 215px;
+  max-height: 36px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.38);
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-result-text::-webkit-scrollbar {
+  width: 4px;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-result-text::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-result-text::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.38);
+  border-radius: 2px;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-back-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-send-btn {
+  position: absolute;
+  right: 11px;
+  top: calc(50% - 12px);
+  transform: translateY(-50%);
+  width: 23px;
+  height: 23px;
+  cursor: pointer;
+  z-index: 2;
+  transition: opacity 0.2s ease;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-send-btn:hover {
+  opacity: 0.8;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-send-btn:active {
+  opacity: 0.6;
+}
+
+.page-4 .r4-voice-wrap .r4-voice-send-btn svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* R4 下一步按钮（5轮对话后显示） */
+.r4-next-button {
+  position: absolute;
+  top: 712px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  z-index: 10;
+  pointer-events: all;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.r4-next-button:hover {
+  opacity: 0.9;
+}
+
+.r4-next-button:active {
+  opacity: 0.8;
+}
+
+.r4-next-button-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R4 对话气泡容器（在对话区域内） */
+.r4-messages-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+/* R4 对话气泡 */
+.r4-message-bubble {
+  position: relative;
+  margin: 8px 0;
+  margin-left: auto; /* 右对齐 */
+  padding: 10px 14px;
+  background-color: #FFFFFF;
+  border-radius: 16px 4px 16px 16px; /* 右上角4px，其他16px */
+  max-width: 280px; /* 最大宽度不超过280px */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  animation: r4MessageFadeIn 0.3s ease-out;
+  align-self: flex-end; /* 右对齐 */
+}
+
+/* R4 AI回复消息 */
+.r4-ai-reply {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #000000;
+  line-height: 1.5;
+  white-space: normal;
+  margin: 8px 0;
+  margin-bottom: 16px;
+  animation: r4MessageFadeIn 0.3s ease-out;
+}
+
+/* R4 正在输入提示 */
+.r4-typing-indicator {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.5);
+  line-height: 1.5;
+  margin: 8px 0;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+/* R4 对话气泡渐显动画 */
+@keyframes r4MessageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* R4 对话气泡文本 */
+.r4-message-bubble-text {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 400; /* Regular */
+  font-size: 16px;
+  color: rgba(0, 0, 0, 1); /* 黑色透明度100 */
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: left; /* 文本左对齐 */
+}
+
+/* R4 进度点容器 */
+.r4-progress-dots {
+  position: absolute;
+  left: 50%;
+  top: 693px;
+  transform: translateX(-50%);
+  width: 94px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 10;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* R4 进度点样式 */
+.r4-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.r4-progress-dot.active {
+  background-color: rgba(0, 0, 0, 1);
+}
+
+/* R4 前三个进度点透明度100% */
+.r4-progress-dots .r4-progress-dot:nth-child(1),
+.r4-progress-dots .r4-progress-dot:nth-child(2),
+.r4-progress-dots .r4-progress-dot:nth-child(3) {
+  background-color: rgba(0, 0, 0, 1);
+}
+
+/* 页面切换动画 */
+.page.fade-out {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.page.fade-in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 响应式调整 */
+@media (max-width: 360px) {
+  .register2-container {
+    width: 100vw;
+  }
+}
+
+/* ==================== 拍照界面样式 ==================== */
+
+/* 拍照界面容器 */
+.camera-interface {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 10000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* 确保没有粉色背景溢出 */
+  background-color: rgba(0, 0, 0, 0.9);
+  background-image: none;
+}
+
+.camera-interface.active {
+  display: flex;
+}
+
+/* 背景渐变层 - 限制在360x793容器内 */
+.camera-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 793px;
+  overflow: hidden;
+  z-index: 1;
+  /* 确保渐变不会溢出 */
+  clip-path: inset(0);
+}
+
+.camera-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 793px;
+  background: linear-gradient(135deg, 
+    rgba(255, 182, 193, 0.15) 0%,
+    rgba(255, 192, 203, 0.1) 25%,
+    rgba(255, 182, 193, 0.15) 50%,
+    rgba(255, 192, 203, 0.1) 75%,
+    rgba(255, 182, 193, 0.15) 100%);
+  animation: cameraGradientShift 8s ease-in-out infinite;
+  /* 确保动画时不会溢出 */
+  transform-origin: center center;
+}
+
+@keyframes cameraGradientShift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    /* 减小scale，避免溢出 */
+    transform: translate(-2%, -2%) scale(1.05);
+  }
+}
+
+/* 点阵渐变动态 - 限制在360x793容器内 */
+.camera-dot-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 793px;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255, 182, 193, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 80% 70%, rgba(255, 192, 203, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(255, 182, 193, 0.2) 1px, transparent 1px);
+  background-size: 40px 40px, 60px 60px, 80px 80px;
+  background-position: 0 0, 20px 20px, 40px 40px;
+  animation: cameraDotMove 20s linear infinite;
+  opacity: 0.6;
+  /* 确保点阵不会溢出 */
+  clip-path: inset(0);
+  transform-origin: center center;
+}
+
+@keyframes cameraDotMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(40px, 40px);
+  }
+}
+
+/* 相机预览容器 - 限制在360x793范围内 */
+.camera-preview-container {
+  position: relative;
+  width: 360px;
+  height: 793px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #1a1a1a;
+  border-radius: 0;
+  box-shadow: 0 0 30px rgba(255, 182, 193, 0.3);
+  /* 强制裁剪溢出内容 */
+  clip-path: inset(0);
+  isolation: isolate;
+}
+
+.camera-preview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #1a1a1a;
+  z-index: 2;
+}
+
+.camera-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 793px;
+  display: none;
+  object-fit: cover;
+  z-index: 3;
+}
+
+.camera-canvas.show {
+  display: block;
+}
+
+/* 扫描线动画 */
+.camera-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgba(255, 182, 193, 0.8) 50%,
+    transparent 100%);
+  box-shadow: 0 0 10px rgba(255, 182, 193, 0.6);
+  animation: cameraScan 3s ease-in-out infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+
+@keyframes cameraScan {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 793px;
+    opacity: 0;
+  }
+}
+
+/* 控制按钮区域 */
+.camera-controls {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 100;
+  width: 360px;
+  pointer-events: none;
+}
+
+.camera-controls button {
+  pointer-events: all;
+}
+
+/* 拍摄按钮 */
+.camera-capture-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.camera-capture-btn:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 182, 193, 0.9);
+  box-shadow: 0 0 20px rgba(255, 182, 193, 0.5);
+}
+
+.camera-capture-btn:active {
+  transform: scale(0.95);
+}
+
+.camera-btn-inner {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 重拍和确定按钮 */
+.camera-review-btns {
+  display: flex;
+  gap: 20px;
+}
+
+.camera-retake-btn,
+.camera-confirm-btn {
+  padding: 14px 32px;
+  border-radius: 25px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.camera-retake-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 182, 193, 0.4);
+}
+
+.camera-confirm-btn {
+  background: linear-gradient(135deg, rgba(255, 182, 193, 0.8), rgba(255, 192, 203, 0.8));
+  border-color: rgba(255, 182, 193, 0.9);
+}
+
+.camera-confirm-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 182, 193, 1), rgba(255, 192, 203, 1));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(255, 182, 193, 0.6);
+}
+
+/* 关闭按钮 */
+.camera-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.camera-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* ============================================
+   R5 页面样式
+   ============================================ */
+
+/* R5 Header（与R4一致） */
+.r5-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  z-index: 300; /* 置顶 */
+  pointer-events: none;
+}
+
+.r5-header-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* R5 Header分身名称文本 */
+.r5-header-avatar-name {
+  position: absolute;
+  left: calc(5.97% + 11.11% + 8px - 4px);
+  top: calc(6.31% + 5.05% / 2 + 55px);
+  transform: translateY(-50%);
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000000;
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 301; /* 置顶 */
+}
+
+/* R5 返回按钮 */
+.r5-back-button {
+  position: absolute;
+  left: 5.97%;
+  top: 6.31%;
+  width: 11.11%;
+  height: 5.05%;
+  cursor: pointer;
+  z-index: 302; /* 置顶，确保可点击 */
+  pointer-events: all;
+  transition: opacity 0.2s ease;
+}
+
+.r5-back-button:hover {
+  opacity: 0.7;
+}
+
+/* R5 AI说 SVG（与R1位置一致） */
+.r5-ai-say {
+  position: absolute;
+  top: 297px; /* 顶端对齐Y297，与R1一致 */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  z-index: 5;
+  display: flex;
+  align-items: flex-start; /* 顶部对齐 */
+  justify-content: center;
+}
+
+.r5-ai-say-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R5 头像（使用R1的头像，样式和位置与R1一致） */
+.r5-avatar {
+  position: absolute;
+  top: 206.5px; /* 中心位置在Y206.5，与R1一致 */
+  left: 50%; /* 水平居中 */
+  transform: translate(-50%, -50%); /* 让SVG中心点对齐到Y206.5 */
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: r1AvatarBreathing 3.2s ease-in-out infinite; /* 使用R1的呼吸感浮动动画 */
+}
+
+.r5-avatar-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R5 耳朵（覆盖在头像上方，左顶点X196Y155） */
+.r5-ear {
+  position: absolute;
+  left: 196px; /* 左顶点X196 */
+  top: 155px; /* 左顶点Y155 */
+  z-index: 6; /* 在头像上方 */
+  pointer-events: none;
+  transform-origin: left bottom; /* 以左下角为原点 */
+  animation: r5EarBreathing 3.2s ease-in-out infinite; /* 呼吸感缩放动画 */
+}
+
+.r5-ear-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R5 耳朵呼吸感缩放动画（0.8-1.2倍缩放，以左下角为原点） */
+@keyframes r5EarBreathing {
+  0%, 100% {
+    transform: scale(1.0); /* 正常大小 */
+  }
+  50% {
+    transform: scale(1.2); /* 放大到1.2倍 */
+  }
+  25%, 75% {
+    transform: scale(0.8); /* 缩小到0.8倍 */
+  }
+}
+
+/* R5 眼睛容器（使用R1的眼睛，样式和位置与R1一致） */
+.r5-eyes-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 793px;
+  pointer-events: none;
+  z-index: 100; /* 确保在最顶层 */
+}
+
+/* R5 眼睛基础样式 */
+.r5-eye {
+  will-change: transform;
+  opacity: 1 !important; /* 确保可见 */
+}
+
+/* R5 左眼动画：四处张望 + 眨眼（使用R1的动画） */
+.r5-eye-left {
+  transform-origin: 172.5px 206.5px;
+  animation: r1EyeLookAroundLeft 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R5 右眼动画：四处张望 + 眨眼（使用R1的动画） */
+.r5-eye-right {
+  transform-origin: 187.5px 206.5px;
+  animation: r1EyeLookAroundRight 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+
+/* R5 语音声波跳动条容器（常规态时隐藏，按下后 .r5-voice-wave-visible 时显示） */
+.r5-voice-wave-container {
+  position: absolute;
+  left: 50%;
+  top: 730px;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.r5-voice-wave-container.r5-voice-wave-visible {
+  opacity: 1;
+}
+
+#r5-voice-wave-svg {
+  display: block;
+  width: 192px;
+  height: 20px;
+}
+
+/* R5 语音条小条样式 */
+.r5-wave-bar {
+  transition: transform 0.15s ease-out;
+  transform-origin: center center; /* 以中心点为原点，缩放时中点Y值不变，上下对称扩展 */
+}
+
+/* R5 常规态按钮（与按住说同位置：底端紧贴容器，bottom 9px） */
+.r5-normal-state-button {
+  position: absolute;
+  bottom: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  user-select: none;
+  z-index: 20;
+  pointer-events: all;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.r5-normal-state-button:hover { opacity: 0.9; }
+.r5-normal-state-button:active { opacity: 0.8; }
+.r5-normal-state-button-svg { display: block; width: auto; height: auto; }
+
+/* R5 按住说按钮（距离容器底部9px，置顶盖住进度点；默认由 JS 控制 display） */
+.r5-hold-speak-button {
+  position: absolute;
+  bottom: 9px; /* 距离容器底部9px */
+  left: 50%; /* 水平居中 */
+  transform: translateX(-50%); /* 水平居中 */
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  z-index: 20; /* 置顶，盖住进度点（进度点是z-index: 10） */
+  pointer-events: all;
+  display: flex;
+  align-items: flex-end; /* 底部对齐 */
+  justify-content: center;
+}
+
+.r5-hold-speak-button:hover {
+  opacity: 0.9;
+}
+
+.r5-hold-speak-button:active {
+  opacity: 0.8;
+}
+
+.r5-hold-speak-button-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R5 下一步按钮（位置与R1一致，top: 712px） */
+.r5-next-button {
+  position: absolute;
+  top: 712px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  z-index: 20;
+  pointer-events: all;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.r5-next-button:hover { opacity: 0.9; }
+.r5-next-button:active { opacity: 0.8; }
+.r5-next-button-svg { display: block; width: auto; height: auto; }
+
+/* R5 进度点：仅一组，扫描条未到终点前不显示 */
+.r5-progress-dots {
+  position: absolute;
+  left: 50%;
+  top: 693px;
+  transform: translateX(-50%);
+  width: 94px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 10;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.r5-progress-dots.r5-scan-complete {
+  opacity: 1;
+}
+.r5-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+/* 扫描条到达终点后：前4个100%，第5个10% */
+.r5-progress-dots.r5-scan-complete .r5-progress-dot:nth-child(1),
+.r5-progress-dots.r5-scan-complete .r5-progress-dot:nth-child(2),
+.r5-progress-dots.r5-scan-complete .r5-progress-dot:nth-child(3),
+.r5-progress-dots.r5-scan-complete .r5-progress-dot:nth-child(4) {
+  background-color: rgba(0, 0, 0, 1);
+  opacity: 1;
+}
+/* 第5个点：实心黑底 + opacity 0.1，避免与半透明背景叠加后几乎看不见 */
+.r5-progress-dots.r5-scan-complete .r5-progress-dot:nth-child(5) {
+  background-color: rgba(0, 0, 0, 1);
+  opacity: 0.1;
+}
+
+/* R5 扫描文字组件 */
+.r5-scan-text-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 12;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.r5-scan-text-container.r5-scan-text-visible {
+  opacity: 1;
+}
+
+/* R5 白色药丸容器（W312 H60，可拖动） */
+.r5-scan-pill {
+  width: 312px;
+  height: 60px;
+  background-color: #FFFFFF;
+  border: none; /* 去掉黑色描边 */
+  border-radius: 30px; /* 圆角半径30px，形成药丸形状 */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* 确保内容不超出药丸边界 */
+  cursor: grab;
+  user-select: none;
+}
+.r5-scan-pill:active {
+  cursor: grabbing;
+}
+
+/* R5 黑色文字（底层） */
+.r5-scan-text-base {
+  font-family: 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 16px;
+  font-weight: 400; /* regular */
+  color: #000000;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  z-index: 1;
+  opacity: 1;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* R5 渐变文字层（与黑色文字完全重叠，使用clip-path限制宽度） */
+.r5-scan-gradient-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%); /* 居中，与黑色文字完全对齐 */
+  z-index: 2;
+  pointer-events: none;
+  /* 初始clip-path通过JS设置，宽度1px（右端在X60） */
+  transition: clip-path 0.05s ease-out;
+}
+
+/* R5 渐变文字（使用background-clip: text，与黑色文字完全相同） */
+.r5-scan-gradient-text {
+  font-family: 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  white-space: nowrap;
+  line-height: 1;
+  color: transparent;
+  background: linear-gradient(to right, 
+    rgba(160, 128, 255, 1) 0%,
+    rgba(200, 128, 255, 1) 50%,
+    rgba(255, 128, 255, 1) 100%
+  );
+  background-size: 257px 100%; /* 最大宽度257px（右端X257） */
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* R5 粉色扫描条（与渐变矩形同步移动，右端对齐） */
+.r5-scan-bar {
+  position: absolute;
+  top: 0;
+  width: 100px; /* 扫描条宽度100px */
+  height: 60px; /* 扫描条高度与药丸一致 */
+  background: linear-gradient(to right, 
+    rgba(247, 148, 255, 0) 0%, 
+    rgba(247, 148, 255, 0.12) 100%
+  );
+  z-index: 3;
+  pointer-events: none;
+  /* 扫描条右端对齐目标位置，所以left = rightX，transform向左偏移100px */
+  transform: translateX(-100px);
+  transition: left 0.05s ease-out;
+}
+
+/* ============================================
+   R6 页面样式
+   ============================================ */
+.page-6 .page-background,
+.page-6 .page-background-image { /* 与R5一致 */ }
+.r6-header { position: absolute; top: 0; left: 0; width: 100%; height: auto; z-index: 300; pointer-events: none; }
+.r6-header-svg { width: 100%; height: auto; display: block; }
+.r6-header-avatar-name {
+  position: absolute;
+  left: calc(5.97% + 11.11% + 8px - 4px);
+  top: calc(6.31% + 5.05% / 2 + 55px);
+  transform: translateY(-50%);
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000000;
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 301;
+}
+.r6-back-button {
+  position: absolute;
+  left: 5.97%;
+  top: 6.31%;
+  width: 11.11%;
+  height: 5.05%;
+  cursor: pointer;
+  z-index: 302;
+  pointer-events: all;
+  transition: opacity 0.2s ease;
+}
+.r6-back-button:hover { opacity: 0.7; }
+.r6-avatar {
+  position: absolute;
+  top: 206.5px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: r1AvatarBreathing 3.2s ease-in-out infinite;
+}
+.r6-avatar-svg { display: block; width: auto; height: auto; }
+/* R6 眼睛（R1状态与移动范围，四处张望） */
+.r6-eyes-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 793px;
+  z-index: 5;
+  pointer-events: none;
+}
+.r6-eye {
+  will-change: transform;
+  opacity: 1 !important;
+}
+.r6-eye-left {
+  transform-origin: 172.5px 206.5px;
+  animation: r1EyeLookAroundLeft 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+.r6-eye-right {
+  transform-origin: 187.5px 206.5px;
+  animation: r1EyeLookAroundRight 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+/* R6 嘴巴：眼睛下方6px，随眼睛移动，缩放0.8-1.2 */
+.r6-mouth {
+  position: absolute;
+  top: 219.5px; /* 眼睛底部y=213.5 + 6px */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
+  transform-origin: center center;
+  animation: r6MouthFollow 6s cubic-bezier(0.33, 0, 0.2, 1) infinite;
+}
+.r6-mouth-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R6 介绍气泡（顶端Y307，中轴对齐） */
+.r6-intro-bubble {
+  position: absolute;
+  left: 50%;
+  top: 307px;
+  transform: translateX(-50%) scale(0);
+  transform-origin: center top;
+  z-index: 8;
+  pointer-events: none;
+}
+.r6-intro-bubble.pop {
+  animation: r6BubblePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.r6-intro-bubble.shrink {
+  animation: r6BubbleShrink 0.28s ease-in forwards;
+}
+.r6-intro-bubble-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+@keyframes r6BubblePop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+@keyframes r6BubbleShrink {
+  from { transform: translateX(-50%) scale(1); }
+  to { transform: translateX(-50%) scale(0.001); }
+}
+
+/* R6 空白气泡（与介绍气泡同位置，介绍气泡缩小完成后以顶端为原点放大） */
+.r6-blank-bubble {
+  position: absolute;
+  left: 50%;
+  top: 307px;
+  transform: translateX(-50%) scale(0);
+  transform-origin: center top;
+  z-index: 8;
+  pointer-events: none;
+  visibility: hidden;
+}
+.r6-blank-bubble.pop {
+  visibility: visible;
+  pointer-events: auto;
+  animation: r6BubblePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.r6-blank-bubble-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+/* 空白气泡中央：标题 + 两个圆角矩形选项 */
+.r6-blank-bubble-content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 232px;
+  pointer-events: auto;
+}
+.r6-blank-bubble-title {
+  margin: 0 0 12px 0;
+  font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+  text-align: left;
+  line-height: 1.35;
+}
+.r6-blank-bubble-option {
+  width: 232px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px 0 14px;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.r6-blank-bubble-option:last-child {
+  margin-bottom: 0;
+}
+.r6-blank-bubble-option-text {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #000;
+}
+.r6-blank-bubble-icon {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.r6-blank-bubble-icon .r6-option-circle {
+  fill: none;
+  stroke: #000;
+}
+.r6-blank-bubble-icon .r6-option-check {
+  opacity: 0;
+}
+.r6-blank-bubble-option.checked .r6-blank-bubble-icon .r6-option-circle {
+  fill: #000;
+  stroke: #000;
+}
+.r6-blank-bubble-option.checked .r6-blank-bubble-icon .r6-option-check {
+  opacity: 1;
+}
+/* 选中一项后，未选中的圆角矩形及其文本、图标整体透明度 10% */
+.r6-blank-bubble-content:has(.r6-blank-bubble-option.checked) .r6-blank-bubble-option:not(.checked) {
+  opacity: 0.1;
+}
+
+/* R6 声波底下渐变（中心Y550，中轴对齐） */
+.r6-wave-gradient {
+  position: absolute;
+  left: 50%;
+  top: 550px;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  pointer-events: none;
+}
+.r6-wave-gradient-svg {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* R6 声波2 容器（中心Y550，中轴对齐） */
+.r6-wave-2-wrap {
+  position: absolute;
+  left: 50%;
+  top: 550px;
+  transform: translate(-50%, -50%);
+  z-index: 8;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.r6-wave-2 {
+  flex-shrink: 0;
+  line-height: 0;
+}
+#r6-wave-2-svg {
+  display: block;
+  width: 207px;
+  height: 29px;
+}
+/* R6 声波2 倒影：垂直翻转、模糊、紫色略加深 */
+.r6-wave-2-reflection {
+  flex-shrink: 0;
+  line-height: 0;
+  transform: scaleY(-1);
+  filter: blur(4px);
+  opacity: 0.85;
+  margin-top: -2px;
+}
+#r6-wave-2-svg-reflection {
+  display: block;
+  width: 207px;
+  height: 29px;
+}
+/* R6 声波2 黑色粗条：以中心为原点缩放，两端透明度渐降 */
+.r6-wave2-bar {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.12s ease-out;
+}
+#r6-wave-2-svg .r6-wave2-bar:nth-child(1) { opacity: 0.1; }
+#r6-wave-2-svg .r6-wave2-bar:nth-child(2) { opacity: 0.25; }
+#r6-wave-2-svg .r6-wave2-bar:nth-child(3) { opacity: 0.5; }
+#r6-wave-2-svg .r6-wave2-bar:nth-child(4),
+#r6-wave-2-svg .r6-wave2-bar:nth-child(5),
+#r6-wave-2-svg .r6-wave2-bar:nth-child(6),
+#r6-wave-2-svg .r6-wave2-bar:nth-child(7),
+#r6-wave-2-svg .r6-wave2-bar:nth-child(8),
+#r6-wave-2-svg .r6-wave2-bar:nth-child(9),
+#r6-wave-2-svg .r6-wave2-bar:nth-child(10),
+#r6-wave-2-svg .r6-wave2-bar:nth-child(11) { opacity: 1; }
+#r6-wave-2-svg .r6-wave2-bar:nth-child(12) { opacity: 0.5; }
+#r6-wave-2-svg .r6-wave2-bar:nth-child(13) { opacity: 0.25; }
+#r6-wave-2-svg .r6-wave2-bar:nth-child(14) { opacity: 0.25; }
+#r6-wave-2-svg .r6-wave2-bar:nth-child(15) { opacity: 0.1; }
+/* 倒影条同样两端渐隐 */
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(1) { opacity: 0.1; }
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(2) { opacity: 0.25; }
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(3) { opacity: 0.5; }
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(4),
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(5),
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(6),
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(7),
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(8),
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(9),
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(10),
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(11) { opacity: 1; }
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(12) { opacity: 0.5; }
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(13) { opacity: 0.25; }
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(14) { opacity: 0.25; }
+#r6-wave-2-svg-reflection .r6-wave2-bar:nth-child(15) { opacity: 0.1; }
+
+@keyframes r6MouthFollow {
+  0%, 100% { transform: translateX(-50%) translate(0, 0) scale(1); }
+  15% { transform: translateX(-50%) translate(20px, -12px) scale(1.08); }
+  30% { transform: translateX(-50%) translate(15px, 16px) scale(0.9); }
+  38% { transform: translateX(-50%) translate(10px, 18px) scale(0.85); }
+  41% { transform: translateX(-50%) translate(10px, 18px) scale(0.95); }
+  44% { transform: translateX(-50%) translate(10px, 18px) scale(1.1); }
+  55% { transform: translateX(-50%) translate(-15px, -15px) scale(1.2); }
+  72% { transform: translateX(-50%) translate(-18px, 12px) scale(0.88); }
+  85% { transform: translateX(-50%) translate(-15px, -15px) scale(0.92); }
+}
+.r6-progress-dots {
+  position: absolute;
+  left: 50%;
+  top: 693px;
+  transform: translateX(-50%);
+  width: 94px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 10;
+}
+.r6-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 1);
+  opacity: 1;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+.r6-progress-dot.active { background-color: rgba(0, 0, 0, 1); opacity: 1; }
+.r6-next-button {
+  position: absolute;
+  top: 712px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease;
+  z-index: 20;
+  pointer-events: all;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.r6-next-button:hover:not(.r6-next-button-disabled) { opacity: 0.9; }
+.r6-next-button:active:not(.r6-next-button-disabled) { opacity: 0.8; }
+/* R6 下一步按钮禁用状态（与 R1 一致） */
+.r6-next-button-disabled {
+  cursor: not-allowed;
+  pointer-events: all;
+  opacity: 0.5;
+  filter: grayscale(50%);
+}
+.r6-next-button-disabled:hover {
+  opacity: 0.5;
+}
+.r6-next-button-svg { display: block; width: auto; height: auto; pointer-events: none; }

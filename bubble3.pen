@@ -1,0 +1,382 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "bi8Au",
+      "x": -129,
+      "y": -8,
+      "name": "Bubble3-默认态",
+      "clip": true,
+      "width": 201,
+      "height": 111,
+      "layout": "none",
+      "children": [
+        {
+          "type": "path",
+          "id": "DJaPR",
+          "x": 3,
+          "y": 21,
+          "name": "气泡形状",
+          "geometry": "M12 0l131 0q12 0 12 12l0 52q0 12-12 12l-54 0-11.5 8-11.5-8-54 0q-12 0-12-12l0-52q0-12 12-12z",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#FFFFFF",
+                "position": 0
+              },
+              {
+                "color": "#AFAFAF",
+                "position": 1
+              }
+            ]
+          },
+          "width": 155,
+          "height": 84,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 10,
+          "id": "d1A3D",
+          "x": 7.5,
+          "y": 27,
+          "name": "圆角矩形背景",
+          "fill": "#FFEAB6",
+          "width": 145,
+          "height": 64,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#9E4C05"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 10,
+          "id": "PU3ji",
+          "x": 8,
+          "y": 27,
+          "name": "噪点层",
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images\\noise.png",
+            "mode": "fill"
+          },
+          "width": 145,
+          "height": 64,
+          "stroke": {
+            "align": "inside",
+            "thickness": 0,
+            "fill": "transparent"
+          }
+        },
+        {
+          "type": "rectangle",
+          "id": "nURqp",
+          "x": 110.5,
+          "y": 35.56441888656133,
+          "rotation": 14.999999999999998,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images\\Group 31 (1).png",
+            "mode": "fill"
+          },
+          "width": 73,
+          "height": 79
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "1KOBf",
+      "x": 315,
+      "y": -42,
+      "name": "Bubble3-展开态1",
+      "width": 237,
+      "height": 289,
+      "layout": "none",
+      "children": [
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "1JCgz",
+          "x": 7,
+          "y": 6,
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#999999",
+                "position": 0
+              },
+              {
+                "color": "#ffffffff",
+                "position": 1
+              }
+            ]
+          },
+          "width": 223,
+          "height": 274,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000ff"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 10,
+          "id": "hNsmW",
+          "x": 17,
+          "y": 16,
+          "name": "圆角矩形背景",
+          "fill": "#FFEAB6",
+          "width": 203,
+          "height": 255,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#9E4C05"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "Pwvwu",
+          "x": 98.91772646144722,
+          "y": 99,
+          "rotation": -8.548106293102204,
+          "fill": "#ffffffff",
+          "width": 107,
+          "height": 134,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000ff"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "4MQgh",
+          "x": 30,
+          "y": 120.73533668859648,
+          "rotation": 13.917065878064653,
+          "fill": "#ffffffff",
+          "width": 107,
+          "height": 134,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000ff"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "QTlDh",
+          "x": 68,
+          "y": 95,
+          "fill": "#ffffffff",
+          "width": 107,
+          "height": 134,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000ff"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rectangle",
+      "id": "qsoy3",
+      "x": 10.5,
+      "y": -11,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "images\\image 5.png",
+        "mode": "fill"
+      },
+      "width": 54,
+      "height": 54
+    },
+    {
+      "type": "frame",
+      "id": "E3GWC",
+      "x": 576,
+      "y": -42,
+      "name": "Bubble3-展开态2",
+      "width": 237,
+      "height": 289,
+      "layout": "none",
+      "children": [
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "UkdGd",
+          "x": 7,
+          "y": 6,
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#999999",
+                "position": 0
+              },
+              {
+                "color": "#ffffffff",
+                "position": 1
+              }
+            ]
+          },
+          "width": 223,
+          "height": 274,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000ff"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 10,
+          "id": "QRqV3",
+          "x": 17,
+          "y": 16,
+          "name": "圆角矩形背景",
+          "fill": "#FFEAB6",
+          "width": 203,
+          "height": 255,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#9E4C05"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "K89a3",
+          "x": 100,
+          "y": 112.1460251734344,
+          "rotation": 5.979260083706007,
+          "fill": "#ffffffff",
+          "width": 107,
+          "height": 134,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000ff"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "wrUty",
+          "x": 79.8915730613794,
+          "y": 95,
+          "rotation": -4.233293729532278,
+          "fill": "#ffffffff",
+          "width": 107,
+          "height": 134,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000ff"
+          }
+        },
+        {
+          "type": "rectangle",
+          "cornerRadius": 16,
+          "id": "wvxfe",
+          "x": 11,
+          "y": 121.10552690551813,
+          "rotation": 14.121378998927359,
+          "fill": "#ffffffff",
+          "width": 107,
+          "height": 134,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000ff"
+          }
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "CWhBv",
+      "x": -393,
+      "y": -8,
+      "name": "Bubble3-默认态0",
+      "clip": true,
+      "width": 201,
+      "height": 111,
+      "layout": "none",
+      "children": [
+        {
+          "type": "path",
+          "id": "XAxJ3",
+          "x": 3,
+          "y": 21,
+          "name": "气泡形状",
+          "geometry": "M12 0l131 0q12 0 12 12l0 52q0 12-12 12l-54 0-11.5 8-11.5-8-54 0q-12 0-12-12l0-52q0-12 12-12z",
+          "fill": {
+            "type": "gradient",
+            "gradientType": "linear",
+            "enabled": true,
+            "rotation": 0,
+            "size": {
+              "height": 1
+            },
+            "colors": [
+              {
+                "color": "#FFFFFF",
+                "position": 0
+              },
+              {
+                "color": "#AFAFAF",
+                "position": 1
+              }
+            ]
+          },
+          "width": 155,
+          "height": 84,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#000000"
+          }
+        }
+      ]
+    }
+  ]
+}

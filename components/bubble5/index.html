@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bubble5 预览</title>
+  <link rel="stylesheet" href="bubble5.css" />
+</head>
+<body>
+  <div class="preview-page">
+    <div class="preview-row">
+      <div class="bubble5">
+        <div class="bubble5__default" id="bubble5-default" role="button" tabindex="0" aria-label="长按展开">
+          <!-- 气泡形状（与 .pen Bubble5-默认态 一致） -->
+          <svg class="bubble5__shape" viewBox="0 0 146 157" aria-hidden="true">
+            <path d="M16 0l114 0q16 0 16 16l0 117q0 16-16 16l-45.5 0-11.5 8-11.5-8-45.5 0q-16 0-16-16l0-117q0-16 16-16z" fill="#F0F0FB" />
+          </svg>
+          <!-- 半调图层（可选，与 .pen halftoneImage 对应） -->
+          <div class="bubble5__halftone" aria-hidden="true"></div>
+          <!-- 票券图：ticket1.png，133×142，位置 (22,13) -->
+          <div class="bubble5__ticket-wrap">
+            <img src="../../Pic/bubble5/ticket1.png" alt="" class="bubble5__ticket-img" aria-hidden="true" />
+          </div>
+          <!-- 文本：菜仔 + 正在看电影中...，位置 (38,31)，垂直 gap 4 -->
+          <div class="bubble5__text-container" aria-hidden="true">
+            <span class="bubble5__name">菜仔</span>
+            <span class="bubble5__status">正在看电影中...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 展开态浮层：长按默认态后显示，与 Bubble5-展开态 一致 -->
+  <div class="bubble5__overlay" id="bubble5-overlay" aria-hidden="true">
+    <div class="bubble5__overlay-backdrop" id="bubble5-backdrop"></div>
+    <div class="bubble5__expanded" id="bubble5-expanded">
+      <!-- 展开态容器：248×266；底层灰色卡片固定，粉色出票口在其上，ticket2 及上方内容为“票”可拉动 -->
+      <div class="bubble5__expanded-container">
+        <!-- 底层灰色圆角矩形：固定不动 -->
+        <div class="bubble5__expanded-bg"></div>
+        <!-- 出票口：粉色圆角矩形，内嵌药丸形元素（四边距 4，填充 #b846acff） -->
+        <div class="bubble5__expanded-outlet" aria-hidden="true">
+          <div class="bubble5__expanded-outlet-pill" aria-hidden="true"></div>
+        </div>
+        <!-- 可滑动的“票”：仅 ticket2.png 及其上方所有内容（灰块+视频、粉渐变、文字） -->
+        <div class="bubble5__expanded-slide">
+          <div class="bubble5__expanded-slide-content" id="bubble5-slide-content">
+            <div class="bubble5__expanded-ticket">
+              <div class="bubble5__expanded-ticket-bg" aria-hidden="true"></div>
+              <div class="bubble5__expanded-grey-rect" aria-hidden="true">
+                <video
+                  id="bubble5-expanded-video"
+                  class="bubble5__expanded-video"
+                  src="../../Pic/bubble5/video.mp4"
+                  muted
+                  loop
+                  playsinline
+                  preload="metadata"
+                  aria-label="展开态视频"
+                ></video>
+              </div>
+              <div class="bubble5__expanded-pink" aria-hidden="true"></div>
+              <span class="bubble5__expanded-status-text">菜仔正在看电影中...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="bubble5.js"></script>
+</body>
+</html>

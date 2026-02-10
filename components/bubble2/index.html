@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bubble2 预览（长按展开）</title>
+  <link rel="stylesheet" href="bubble2.css" />
+</head>
+<body>
+  <div class="preview-page">
+    <div class="preview-row">
+      <div class="bubble2">
+        <div class="bubble2__default" id="bubble2-default" role="button" tabindex="0" aria-label="长按展开">
+          <!-- 上方：黄色矩形，内有两个图片从左到右横向排布 -->
+          <div class="bubble2__top" aria-hidden="true">
+            <img src="../../Pic/bubble2/1.png" alt="" class="bubble2__top-img bubble2__top-img--left" />
+            <img src="../../Pic/bubble2/2.png" alt="" class="bubble2__top-img bubble2__top-img--right" />
+          </div>
+          <!-- 下方：黄色气泡，内有一个图片 -->
+          <div class="bubble2__bottom" aria-hidden="true">
+            <div class="bubble2__bottom-shape" aria-hidden="true"></div>
+            <img src="../../Pic/bubble2/3.png" alt="" class="bubble2__bottom-img" />
+          </div>
+          <div class="bubble2__default-tail" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 展开态浮层：长按默认态后显示 -->
+  <div class="bubble2__overlay" id="bubble2-overlay" aria-hidden="true">
+    <div class="bubble2__overlay-backdrop" id="bubble2-backdrop"></div>
+    <div class="bubble2__expanded" id="bubble2-expanded">
+      <div class="bubble2__expanded-card">
+        <div class="bubble2__expanded-chat">
+          <div class="bubble2__chat-msg bubble2__chat-msg--system">【系统】天黑请闭眼，狼人请睁眼</div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--system">【系统】投票结果：3号出局</div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--other">
+            <span class="bubble2__chat-name">小明（村民）</span>
+            <span class="bubble2__chat-bubble">我觉得2号是狼，昨天他带头投了5号</span>
+          </div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--other">
+            <span class="bubble2__chat-name">小红（预言家）</span>
+            <span class="bubble2__chat-bubble">我验了1号，是好人，今晚我验7号</span>
+          </div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--other">
+            <span class="bubble2__chat-name">小刚</span>
+            <span class="bubble2__chat-bubble">别乱带节奏，我才是真村民，7号一直不说话很可疑</span>
+          </div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--system">【系统】昨夜2号玩家出局</div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--other">
+            <span class="bubble2__chat-name">小李（村民）</span>
+            <span class="bubble2__chat-bubble">7号从第一天就没发言，大概率狼人</span>
+          </div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--other">
+            <span class="bubble2__chat-name">小芳（女巫）</span>
+            <span class="bubble2__chat-bubble">昨晚我救了2号，没开毒，现在还有一瓶解药</span>
+          </div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--other">
+            <span class="bubble2__chat-name">小华</span>
+            <span class="bubble2__chat-bubble">集中票7吧，先出7再盘</span>
+          </div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--system">【系统】投票结果：7号出局，请发表遗言</div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--other">
+            <span class="bubble2__chat-name">7号</span>
+            <span class="bubble2__chat-bubble">我是村民…2号和小刚里必有一狼，信我</span>
+          </div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--other">
+            <span class="bubble2__chat-name">小明（村民）</span>
+            <span class="bubble2__chat-bubble">那我们先投小刚试试，他踩7号踩得太狠了</span>
+          </div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--other">
+            <span class="bubble2__chat-name">小红（预言家）</span>
+            <span class="bubble2__chat-bubble">小刚我验过了是狼，大家跟我投小刚</span>
+          </div>
+          <div class="bubble2__chat-msg bubble2__chat-msg--system">【系统】投票结果：小刚出局，狼人阵营失败，好人胜利</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="bubble2.js"></script>
+</body>
+</html>

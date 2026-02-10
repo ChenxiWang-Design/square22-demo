@@ -1,0 +1,348 @@
+/**
+ * Bubble5 组件样式
+ * 默认态：177×174（Bubble5-默认态）
+ * 展开态：248×266，底层灰色矩形 + 粉色出票口 + 票从口内拉出
+ * 交互：长按默认态 → 展开态浮层，票从出票口拉出；嵌入主界面时主遮罩底部模糊
+ */
+
+:root {
+  --bubble5-transition-duration: 280ms;
+  --bubble5-transition-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.preview-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 40px;
+}
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Bubble5 默认态（177×174） ---------- */
+.bubble5 {
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: transparent;
+}
+
+.bubble5__default {
+  position: relative;
+  width: 177px;
+  height: 174px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: transform var(--bubble5-transition-duration) var(--bubble5-transition-ease);
+  z-index: 1;
+  background: transparent;
+}
+
+.bubble5__default:focus {
+  outline: none;
+}
+
+.bubble5__default:focus-visible {
+  outline: 2px solid #F0F0FB;
+  outline-offset: 2px;
+}
+
+.bubble5__default:hover {
+  transform: scale(1.02);
+}
+
+.bubble5__default.is-long-pressing {
+  transform: scale(0.98);
+}
+
+/* 气泡形状：path 146×157 位于 (16,6)，填充 #F0F0FB，阴影 0 2px 6px rgba(0,0,0,0.15) */
+.bubble5__shape {
+  position: absolute;
+  left: 16px;
+  top: 6px;
+  width: 146px;
+  height: 157px;
+  z-index: 1;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+}
+
+/* 半调图层（与 .pen halftoneImage 对应，可留空或加纹理） */
+.bubble5__halftone {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 177px;
+  height: 174px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 票券图：133×142，位置 (22,13) */
+.bubble5__ticket-wrap {
+  position: absolute;
+  left: 22px;
+  top: 13px;
+  width: 133px;
+  height: 142px;
+  z-index: 3;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.bubble5__ticket-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* 文本容器：位置 (38,31)，垂直 gap 4，Inter 14px 黑色 */
+.bubble5__text-container {
+  position: absolute;
+  left: 38px;
+  top: 31px;
+  width: 101px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.bubble5__name,
+.bubble5__status {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  color: #000000;
+  line-height: 1.2;
+}
+
+.bubble5__name {
+  font-weight: 600;
+}
+
+/* ---------- 展开态浮层 ---------- */
+.bubble5__overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition: opacity var(--bubble5-transition-duration) ease,
+              visibility 0s linear var(--bubble5-transition-duration),
+              backdrop-filter var(--bubble5-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble5-transition-duration) ease;
+}
+
+.bubble5__overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity var(--bubble5-transition-duration) ease,
+              backdrop-filter var(--bubble5-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble5-transition-duration) ease;
+}
+
+.bubble5__overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+/* 展开态卡片：从默认态位置缩放至 1，与其它 bubble 一致 */
+.bubble5__expanded {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform-origin: left top;
+  transform: scale(0.25);
+  opacity: 0;
+  transition: transform var(--bubble5-transition-duration) var(--bubble5-transition-ease),
+              opacity var(--bubble5-transition-duration) ease;
+  z-index: 1;
+  cursor: default;
+  background: transparent;
+}
+
+.bubble5__overlay.is-visible .bubble5__expanded {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* 展开态容器：248×286（增高 20px 以完整显示底部阴影） */
+.bubble5__expanded-container {
+  position: relative;
+  width: 248px;
+  height: 286px;
+  background: transparent;
+}
+
+/* 出票口：粉色圆角矩形，顶边距灰色矩形顶边 6px；高度在原有基础上增加 6 */
+.bubble5__expanded-outlet {
+  position: absolute;
+  left: 50%;
+  top: 13px;
+  width: 212px;
+  height: 15.5px;
+  margin-left: -106px;
+  border-radius: 10px;
+  background: #ffbaf8ff;
+  z-index: 1;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* 出票口内药丸形：距粉色矩形四边均为 4，填充 #b846acff */
+.bubble5__expanded-outlet-pill {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 204px;   /* 212 - 8 */
+  height: 7.5px;  /* 15.5 - 8 */
+  border-radius: 9999px;   /* 药丸形 */
+  background: #b846acff;
+  pointer-events: none;
+}
+
+/* 票滑动层：从出票口中心线(13+15.5/2=20.75px)往下裁剪 */
+.bubble5__expanded-slide {
+  position: absolute;
+  left: 0;
+  top: 20.75px;   /* 出票口垂直中心 */
+  width: 248px;
+  height: 265.25px;   /* 286 - 20.75 */
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* 票内容：初始时票底对齐出票口中心线 20.75 */
+.bubble5__expanded-slide-content {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 248px;
+  height: 286px;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateY(-223.25px);   /* 244 - 20.75 */
+}
+
+.bubble5__expanded-container.is-pulled-out .bubble5__expanded-slide-content {
+  transform: translateY(0);
+}
+
+/* 底层灰色圆角矩形：固定不动，以左上角为锚点，高度再 +6 */
+.bubble5__expanded-bg {
+  position: absolute;
+  left: 9px;
+  top: 7px;
+  width: 227px;
+  height: 258px;  /* 252 + 6 */
+  border-radius: 12px;
+  background: #F0F0FB;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 0;
+}
+
+/* fqmOC：ticketImage frame x:11 y:10 220×234，子元素坐标相对本层 */
+.bubble5__expanded-ticket {
+  position: absolute;
+  left: 11px;
+  top: 10px;
+  width: 220px;
+  height: 234px;
+  z-index: 1;
+}
+
+/* 票券图作为背景：220×234，mode:fit 即 contain 居中 */
+.bubble5__expanded-ticket-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 220px;
+  height: 234px;
+  background: url("../../Pic/bubble5/ticket2.png") center / contain no-repeat;
+  z-index: 0;
+}
+
+/* GBZl1：灰色圆角矩形 x:14 y:25 192×112 圆角16 #CCCCCC（相对 ticket），内嵌视频 */
+.bubble5__expanded-grey-rect {
+  position: absolute;
+  left: 14px;
+  top: 25px;
+  width: 192px;
+  height: 112px;
+  border-radius: 16px;
+  background: #CCCCCC;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* 视频：等比例缩放至宽度与灰色矩形一致 192px，铺满容器 */
+.bubble5__expanded-video {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* B0PK4：粉红渐变 x:13 y:93 197×45（相对 ticket）自上而下：透明→粉红（修正方向） */
+.bubble5__expanded-pink {
+  position: absolute;
+  left: 13px;
+  top: 93px;
+  width: 197px;
+  height: 45px;
+  background: linear-gradient(180deg, rgba(254, 120, 241, 0) 0%, #fe78f1 71%, #fe78f1 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* 55t0F：文本 x:25 y:134（相对 ticket）「菜仔正在看电影中...」Inter 16px 白色 */
+.bubble5__expanded-status-text {
+  position: absolute;
+  left: 25px;
+  top: 134px;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  color: #ffffff;
+  line-height: 1.3;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* 嵌入模式 */
+body.embed-mode {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body.embed-mode .preview-page {
+  padding: 0;
+  min-height: auto;
+}

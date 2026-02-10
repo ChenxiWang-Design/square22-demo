@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>彩色文字层预览</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+    
+    .preview-container {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+      align-items: center;
+      padding: 40px;
+    }
+    
+    .demo-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .demo-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    /* 截图1：分离的元素 */
+    .separated-elements {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      align-items: center;
+    }
+    
+    /* 黑色文字蒙版 */
+    .text-mask {
+      font-size: 32px;
+      font-weight: 400;
+      color: #000000;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    
+    /* 彩色渐变矩形 */
+    .gradient-rect {
+      width: 400px;
+      height: 50px;
+      background: linear-gradient(to right, 
+        rgba(160, 128, 255, 1) 0%,      /* 浅紫色 */
+        rgba(200, 128, 255, 1) 50%,     /* 中间过渡 */
+        rgba(255, 128, 255, 1) 100%     /* 浅粉色 */
+      );
+      border-radius: 4px;
+    }
+    
+    /* 截图2：叠加后的效果（可拖动） */
+    .combined-effect {
+      position: relative;
+      width: 400px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      user-select: none;
+      /* 确保文字居中 */
+      text-align: center;
+    }
+    
+    .combined-effect:active {
+      cursor: grabbing;
+    }
+    
+    /* 渐变矩形（可拉伸，使用文字作为蒙版） */
+    .combined-gradient-bg {
+      position: absolute;
+      top: 0;
+      left: 0; /* 左端固定在X0 */
+      height: 60px;
+      background: linear-gradient(to right, 
+        rgba(160, 128, 255, 1) 0%,      /* 浅紫色 */
+        rgba(200, 128, 255, 1) 50%,     /* 中间过渡 */
+        rgba(255, 128, 255, 1) 100%     /* 浅粉色 */
+      );
+      z-index: 1;
+      pointer-events: none;
+      transition: width 0.05s ease-out;
+      /* 使用文字作为蒙版 */
+      -webkit-mask-image: -webkit-gradient(linear, left top, right top, from(black), to(black));
+      mask-image: linear-gradient(to right, black, black);
+      -webkit-mask-composite: source-in;
+      mask-composite: intersect;
+    }
+    
+    /* 文字层（作为蒙版，显示黑色文字） */
+    .combined-text-mask {
+      position: absolute;
+      font-size: 32px;
+      font-weight: 400;
+      white-space: nowrap;
+      line-height: 1;
+      color: #000000; /* 黑色文字 */
+      z-index: 2;
+      pointer-events: none;
+      /* 这个文字层用于生成mask */
+    }
+    
+    /* 渐变矩形使用文字作为mask的实现方式 */
+    .combined-gradient-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px; /* 初始宽度1px，通过JS动态更新 */
+      height: 60px;
+      overflow: hidden;
+      z-index: 1;
+      pointer-events: none;
+      transition: width 0.05s ease-out;
+    }
+    
+    .combined-gradient-bg-v2 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, 
+        rgba(160, 128, 255, 1) 0%,
+        rgba(200, 128, 255, 1) 50%,
+        rgba(255, 128, 255, 1) 100%
+      );
+    }
+    
+    /* 文字蒙版（固定位置，使用background-clip实现） */
+    .colored-text {
+      position: relative;
+      font-size: 32px;
+      font-weight: 400;
+      white-space: nowrap;
+      line-height: 1;
+      color: #000000; /* 默认黑色 */
+      background: linear-gradient(to right, 
+        rgba(160, 128, 255, 1) 0%,
+        rgba(200, 128, 255, 1) 50%,
+        rgba(255, 128, 255, 1) 100%
+      );
+      background-size: 1px 100%; /* 初始宽度1px，通过JS动态更新 */
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      z-index: 2;
+      pointer-events: none;
+      /* 未覆盖的部分显示为黑色，需要混合 */
+      mix-blend-mode: normal;
+    }
+    
+    /* 底层：黑色文字（完整显示） */
+    .colored-text-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); /* 居中 */
+      font-size: 32px;
+      font-weight: 400;
+      white-space: nowrap;
+      line-height: 1;
+      color: #000000; /* 底层黑色文字 */
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    /* 顶层：渐变文字（与黑色文字完全重叠，使用clip-path限制宽度） */
+    .colored-text-gradient-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); /* 居中，与黑色文字完全对齐 */
+      z-index: 2;
+      pointer-events: none;
+      clip-path: inset(0 100% 0 0); /* 初始：右侧100%被裁剪，只显示左侧0% */
+      transition: clip-path 0.05s ease-out;
+    }
+    
+    /* 渐变文字（使用background-clip: text，与黑色文字完全相同） */
+    .colored-text-gradient {
+      font-size: 32px;
+      font-weight: 400;
+      white-space: nowrap;
+      line-height: 1;
+      color: transparent;
+      background: linear-gradient(to right, 
+        rgba(160, 128, 255, 1) 0%,
+        rgba(200, 128, 255, 1) 50%,
+        rgba(255, 128, 255, 1) 100%
+      );
+      background-size: 400px 100%; /* 渐变足够宽 */
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    /* 粉色扫描条（与渐变矩形同步移动，右端对齐） */
+    .combined-pink-scan-bar {
+      position: absolute;
+      top: 0;
+      width: 100px; /* 扫描条宽度100px */
+      height: 60px; /* 扫描条高度与容器一致 */
+      background: linear-gradient(to right, 
+        rgba(247, 148, 255, 0) 0%, 
+        rgba(247, 148, 255, 0.12) 100%
+      );
+      z-index: 3;
+      pointer-events: none;
+      /* 扫描条右端对齐目标位置，所以left = rightX，transform向左偏移100px */
+      transform: translateX(-100px);
+      transition: left 0.05s ease-out;
+    }
+    
+    /* 位置指示器（截图2） */
+    .combined-position-indicator {
+      position: absolute;
+      top: -30px;
+      left: 0;
+      font-size: 12px;
+      color: #666;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    
+    /* 方法2：使用 mask-image（更接近蒙版效果） */
+    .colored-text-mask {
+      position: relative;
+      font-size: 32px;
+      font-weight: 400;
+      white-space: nowrap;
+      line-height: 1;
+      color: #000; /* 文字颜色作为蒙版 */
+      background: linear-gradient(to right, 
+        rgba(160, 128, 255, 1) 0%,
+        rgba(200, 128, 255, 1) 50%,
+        rgba(255, 128, 255, 1) 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    /* 完整组件预览（模拟R5中的结构） */
+    .full-component {
+      position: relative;
+      width: 312px;
+      height: 60px;
+      background-color: #FFFFFF;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    /* 黑色文字（底层，z-index: 1） */
+    .text-base {
+      position: absolute;
+      font-size: 16px;
+      font-weight: 400;
+      color: #000000;
+      white-space: nowrap;
+      z-index: 1;
+      opacity: 0.3; /* 半透明以便看到彩色文字层 */
+    }
+    
+    /* 彩色文字层（中间层，z-index: 2） */
+    .colored-text-layer {
+      position: absolute;
+      font-size: 16px;
+      font-weight: 400;
+      white-space: nowrap;
+      z-index: 2;
+      background: linear-gradient(to right, 
+        rgba(160, 128, 255, 1) 0%,
+        rgba(200, 128, 255, 1) 50%,
+        rgba(255, 128, 255, 1) 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    /* 粉色扫描条（顶层，z-index: 3） */
+    .scan-bar {
+      position: absolute;
+      top: 0;
+      left: 60px;
+      width: 100px;
+      height: 60px;
+      background: linear-gradient(to right, 
+        rgba(247, 148, 255, 0) 0%, 
+        rgba(247, 148, 255, 0.12) 100%
+      );
+      z-index: 3;
+      transform: translateX(-100px);
+    }
+    
+    /* ========== 可拖动版本 ========== */
+    .draggable-component {
+      position: relative;
+      width: 312px;
+      height: 60px;
+      background-color: #FFFFFF;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+    }
+    
+    .draggable-component:active {
+      cursor: grabbing;
+    }
+    
+    /* 黑色文字（底层，z-index: 1） */
+    .draggable-text-base {
+      position: absolute;
+      font-size: 16px;
+      font-weight: 400;
+      color: #000000;
+      white-space: nowrap;
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    /* 渐变背景层（可拉伸，z-index: 2） */
+    .draggable-gradient-bg {
+      position: absolute;
+      top: 0;
+      left: 59px; /* 左端固定在X59 */
+      height: 60px;
+      background: linear-gradient(to right, 
+        rgba(160, 128, 255, 1) 0%,
+        rgba(200, 128, 255, 1) 50%,
+        rgba(255, 128, 255, 1) 100%
+      );
+      z-index: 2;
+      pointer-events: none;
+      transition: width 0.05s ease-out;
+    }
+    
+    /* 文字蒙版层（固定位置，z-index: 3） */
+    .draggable-text-clip {
+      position: absolute;
+      font-size: 16px;
+      font-weight: 400;
+      white-space: nowrap;
+      z-index: 3;
+      color: transparent;
+      background: linear-gradient(to right, 
+        rgba(160, 128, 255, 1) 0%,
+        rgba(200, 128, 255, 1) 50%,
+        rgba(255, 128, 255, 1) 100%
+      );
+      background-size: 1px 100%; /* 初始宽度1px，通过JS动态更新 */
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      pointer-events: none;
+    }
+    
+    /* 位置指示器 */
+    .position-indicator {
+      position: absolute;
+      top: -30px;
+      left: 0;
+      font-size: 12px;
+      color: #666;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-container">
+    
+    <!-- 截图1：分离的元素 -->
+    <div class="demo-section">
+      <div class="demo-title">截图1：分离的元素</div>
+      <div class="separated-elements">
+        <div class="text-mask">嘿, 是你吗？我的第二自我</div>
+        <div class="gradient-rect"></div>
+      </div>
+    </div>
+    
+    <!-- 截图2：叠加后的效果（可拖动） -->
+    <div class="demo-section">
+      <div class="demo-title">截图2：叠加后的效果（彩色文字，可拖动渐变矩形）</div>
+      <div class="combined-effect" id="combined-effect">
+        <div class="combined-position-indicator" id="combined-position-indicator">右端位置: X1 | 宽度: 1px</div>
+        <!-- 底层：黑色文字 -->
+        <div class="colored-text-wrapper" id="combined-text-base">嘿, 是你吗？我的第二自我</div>
+        <!-- 顶层：渐变文字容器（宽度受限） -->
+        <div class="colored-text-gradient-wrapper" id="combined-gradient-wrapper">
+          <div class="colored-text-gradient" id="combined-colored-text">嘿, 是你吗？我的第二自我</div>
+        </div>
+        <!-- 粉色扫描条（与渐变矩形同步移动） -->
+        <div class="combined-pink-scan-bar" id="combined-pink-scan-bar"></div>
+      </div>
+      <div style="font-size: 12px; color: #999; margin-top: 10px;">
+        点击并拖动来拉伸渐变矩形（左端固定，右端可拖动，渐变只在文字形状内显示）
+      </div>
+    </div>
+    
+    <!-- 完整组件预览（R5结构） -->
+    <div class="demo-section">
+      <div class="demo-title">完整组件预览（R5结构：黑色文字 + 彩色文字层 + 粉色扫描条）</div>
+      <div class="full-component">
+        <div class="text-base">嘿，是你吗？我的第二自我</div>
+        <div class="colored-text-layer">嘿，是你吗？我的第二自我</div>
+        <div class="scan-bar"></div>
+      </div>
+    </div>
+    
+    <!-- 可拖动版本 -->
+    <div class="demo-section">
+      <div class="demo-title">可拖动版本：点击并拖动来移动渐变矩形的右端位置</div>
+      <div class="draggable-component" id="draggable-component">
+        <div class="position-indicator" id="position-indicator">右端位置: X60</div>
+        <div class="draggable-text-base">嘿，是你吗？我的第二自我</div>
+        <div class="draggable-gradient-bg" id="draggable-gradient-bg"></div>
+        <div class="draggable-text-clip" id="draggable-text-clip">嘿，是你吗？我的第二自我</div>
+      </div>
+      <div style="font-size: 12px; color: #999; margin-top: 10px;">
+        移动范围：右端从 X60 到 X257（与粉色扫描条一致）
+      </div>
+    </div>
+    
+    <!-- 说明 -->
+    <div style="max-width: 600px; text-align: center; color: #666; font-size: 14px; line-height: 1.6;">
+      <p><strong>实现方式：</strong></p>
+      <p>彩色文字层使用 CSS <code>background-clip: text</code> 和 <code>-webkit-text-fill-color: transparent</code>，</p>
+      <p>让渐变背景透过文字形状显示，形成彩色渐变文字效果。</p>
+      <p style="margin-top: 10px;">渐变颜色：浅紫色 (#A080FF) → 浅粉色 (#FF80FF)</p>
+      <p style="margin-top: 10px;"><strong>拖动说明：</strong>渐变矩形的右端可以在X60到X257之间移动，文字蒙版位置保持不变。</p>
+    </div>
+    
+  </div>
+  
+  <script>
+    (function() {
+      const component = document.getElementById('draggable-component');
+      const gradientBg = document.getElementById('draggable-gradient-bg');
+      const textClip = document.getElementById('draggable-text-clip');
+      const indicator = document.getElementById('position-indicator');
+      
+      if (!component || !gradientBg || !textClip) return;
+      
+      // 渐变矩形左端固定位置
+      const leftX = 59;
+      // 移动范围：右端从X60到X257
+      const minRightX = 60;
+      const maxRightX = 257;
+      // 最大宽度 = 257 - 59 = 198px
+      const maxWidth = maxRightX - leftX;
+      
+      // 当前右端位置（初始值X60，宽度=1px）
+      let currentRightX = 60;
+      
+      // 更新渐变位置（拉伸宽度）
+      function updateGradientPosition(rightX) {
+        // 限制在范围内
+        rightX = Math.max(minRightX, Math.min(maxRightX, rightX));
+        currentRightX = rightX;
+        
+        // 计算渐变矩形的宽度：width = rightX - leftX
+        const width = rightX - leftX;
+        
+        // 更新渐变背景层的宽度（拉伸）
+        gradientBg.style.width = `${width}px`;
+        
+        // 文字层也需要同步：background-size设置为当前宽度，background-position左对齐
+        textClip.style.backgroundSize = `${width}px 100%`;
+        textClip.style.backgroundPosition = '0 0';
+        
+        // 更新位置指示器
+        indicator.textContent = `右端位置: X${Math.round(rightX)} | 宽度: ${Math.round(width)}px`;
+      }
+      
+      // 初始化：宽度1px（右端在X60）
+      updateGradientPosition(60);
+      
+      // 鼠标拖动
+      let isDragging = false;
+      let startX = 0;
+      let startRightX = 0;
+      
+      // 获取组件在页面中的位置
+      function getComponentRect() {
+        return component.getBoundingClientRect();
+      }
+      
+      component.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        const rect = getComponentRect();
+        // 将屏幕坐标转换为组件内坐标
+        startX = e.clientX - rect.left;
+        startRightX = currentRightX;
+        e.preventDefault();
+      });
+      
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        const rect = getComponentRect();
+        const currentX = e.clientX - rect.left;
+        const deltaX = currentX - startX;
+        // 计算新的右端位置（药丸坐标系）
+        const newRightX = startRightX + deltaX;
+        updateGradientPosition(newRightX);
+      });
+      
+      document.addEventListener('mouseup', function() {
+        isDragging = false;
+      });
+      
+      // 触摸支持
+      component.addEventListener('touchstart', function(e) {
+        isDragging = true;
+        const rect = getComponentRect();
+        startX = e.touches[0].clientX - rect.left;
+        startRightX = currentRightX;
+        e.preventDefault();
+      });
+      
+      document.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        
+        const rect = getComponentRect();
+        const currentX = e.touches[0].clientX - rect.left;
+        const deltaX = currentX - startX;
+        const newRightX = startRightX + deltaX;
+        updateGradientPosition(newRightX);
+        e.preventDefault();
+      });
+      
+      document.addEventListener('touchend', function() {
+        isDragging = false;
+      });
+    })();
+    
+    // ========== 截图2：叠加效果的可拖动版本 ==========
+    (function() {
+      const combinedEffect = document.getElementById('combined-effect');
+      const combinedTextBase = document.getElementById('combined-text-base');
+      const combinedGradientWrapper = document.getElementById('combined-gradient-wrapper');
+      const combinedColoredText = document.getElementById('combined-colored-text');
+      const combinedPinkScanBar = document.getElementById('combined-pink-scan-bar');
+      const combinedIndicator = document.getElementById('combined-position-indicator');
+      
+      if (!combinedEffect || !combinedTextBase || !combinedGradientWrapper || !combinedColoredText || !combinedPinkScanBar) return;
+      
+      // 渐变矩形左端固定位置（相对于combined-effect容器）
+      const leftX = 0;
+      // 移动范围：右端从X1到X400（容器宽度400px）
+      const minRightX = 1;
+      const maxRightX = 400;
+      
+      // 粉色扫描条宽度
+      const scanBarWidth = 100;
+      
+      // 当前右端位置（初始值X1，宽度=1px）
+      let currentRightX = 1;
+      
+      // 获取文字的实际宽度
+      const textWidth = combinedTextBase.offsetWidth;
+      
+      // 更新渐变位置（拉伸宽度）和粉色扫描条位置
+      function updateCombinedGradientPosition(rightX) {
+        // 限制在范围内
+        rightX = Math.max(minRightX, Math.min(maxRightX, rightX));
+        currentRightX = rightX;
+        
+        // 计算渐变矩形的宽度：width = rightX - leftX
+        const width = rightX - leftX;
+        
+        // 计算clip-path：从左侧0开始，右侧裁剪掉 (textWidth - width)
+        // clip-path: inset(top right bottom left)
+        const clipRight = Math.max(0, textWidth - width);
+        combinedGradientWrapper.style.clipPath = `inset(0 ${clipRight}px 0 0)`;
+        
+        // 渐变文字的background-size设置为当前宽度，background-position左对齐
+        combinedColoredText.style.backgroundSize = `${width}px 100%`;
+        combinedColoredText.style.backgroundPosition = '0 0';
+        
+        // 更新粉色扫描条位置：右端对齐rightX
+        // 扫描条宽度100px，右端对齐rightX，所以left = rightX，transform向左偏移100px
+        // 这样扫描条的右端 = left + 100px - 100px = rightX
+        combinedPinkScanBar.style.left = `${rightX}px`;
+        
+        // 更新位置指示器
+        combinedIndicator.textContent = `右端位置: X${Math.round(rightX)} | 宽度: ${Math.round(width)}px`;
+      }
+      
+      // 初始化：宽度1px（右端在X1）
+      updateCombinedGradientPosition(1);
+      
+      // 鼠标拖动
+      let isCombinedDragging = false;
+      let combinedStartX = 0;
+      let combinedStartRightX = 0;
+      
+      // 获取组件在页面中的位置
+      function getCombinedRect() {
+        return combinedEffect.getBoundingClientRect();
+      }
+      
+      combinedEffect.addEventListener('mousedown', function(e) {
+        isCombinedDragging = true;
+        const rect = getCombinedRect();
+        // 将屏幕坐标转换为组件内坐标
+        combinedStartX = e.clientX - rect.left;
+        combinedStartRightX = currentRightX;
+        e.preventDefault();
+      });
+      
+      document.addEventListener('mousemove', function(e) {
+        if (!isCombinedDragging) return;
+        
+        const rect = getCombinedRect();
+        const currentX = e.clientX - rect.left;
+        const deltaX = currentX - combinedStartX;
+        // 计算新的右端位置（容器坐标系）
+        const newRightX = combinedStartRightX + deltaX;
+        updateCombinedGradientPosition(newRightX);
+      });
+      
+      document.addEventListener('mouseup', function() {
+        isCombinedDragging = false;
+      });
+      
+      // 触摸支持
+      combinedEffect.addEventListener('touchstart', function(e) {
+        isCombinedDragging = true;
+        const rect = getCombinedRect();
+        combinedStartX = e.touches[0].clientX - rect.left;
+        combinedStartRightX = currentRightX;
+        e.preventDefault();
+      });
+      
+      document.addEventListener('touchmove', function(e) {
+        if (!isCombinedDragging) return;
+        
+        const rect = getCombinedRect();
+        const currentX = e.touches[0].clientX - rect.left;
+        const deltaX = currentX - combinedStartX;
+        const newRightX = combinedStartRightX + deltaX;
+        updateCombinedGradientPosition(newRightX);
+        e.preventDefault();
+      });
+      
+      document.addEventListener('touchend', function() {
+        isCombinedDragging = false;
+      });
+    })();
+  </script>
+</body>
+</html>

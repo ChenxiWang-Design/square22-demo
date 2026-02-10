@@ -1,0 +1,220 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "yj3sY",
+      "x": 371,
+      "y": 0,
+      "name": "Bubble5-展开态",
+      "width": 248,
+      "height": 266,
+      "layout": "none",
+      "children": [
+        {
+          "type": "rectangle",
+          "cornerRadius": 12,
+          "id": "RsvVg",
+          "x": 9,
+          "y": 7,
+          "name": "背景圆角矩形",
+          "fill": "#F0F0FB",
+          "width": 223,
+          "height": 240,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000026",
+            "offset": {
+              "x": 0,
+              "y": 2
+            },
+            "blur": 6
+          }
+        },
+        {
+          "type": "frame",
+          "id": "fqmOC",
+          "x": 11,
+          "y": 10,
+          "name": "ticketImage",
+          "width": 220,
+          "height": 234,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "./Pic/bubble5/ticket2.png",
+            "mode": "fit"
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "rectangle",
+              "cornerRadius": 16,
+              "id": "GBZl1",
+              "x": 14,
+              "y": 25,
+              "fill": "#CCCCCC",
+              "width": 192,
+              "height": 112
+            },
+            {
+              "type": "rectangle",
+              "id": "B0PK4",
+              "x": 13,
+              "y": 93,
+              "fill": {
+                "type": "gradient",
+                "gradientType": "linear",
+                "enabled": true,
+                "rotation": 0,
+                "size": {
+                  "height": 1
+                },
+                "colors": [
+                  {
+                    "color": "#fe78f1",
+                    "position": 0.29
+                  },
+                  {
+                    "color": "#fe78f100",
+                    "position": 1
+                  }
+                ]
+              },
+              "width": 197,
+              "height": 45
+            },
+            {
+              "type": "text",
+              "id": "55t0F",
+              "x": 25,
+              "y": 134,
+              "fill": "#000000",
+              "content": "菜仔正在看电影中...",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 11,
+              "id": "vixVW",
+              "x": 4,
+              "y": 6,
+              "fill": "#ffbaf8ff",
+              "width": 212,
+              "height": 19
+            },
+            {
+              "type": "rectangle",
+              "cornerRadius": 11,
+              "id": "N3mRJ",
+              "x": 13,
+              "y": 13,
+              "fill": "#b846acff",
+              "width": 197,
+              "height": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "yKH8k",
+      "x": -1,
+      "y": -18,
+      "name": "Bubble5-默认态",
+      "clip": true,
+      "width": 177,
+      "height": 174,
+      "layout": "none",
+      "children": [
+        {
+          "type": "path",
+          "id": "ZlNVO",
+          "x": 16,
+          "y": 6,
+          "name": "气泡形状",
+          "geometry": "M16 0l114 0q16 0 16 16l0 117q0 16-16 16l-45.5 0-11.5 8-11.5-8-45.5 0q-16 0-16-16l0-117q0-16 16-16z",
+          "fill": "#F0F0FB",
+          "width": 146,
+          "height": 157,
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "#00000026",
+            "offset": {
+              "x": 0,
+              "y": 2
+            },
+            "blur": 6
+          }
+        },
+        {
+          "type": "frame",
+          "id": "onE5c",
+          "x": 0,
+          "y": 0,
+          "name": "halftoneImage",
+          "width": 177,
+          "height": 174,
+          "layout": "none"
+        },
+        {
+          "type": "frame",
+          "id": "i7814",
+          "x": 22,
+          "y": 13,
+          "name": "ticketImage",
+          "width": 133,
+          "height": 142,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "./Pic/bubble5/ticket1.png",
+            "mode": "fill"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "frame",
+          "id": "HY1xa",
+          "x": 38,
+          "y": 31,
+          "name": "textContainer",
+          "width": 101,
+          "layout": "vertical",
+          "gap": 4,
+          "children": [
+            {
+              "type": "text",
+              "id": "F57S5",
+              "name": "nameText",
+              "fill": "#000000",
+              "textGrowth": "fixed-width",
+              "width": 101,
+              "content": "菜仔",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "sh3WR",
+              "name": "statusText",
+              "fill": "#000000",
+              "textGrowth": "fixed-width",
+              "width": 101,
+              "content": "正在看电影中...",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

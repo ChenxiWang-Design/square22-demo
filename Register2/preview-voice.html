@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>语音交互预览 · 三态（空白 / 正在输入 / 呈现）</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      min-height: 100vh;
+      font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    h1 { font-size: 18px; color: #333; margin-bottom: 8px; }
+    .hint { font-size: 14px; color: #666; margin-bottom: 24px; }
+
+    .voice-strip-wrap {
+      position: relative;
+      width: 334px;
+      height: 125px;
+      margin: 0 auto;
+    }
+    .voice-strip-wrap .state-layer {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      display: none;
+      pointer-events: none;
+    }
+    .voice-strip-wrap .state-layer.active { display: block; }
+    /* 按下输入态：整体上移 51px */
+    .voice-strip-wrap .state-layer.state-recording.active {
+      transform: translateX(-50%) translateY(-51px);
+    }
+    .voice-strip-wrap .state-layer.state-result.active {
+      z-index: 15;
+      pointer-events: auto;
+    }
+    .voice-strip-wrap .state-layer img { display: block; vertical-align: top; }
+    .voice-strip-wrap .voice-hit {
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      cursor: pointer;
+      z-index: 10;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    /* 呈现态时隐藏主热区，改由结果层接收点击（右侧按钮可点） */
+    .voice-strip-wrap.voice-state-result .voice-hit {
+      display: none;
+    }
+
+    /* 正在输入：R5 声波纹容器，始终显示；无声音时小条等长 2px，有声音时随音量变化；上移 50px */
+    .preview-voice-wave-container {
+      position: absolute;
+      left: 50%;
+      bottom: 58px;
+      transform: translateX(-50%);
+      z-index: 5;
+      pointer-events: none;
+      opacity: 1;
+    }
+    .preview-voice-wave-container svg {
+      display: block;
+      width: 192px;
+      height: 20px;
+    }
+    .preview-voice-wave-container .preview-wave-bar {
+      transition: transform 0.08s ease-out;
+      transform-origin: center center;
+    }
+
+    /* 呈现状态：参考 R4 下方文字+发送按钮布局；整体内容下移 10px */
+    .state-result .result-inner {
+      position: relative;
+      width: 314px;
+      min-height: 73px;
+      transform: translateY(10px);
+    }
+    .state-result .result-inner .result-svg-wrap {
+      position: relative;
+      width: 314px;
+      height: 73px;
+    }
+    .state-result .result-inner .result-svg-wrap img {
+      display: block;
+      width: 314px;
+      height: 73px;
+    }
+    /* 文字区域：与 R4 一致，右移 20、再上移 5 */
+    .state-result .result-text-wrap {
+      position: absolute;
+      left: 44px;
+      top: calc(50% - 10px);
+      transform: translateY(-50%);
+      width: 215px;
+      max-height: 36px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: rgba(0, 0, 0, 0.38);
+      line-height: 1.5;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .state-result .result-text-wrap::-webkit-scrollbar { width: 4px; }
+    .state-result .result-text-wrap::-webkit-scrollbar-track { background: transparent; }
+    .state-result .result-text-wrap::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.38);
+      border-radius: 2px;
+    }
+    .state-result .result-text-wrap:empty::before {
+      content: "未识别到内容";
+      color: #999;
+    }
+    /* 发送按钮：与 R4 同款，再上移 2（仅此按钮点击返回空白） */
+    .state-result .result-send-btn {
+      position: absolute;
+      right: 11px;
+      top: calc(50% - 12px);
+      transform: translateY(-50%);
+      width: 23px;
+      height: 23px;
+      cursor: pointer;
+      z-index: 2;
+      transition: opacity 0.2s ease;
+    }
+    .state-result .result-send-btn:hover { opacity: 0.8; }
+    .state-result .result-send-btn:active { opacity: 0.6; }
+    .state-result .result-send-btn svg { display: block; width: 100%; height: 100%; }
+    /* 最左侧按钮：点击返回空白状态 */
+    .state-result .result-back-btn {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #999;
+      min-height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>语音交互预览</h1>
+  <p class="hint">空白 → 按住进入「正在输入」→ 松开进入「呈现」；仅中文</p>
+
+  <div class="voice-strip-wrap">
+    <!-- 状态1：空白 -->
+    <div class="state-layer state-idle" id="layer-idle">
+      <img src="../Pic/Register/R4/小艺语音输入-常规态.svg" alt="" width="334" height="90" />
+    </div>
+    <!-- 状态2：正在输入 + R5 声波纹 -->
+    <div class="state-layer state-recording" id="layer-recording">
+      <img src="../Pic/Register/R5/按住说.svg" alt="" width="320" height="125" />
+      <div class="preview-voice-wave-container" id="preview-voice-wave-container">
+        <svg id="preview-voice-wave-svg" width="192" height="20" viewBox="0 0 192 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="preview-wave-g1" x1="-2.56" y1="9.9" x2="191" y2="12" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFC629"/><stop offset="0.265" stop-color="#FF5757"/><stop offset="0.52" stop-color="#FF42D2"/><stop offset="1" stop-color="#1FD0EE"/>
+            </linearGradient>
+            <linearGradient id="preview-wave-g2" x1="-7.26" y1="22.6" x2="191" y2="22.6" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#F748DA"/><stop offset="1" stop-color="#1FD0EE"/>
+            </linearGradient>
+          </defs>
+          <!-- 48 条第一层 + 48 条第二层（与 R5 一致，此处用 class 统一，JS 按 index 驱动） -->
+          <path class="preview-wave-bar" data-index="0" fill-rule="evenodd" clip-rule="evenodd" d="M3 11C3 11.552 2.5523 12 2 12C1.4477 12 1 11.552 1 11V9C1 8.448 1.4477 8 2 8C2.5523 8 3 8.448 3 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="1" fill-rule="evenodd" clip-rule="evenodd" d="M6 12C6.5523 12 7 11.552 7 11V9C7 8.448 6.5523 8 6 8C5.4477 8 5 8.448 5 9V11C5 11.552 5.4477 12 6 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="2" fill-rule="evenodd" clip-rule="evenodd" d="M11 11C11 11.552 10.552 12 10 12C9.4477 12 9 11.552 9 11V9C9 8.448 9.4477 8 10 8C10.552 8 11 8.448 11 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="3" fill-rule="evenodd" clip-rule="evenodd" d="M15 11C15 11.552 14.552 12 14 12C13.448 12 13 11.552 13 11V9C13 8.448 13.448 8 14 8C14.552 8 15 8.448 15 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="4" fill-rule="evenodd" clip-rule="evenodd" d="M18 12C18.552 12 19 11.552 19 11V9C19 8.448 18.552 8 18 8C17.448 8 17 8.448 17 9V11C17 11.552 17.448 12 18 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="5" fill-rule="evenodd" clip-rule="evenodd" d="M23 11C23 11.552 22.552 12 22 12C21.448 12 21 11.552 21 11V9C21 8.448 21.448 8 22 8C22.552 8 23 8.448 23 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="6" fill-rule="evenodd" clip-rule="evenodd" d="M27 11C27 11.552 26.552 12 26 12C25.448 12 25 11.552 25 11V9C25 8.448 25.448 8 26 8C26.552 8 27 8.448 27 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="7" fill-rule="evenodd" clip-rule="evenodd" d="M30 12C30.552 12 31 11.552 31 11V9C31 8.448 30.552 8 30 8C29.448 8 29 8.448 29 9V11C29 11.552 29.448 12 30 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="8" fill-rule="evenodd" clip-rule="evenodd" d="M35 11C35 11.552 34.552 12 34 12C33.448 12 33 11.552 33 11V9C33 8.448 33.448 8 34 8C34.552 8 35 8.448 35 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="9" fill-rule="evenodd" clip-rule="evenodd" d="M39 11C39 11.552 38.552 12 38 12C37.448 12 37 11.552 37 11V9C37 8.448 37.448 8 38 8C38.552 8 39 8.448 39 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="10" fill-rule="evenodd" clip-rule="evenodd" d="M42 12C42.552 12 43 11.552 43 11V9C43 8.448 42.552 8 42 8C41.448 8 41 8.448 41 9V11C41 11.552 41.448 12 42 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="11" fill-rule="evenodd" clip-rule="evenodd" d="M47 11C47 11.552 46.552 12 46 12C45.448 12 45 11.552 45 11V9C45 8.448 45.448 8 46 8C46.552 8 47 8.448 47 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="12" fill-rule="evenodd" clip-rule="evenodd" d="M51 11C51 11.552 50.552 12 50 12C49.448 12 49 11.552 49 11V9C49 8.448 49.448 8 50 8C50.552 8 51 8.448 51 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="13" fill-rule="evenodd" clip-rule="evenodd" d="M54 12C54.552 12 55 11.552 55 11V9C55 8.448 54.552 8 54 8C53.448 8 53 8.448 53 9V11C53 11.552 53.448 12 54 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="14" fill-rule="evenodd" clip-rule="evenodd" d="M59 11C59 11.552 58.552 12 58 12C57.448 12 57 11.552 57 11V9C57 8.448 57.448 8 58 8C58.552 8 59 8.448 59 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="15" fill-rule="evenodd" clip-rule="evenodd" d="M63 11C63 11.552 62.552 12 62 12C61.448 12 61 11.552 61 11V9C61 8.448 61.448 8 62 8C62.552 8 63 8.448 63 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="16" fill-rule="evenodd" clip-rule="evenodd" d="M66 12C66.552 12 67 11.552 67 11V9C67 8.448 66.552 8 66 8C65.448 8 65 8.448 65 9V11C65 11.552 65.448 12 66 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="17" fill-rule="evenodd" clip-rule="evenodd" d="M71 11C71 11.552 70.552 12 70 12C69.448 12 69 11.552 69 11V9C69 8.448 69.448 8 70 8C70.552 8 71 8.448 71 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="18" fill-rule="evenodd" clip-rule="evenodd" d="M75 11C75 11.552 74.552 12 74 12C73.448 12 73 11.552 73 11V9C73 8.448 73.448 8 74 8C74.552 8 75 8.448 75 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="19" fill-rule="evenodd" clip-rule="evenodd" d="M78 12C78.552 12 79 11.552 79 11V9C79 8.448 78.552 8 78 8C77.448 8 77 8.448 77 9V11C77 11.552 77.448 12 78 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="20" fill-rule="evenodd" clip-rule="evenodd" d="M83 11C83 11.552 82.552 12 82 12C81.448 12 81 11.552 81 11V9C81 8.448 81.448 8 82 8C82.552 8 83 8.448 83 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="21" fill-rule="evenodd" clip-rule="evenodd" d="M87 11C87 11.552 86.552 12 86 12C85.448 12 85 11.552 85 11V9C85 8.448 85.448 8 86 8C86.552 8 87 8.448 87 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="22" fill-rule="evenodd" clip-rule="evenodd" d="M90 12C90.552 12 91 11.552 91 11V9C91 8.448 90.552 8 90 8C89.448 8 89 8.448 89 9V11C89 11.552 89.448 12 90 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="23" fill-rule="evenodd" clip-rule="evenodd" d="M95 11C95 11.552 94.552 12 94 12C93.448 12 93 11.552 93 11V9C93 8.448 93.448 8 94 8C94.552 8 95 8.448 95 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="24" fill-rule="evenodd" clip-rule="evenodd" d="M99 11C99 11.552 98.552 12 98 12C97.448 12 97 11.552 97 11V9C97 8.448 97.448 8 98 8C98.552 8 99 8.448 99 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="25" fill-rule="evenodd" clip-rule="evenodd" d="M102 12C102.552 12 103 11.552 103 11V9C103 8.448 102.552 8 102 8C101.448 8 101 8.448 101 9V11C101 11.552 101.448 12 102 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="26" fill-rule="evenodd" clip-rule="evenodd" d="M107 11C107 11.552 106.552 12 106 12C105.448 12 105 11.552 105 11V9C105 8.448 105.448 8 106 8C106.552 8 107 8.448 107 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="27" fill-rule="evenodd" clip-rule="evenodd" d="M111 11C111 11.552 110.552 12 110 12C109.448 12 109 11.552 109 11V9C109 8.448 109.448 8 110 8C110.552 8 111 8.448 111 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="28" fill-rule="evenodd" clip-rule="evenodd" d="M114 12C114.552 12 115 11.552 115 11V9C115 8.448 114.552 8 114 8C113.448 8 113 8.448 113 9V11C113 11.552 113.448 12 114 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="29" fill-rule="evenodd" clip-rule="evenodd" d="M119 11C119 11.552 118.552 12 118 12C117.448 12 117 11.552 117 11V9C117 8.448 117.448 8 118 8C118.552 8 119 8.448 119 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="30" fill-rule="evenodd" clip-rule="evenodd" d="M123 11C123 11.552 122.552 12 122 12C121.448 12 121 11.552 121 11V9C121 8.448 121.448 8 122 8C122.552 8 123 8.448 123 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="31" fill-rule="evenodd" clip-rule="evenodd" d="M126 12C126.552 12 127 11.552 127 11V9C127 8.448 126.552 8 126 8C125.448 8 125 8.448 125 9V11C125 11.552 125.448 12 126 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="32" fill-rule="evenodd" clip-rule="evenodd" d="M131 11C131 11.552 130.552 12 130 12C129.448 12 129 11.552 129 11V9C129 8.448 129.448 8 130 8C130.552 8 131 8.448 131 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="33" fill-rule="evenodd" clip-rule="evenodd" d="M135 11C135 11.552 134.552 12 134 12C133.448 12 133 11.552 133 11V9C133 8.448 133.448 8 134 8C134.552 8 135 8.448 135 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="34" fill-rule="evenodd" clip-rule="evenodd" d="M138 12C138.552 12 139 11.552 139 11V9C139 8.448 138.552 8 138 8C137.448 8 137 8.448 137 9V11C137 11.552 137.448 12 138 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="35" fill-rule="evenodd" clip-rule="evenodd" d="M143 11C143 11.552 142.552 12 142 12C141.448 12 141 11.552 141 11V9C141 8.448 141.448 8 142 8C142.552 8 143 8.448 143 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="36" fill-rule="evenodd" clip-rule="evenodd" d="M147 11C147 11.552 146.552 12 146 12C145.448 12 145 11.552 145 11V9C145 8.448 145.448 8 146 8C146.552 8 147 8.448 147 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="37" fill-rule="evenodd" clip-rule="evenodd" d="M150 12C150.552 12 151 11.552 151 11V9C151 8.448 150.552 8 150 8C149.448 8 149 8.448 149 9V11C149 11.552 149.448 12 150 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="38" fill-rule="evenodd" clip-rule="evenodd" d="M155 11C155 11.552 154.552 12 154 12C153.448 12 153 11.552 153 11V9C153 8.448 153.448 8 154 8C154.552 8 155 8.448 155 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="39" fill-rule="evenodd" clip-rule="evenodd" d="M159 11C159 11.552 158.552 12 158 12C157.448 12 157 11.552 157 11V9C157 8.448 157.448 8 158 8C158.552 8 159 8.448 159 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="40" fill-rule="evenodd" clip-rule="evenodd" d="M162 12C162.552 12 163 11.552 163 11V9C163 8.448 162.552 8 162 8C161.448 8 161 8.448 161 9V11C161 11.552 161.448 12 162 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="41" fill-rule="evenodd" clip-rule="evenodd" d="M167 11C167 11.552 166.552 12 166 12C165.448 12 165 11.552 165 11V9C165 8.448 165.448 8 166 8C166.552 8 167 8.448 167 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="42" fill-rule="evenodd" clip-rule="evenodd" d="M171 11C171 11.552 170.552 12 170 12C169.448 12 169 11.552 169 11V9C169 8.448 169.448 8 170 8C170.552 8 171 8.448 171 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="43" fill-rule="evenodd" clip-rule="evenodd" d="M174 12C174.552 12 175 11.552 175 11V9C175 8.448 174.552 8 174 8C173.448 8 173 8.448 173 9V11C173 11.552 173.448 12 174 12Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="44" fill-rule="evenodd" clip-rule="evenodd" d="M179 11C179 11.552 178.552 12 178 12C177.448 12 177 11.552 177 11V9C177 8.448 177.448 8 178 8C178.552 8 179 8.448 179 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="45" fill-rule="evenodd" clip-rule="evenodd" d="M183 11C183 11.552 182.552 12 182 12C181.448 12 181 11.552 181 11V9C181 8.448 181.448 8 182 8C182.552 8 183 8.448 183 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="46" fill-rule="evenodd" clip-rule="evenodd" d="M187 11C187 11.552 186.552 12 186 12C185.448 12 185 11.552 185 11V9C185 8.448 185.448 8 186 8C186.552 8 187 8.448 187 9V11Z" fill="url(#preview-wave-g1)"/>
+          <path class="preview-wave-bar" data-index="47" fill-rule="evenodd" clip-rule="evenodd" d="M190 12C190.552 12 191 11.552 191 11V9C191 8.448 190.552 8 190 8C189.448 8 189 8.448 189 9V11C189 11.552 189.448 12 190 12Z" fill="url(#preview-wave-g1)"/>
+          <!-- 第二层 48 条（渐变2） -->
+          <path class="preview-wave-bar" data-index="48" fill-rule="evenodd" clip-rule="evenodd" d="M3 11C3 11.552 2.5523 12 2 12C1.4477 12 1 11.552 1 11V9C1 8.448 1.4477 8 2 8C2.5523 8 3 8.448 3 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="49" fill-rule="evenodd" clip-rule="evenodd" d="M6 12C6.5523 12 7 11.552 7 11V9C7 8.448 6.5523 8 6 8C5.4477 8 5 8.448 5 9V11C5 11.552 5.4477 12 6 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="50" fill-rule="evenodd" clip-rule="evenodd" d="M11 11C11 11.552 10.552 12 10 12C9.4477 12 9 11.552 9 11V9C9 8.448 9.4477 8 10 8C10.552 8 11 8.448 11 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="51" fill-rule="evenodd" clip-rule="evenodd" d="M15 11C15 11.552 14.552 12 14 12C13.448 12 13 11.552 13 11V9C13 8.448 13.448 8 14 8C14.552 8 15 8.448 15 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="52" fill-rule="evenodd" clip-rule="evenodd" d="M18 12C18.552 12 19 11.552 19 11V9C19 8.448 18.552 8 18 8C17.448 8 17 8.448 17 9V11C17 11.552 17.448 12 18 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="53" fill-rule="evenodd" clip-rule="evenodd" d="M23 11C23 11.552 22.552 12 22 12C21.448 12 21 11.552 21 11V9C21 8.448 21.448 8 22 8C22.552 8 23 8.448 23 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="54" fill-rule="evenodd" clip-rule="evenodd" d="M27 11C27 11.552 26.552 12 26 12C25.448 12 25 11.552 25 11V9C25 8.448 25.448 8 26 8C26.552 8 27 8.448 27 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="55" fill-rule="evenodd" clip-rule="evenodd" d="M30 12C30.552 12 31 11.552 31 11V9C31 8.448 30.552 8 30 8C29.448 8 29 8.448 29 9V11C29 11.552 29.448 12 30 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="56" fill-rule="evenodd" clip-rule="evenodd" d="M35 11C35 11.552 34.552 12 34 12C33.448 12 33 11.552 33 11V9C33 8.448 33.448 8 34 8C34.552 8 35 8.448 35 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="57" fill-rule="evenodd" clip-rule="evenodd" d="M39 11C39 11.552 38.552 12 38 12C37.448 12 37 11.552 37 11V9C37 8.448 37.448 8 38 8C38.552 8 39 8.448 39 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="58" fill-rule="evenodd" clip-rule="evenodd" d="M42 12C42.552 12 43 11.552 43 11V9C43 8.448 42.552 8 42 8C41.448 8 41 8.448 41 9V11C41 11.552 41.448 12 42 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="59" fill-rule="evenodd" clip-rule="evenodd" d="M47 11C47 11.552 46.552 12 46 12C45.448 12 45 11.552 45 11V9C45 8.448 45.448 8 46 8C46.552 8 47 8.448 47 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="60" fill-rule="evenodd" clip-rule="evenodd" d="M51 11C51 11.552 50.552 12 50 12C49.448 12 49 11.552 49 11V9C49 8.448 49.448 8 50 8C50.552 8 51 8.448 51 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="61" fill-rule="evenodd" clip-rule="evenodd" d="M54 12C54.552 12 55 11.552 55 11V9C55 8.448 54.552 8 54 8C53.448 8 53 8.448 53 9V11C53 11.552 53.448 12 54 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="62" fill-rule="evenodd" clip-rule="evenodd" d="M59 11C59 11.552 58.552 12 58 12C57.448 12 57 11.552 57 11V9C57 8.448 57.448 8 58 8C58.552 8 59 8.448 59 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="63" fill-rule="evenodd" clip-rule="evenodd" d="M63 11C63 11.552 62.552 12 62 12C61.448 12 61 11.552 61 11V9C61 8.448 61.448 8 62 8C62.552 8 63 8.448 63 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="64" fill-rule="evenodd" clip-rule="evenodd" d="M66 12C66.552 12 67 11.552 67 11V9C67 8.448 66.552 8 66 8C65.448 8 65 8.448 65 9V11C65 11.552 65.448 12 66 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="65" fill-rule="evenodd" clip-rule="evenodd" d="M71 11C71 11.552 70.552 12 70 12C69.448 12 69 11.552 69 11V9C69 8.448 69.448 8 70 8C70.552 8 71 8.448 71 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="66" fill-rule="evenodd" clip-rule="evenodd" d="M75 11C75 11.552 74.552 12 74 12C73.448 12 73 11.552 73 11V9C73 8.448 73.448 8 74 8C74.552 8 75 8.448 75 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="67" fill-rule="evenodd" clip-rule="evenodd" d="M78 12C78.552 12 79 11.552 79 11V9C79 8.448 78.552 8 78 8C77.448 8 77 8.448 77 9V11C77 11.552 77.448 12 78 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="68" fill-rule="evenodd" clip-rule="evenodd" d="M83 11C83 11.552 82.552 12 82 12C81.448 12 81 11.552 81 11V9C81 8.448 81.448 8 82 8C82.552 8 83 8.448 83 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="69" fill-rule="evenodd" clip-rule="evenodd" d="M87 11C87 11.552 86.552 12 86 12C85.448 12 85 11.552 85 11V9C85 8.448 85.448 8 86 8C86.552 8 87 8.448 87 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="70" fill-rule="evenodd" clip-rule="evenodd" d="M90 12C90.552 12 91 11.552 91 11V9C91 8.448 90.552 8 90 8C89.448 8 89 8.448 89 9V11C89 11.552 89.448 12 90 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="71" fill-rule="evenodd" clip-rule="evenodd" d="M95 11C95 11.552 94.552 12 94 12C93.448 12 93 11.552 93 11V9C93 8.448 93.448 8 94 8C94.552 8 95 8.448 95 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="72" fill-rule="evenodd" clip-rule="evenodd" d="M99 11C99 11.552 98.552 12 98 12C97.448 12 97 11.552 97 11V9C97 8.448 97.448 8 98 8C98.552 8 99 8.448 99 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="73" fill-rule="evenodd" clip-rule="evenodd" d="M102 12C102.552 12 103 11.552 103 11V9C103 8.448 102.552 8 102 8C101.448 8 101 8.448 101 9V11C101 11.552 101.448 12 102 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="74" fill-rule="evenodd" clip-rule="evenodd" d="M107 11C107 11.552 106.552 12 106 12C105.448 12 105 11.552 105 11V9C105 8.448 105.448 8 106 8C106.552 8 107 8.448 107 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="75" fill-rule="evenodd" clip-rule="evenodd" d="M111 11C111 11.552 110.552 12 110 12C109.448 12 109 11.552 109 11V9C109 8.448 109.448 8 110 8C110.552 8 111 8.448 111 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="76" fill-rule="evenodd" clip-rule="evenodd" d="M114 12C114.552 12 115 11.552 115 11V9C115 8.448 114.552 8 114 8C113.448 8 113 8.448 113 9V11C113 11.552 113.448 12 114 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="77" fill-rule="evenodd" clip-rule="evenodd" d="M119 11C119 11.552 118.552 12 118 12C117.448 12 117 11.552 117 11V9C117 8.448 117.448 8 118 8C118.552 8 119 8.448 119 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="78" fill-rule="evenodd" clip-rule="evenodd" d="M123 11C123 11.552 122.552 12 122 12C121.448 12 121 11.552 121 11V9C121 8.448 121.448 8 122 8C122.552 8 123 8.448 123 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="79" fill-rule="evenodd" clip-rule="evenodd" d="M126 12C126.552 12 127 11.552 127 11V9C127 8.448 126.552 8 126 8C125.448 8 125 8.448 125 9V11C125 11.552 125.448 12 126 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="80" fill-rule="evenodd" clip-rule="evenodd" d="M131 11C131 11.552 130.552 12 130 12C129.448 12 129 11.552 129 11V9C129 8.448 129.448 8 130 8C130.552 8 131 8.448 131 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="81" fill-rule="evenodd" clip-rule="evenodd" d="M135 11C135 11.552 134.552 12 134 12C133.448 12 133 11.552 133 11V9C133 8.448 133.448 8 134 8C134.552 8 135 8.448 135 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="82" fill-rule="evenodd" clip-rule="evenodd" d="M138 12C138.552 12 139 11.552 139 11V9C139 8.448 138.552 8 138 8C137.448 8 137 8.448 137 9V11C137 11.552 137.448 12 138 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="83" fill-rule="evenodd" clip-rule="evenodd" d="M143 11C143 11.552 142.552 12 142 12C141.448 12 141 11.552 141 11V9C141 8.448 141.448 8 142 8C142.552 8 143 8.448 143 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="84" fill-rule="evenodd" clip-rule="evenodd" d="M147 11C147 11.552 146.552 12 146 12C145.448 12 145 11.552 145 11V9C145 8.448 145.448 8 146 8C146.552 8 147 8.448 147 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="85" fill-rule="evenodd" clip-rule="evenodd" d="M150 12C150.552 12 151 11.552 151 11V9C151 8.448 150.552 8 150 8C149.448 8 149 8.448 149 9V11C149 11.552 149.448 12 150 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="86" fill-rule="evenodd" clip-rule="evenodd" d="M155 11C155 11.552 154.552 12 154 12C153.448 12 153 11.552 153 11V9C153 8.448 153.448 8 154 8C154.552 8 155 8.448 155 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="87" fill-rule="evenodd" clip-rule="evenodd" d="M159 11C159 11.552 158.552 12 158 12C157.448 12 157 11.552 157 11V9C157 8.448 157.448 8 158 8C158.552 8 159 8.448 159 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="88" fill-rule="evenodd" clip-rule="evenodd" d="M162 12C162.552 12 163 11.552 163 11V9C163 8.448 162.552 8 162 8C161.448 8 161 8.448 161 9V11C161 11.552 161.448 12 162 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="89" fill-rule="evenodd" clip-rule="evenodd" d="M167 11C167 11.552 166.552 12 166 12C165.448 12 165 11.552 165 11V9C165 8.448 165.448 8 166 8C166.552 8 167 8.448 167 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="90" fill-rule="evenodd" clip-rule="evenodd" d="M171 11C171 11.552 170.552 12 170 12C169.448 12 169 11.552 169 11V9C169 8.448 169.448 8 170 8C170.552 8 171 8.448 171 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="91" fill-rule="evenodd" clip-rule="evenodd" d="M174 12C174.552 12 175 11.552 175 11V9C175 8.448 174.552 8 174 8C173.448 8 173 8.448 173 9V11C173 11.552 173.448 12 174 12Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="92" fill-rule="evenodd" clip-rule="evenodd" d="M179 11C179 11.552 178.552 12 178 12C177.448 12 177 11.552 177 11V9C177 8.448 177.448 8 178 8C178.552 8 179 8.448 179 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="93" fill-rule="evenodd" clip-rule="evenodd" d="M183 11C183 11.552 182.552 12 182 12C181.448 12 181 11.552 181 11V9C181 8.448 181.448 8 182 8C182.552 8 183 8.448 183 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="94" fill-rule="evenodd" clip-rule="evenodd" d="M187 11C187 11.552 186.552 12 186 12C185.448 12 185 11.552 185 11V9C185 8.448 185.448 8 186 8C186.552 8 187 8.448 187 9V11Z" fill="url(#preview-wave-g2)"/>
+          <path class="preview-wave-bar" data-index="95" fill-rule="evenodd" clip-rule="evenodd" d="M190 12C190.552 12 191 11.552 191 11V9C191 8.448 190.552 8 190 8C189.448 8 189 8.448 189 9V11C189 11.552 189.448 12 190 12Z" fill="url(#preview-wave-g2)"/>
+        </svg>
+      </div>
+    </div>
+    <!-- 状态3：呈现 - R4 风格文字 + 发送按钮 -->
+    <div class="state-layer state-result" id="layer-result">
+      <div class="result-inner">
+        <div class="result-svg-wrap">
+          <img src="../Pic/Register/R4/小艺语音输入-文本输入 (1).svg" alt="" width="314" height="73" />
+          <div class="result-text-wrap" id="result-text"></div>
+          <div class="result-back-btn" id="result-back-btn" title="返回空白状态" aria-label="返回空白"></div>
+          <div class="result-send-btn" id="result-send-btn" title="发送" aria-label="发送">
+            <svg width="23" height="23" viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="preview-send-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#9370DB;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <circle cx="11.5" cy="11.5" r="11" fill="none" stroke="url(#preview-send-gradient)" stroke-width="1"/>
+              <path d="M11.5 6L16 11.5L11.5 17M16 11.5H6" stroke="url(#preview-send-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="voice-hit" id="voice-hit" aria-label="按住说话"></div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <script>
+    (function () {
+      const layerIdle = document.getElementById('layer-idle');
+      const layerRecording = document.getElementById('layer-recording');
+      const layerResult = document.getElementById('layer-result');
+      const resultText = document.getElementById('result-text');
+      const hit = document.getElementById('voice-hit');
+      const statusEl = document.getElementById('status');
+      const previewWaveSvg = document.getElementById('preview-voice-wave-svg');
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        statusEl.textContent = '当前浏览器不支持语音识别，请使用 Chrome 等支持 Web Speech API 的浏览器。';
+        hit.style.pointerEvents = 'none';
+        setState('result');
+        resultText.textContent = '不支持语音识别';
+        return;
+      }
+
+      let recognition = null;
+      let isListening = false;
+      let finalTranscript = '';
+      let holdTimer = null;
+      let previewWaveBars = [];
+      let previewWaveAnimId = null;
+      let previewMicStream = null;
+      let previewAudioContext = null;
+      let previewAnalyser = null;
+      let previewFreqData = null;
+      const PREVIEW_BASE_HEIGHT = 2;
+      const PREVIEW_MIN_H = 1;
+      const PREVIEW_MAX_H = 16;
+      const PREVIEW_VISIBLE_BARS = 48;
+      const PREVIEW_VOLUME_THRESHOLD = 18;
+      const previewWaveContainer = document.getElementById('preview-voice-wave-container');
+
+      function setState(state) {
+        layerIdle.classList.remove('active');
+        layerRecording.classList.remove('active');
+        layerResult.classList.remove('active');
+        if (state === 'idle') {
+          layerIdle.classList.add('active');
+          statusEl.textContent = '点击并按住开始说话';
+          stopPreviewWave();
+          hit.parentElement.classList.remove('voice-state-result');
+          hit.style.display = '';
+        } else if (state === 'recording') {
+          layerRecording.classList.add('active');
+          statusEl.textContent = '正在听… 松开结束';
+          previewHasVoice = false;
+          hit.parentElement.classList.remove('voice-state-result');
+          hit.style.display = '';
+          initPreviewWave();
+          runPreviewWaveLoop();
+        } else {
+          layerResult.classList.add('active');
+          statusEl.textContent = '识别完成，可再次按住说话';
+          stopPreviewWave();
+          hit.parentElement.classList.add('voice-state-result');
+        }
+      }
+
+      function setStatus(text) { statusEl.textContent = text; }
+
+      function initPreviewWave() {
+        if (!previewWaveSvg) return;
+        previewWaveBars = Array.from(previewWaveSvg.querySelectorAll('.preview-wave-bar'));
+        previewWaveBars.forEach(function (bar) { bar.style.transform = 'scaleY(1)'; });
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          previewMicStream = stream;
+          previewAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+          previewAnalyser = previewAudioContext.createAnalyser();
+          previewAnalyser.fftSize = 256;
+          previewAnalyser.smoothingTimeConstant = 0.6;
+          previewAnalyser.connect(previewAudioContext.destination);
+          var source = previewAudioContext.createMediaStreamSource(stream);
+          source.connect(previewAnalyser);
+          previewFreqData = new Uint8Array(previewAnalyser.frequencyBinCount);
+        }).catch(function () {
+          previewFreqData = null;
+        });
+      }
+
+      function runPreviewWaveLoop() {
+        if (previewWaveAnimId != null) return;
+        function animate() {
+          if (!layerRecording.classList.contains('active')) {
+            previewWaveAnimId = null;
+            return;
+          }
+          var avg = 0;
+          var binPerBar = 0;
+          if (previewAnalyser && previewFreqData && previewFreqData.length) {
+            previewAnalyser.getByteFrequencyData(previewFreqData);
+            for (var i = 0; i < previewFreqData.length; i++) avg += previewFreqData[i];
+            avg = avg / previewFreqData.length;
+            binPerBar = Math.max(1, Math.floor(previewFreqData.length / PREVIEW_VISIBLE_BARS));
+          }
+          previewWaveBars.forEach(function (bar, index) {
+            var barIndex = index % PREVIEW_VISIBLE_BARS;
+            if (avg < PREVIEW_VOLUME_THRESHOLD || !previewFreqData || !binPerBar) {
+              bar.style.transform = 'scaleY(1)';
+              return;
+            }
+            var sum = 0;
+            var start = barIndex * binPerBar;
+            var end = Math.min(start + binPerBar, previewFreqData.length);
+            for (var j = start; j < end; j++) sum += previewFreqData[j];
+            var val = end > start ? sum / (end - start) : 0;
+            var normalized = Math.min(255, val) / 255;
+            var h = PREVIEW_MIN_H + normalized * (PREVIEW_MAX_H - PREVIEW_MIN_H);
+            var scaleY = h / PREVIEW_BASE_HEIGHT;
+            bar.style.transform = 'scaleY(' + scaleY + ')';
+          });
+          previewWaveAnimId = requestAnimationFrame(animate);
+        }
+        animate();
+      }
+
+      function stopPreviewWave() {
+        if (previewWaveAnimId != null) {
+          cancelAnimationFrame(previewWaveAnimId);
+          previewWaveAnimId = null;
+        }
+        previewWaveBars.forEach(function (bar) { bar.style.transform = 'scaleY(1)'; });
+        if (previewMicStream) {
+          previewMicStream.getTracks().forEach(function (t) { t.stop(); });
+          previewMicStream = null;
+        }
+        if (previewAudioContext) {
+          previewAudioContext.close().catch(function () {});
+          previewAudioContext = null;
+        }
+        previewAnalyser = null;
+        previewFreqData = null;
+      }
+
+      function startListening() {
+        if (isListening) return;
+        finalTranscript = '';
+        previewHasVoice = false;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'zh-CN';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onstart = function () {
+          isListening = true;
+          setState('recording');
+        };
+        recognition.onresult = function (e) {
+          var any = '';
+          for (var i = e.resultIndex; i < e.results.length; i++) {
+            var transcript = e.results[i][0].transcript;
+            if (e.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              any += transcript;
+            }
+          }
+          if (any || finalTranscript) previewHasVoice = true;
+          if (any) resultText.textContent = finalTranscript + any;
+        };
+        recognition.onend = function () {
+          isListening = false;
+          if (finalTranscript) resultText.textContent = finalTranscript;
+          setState('result');
+          setStatus('识别结束');
+        };
+        recognition.onerror = function (e) {
+          isListening = false;
+          setStatus('识别错误: ' + (e.error || '未知'));
+          setState('result');
+          if (!resultText.textContent) resultText.textContent = '识别出错';
+        };
+
+        try { recognition.start(); } catch (err) {
+          setStatus('启动失败: ' + err.message);
+          setState('result');
+        }
+      }
+
+      function stopListening() {
+        if (!recognition || !isListening) return;
+        try { recognition.stop(); } catch (_) {}
+      }
+
+      function onPointerDown(e) {
+        e.preventDefault();
+        if (layerResult.classList.contains('active')) {
+          resultText.textContent = '';
+          holdTimer = setTimeout(function () {
+            holdTimer = null;
+            startListening();
+          }, 300);
+          return;
+        }
+        startListening();
+      }
+
+      function onPointerUp(e) {
+        e.preventDefault();
+        if (holdTimer) {
+          clearTimeout(holdTimer);
+          holdTimer = null;
+          return;
+        }
+        stopListening();
+      }
+
+      hit.addEventListener('mousedown', onPointerDown);
+      hit.addEventListener('mouseup', onPointerUp);
+      hit.addEventListener('mouseleave', onPointerUp);
+      hit.addEventListener('touchstart', function (e) { e.preventDefault(); onPointerDown(e); }, { passive: false });
+      hit.addEventListener('touchend', function (e) { e.preventDefault(); onPointerUp(e); }, { passive: false });
+      hit.addEventListener('touchcancel', function (e) { e.preventDefault(); onPointerUp(e); });
+
+      layerResult.addEventListener('mousedown', function (e) {
+        if (e.target.closest('.result-send-btn') || e.target.closest('.result-back-btn')) return;
+        if (e.target.closest('.result-text-wrap')) return;
+        onPointerDown(e);
+      });
+      layerResult.addEventListener('mouseup', onPointerUp);
+      layerResult.addEventListener('mouseleave', onPointerUp);
+      layerResult.addEventListener('touchstart', function (e) {
+        if (e.target.closest('.result-send-btn') || e.target.closest('.result-back-btn')) return;
+        if (e.target.closest('.result-text-wrap')) return;
+        e.preventDefault();
+        onPointerDown(e);
+      }, { passive: false });
+      layerResult.addEventListener('touchend', function (e) { e.preventDefault(); onPointerUp(e); }, { passive: false });
+      layerResult.addEventListener('touchcancel', function (e) { e.preventDefault(); onPointerUp(e); }, { passive: false });
+
+      document.getElementById('result-send-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
+
+      document.getElementById('result-back-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        resultText.textContent = '';
+        setState('idle');
+        setStatus('点击并按住开始说话');
+      });
+
+      setState('idle');
+    })();
+  </script>
+</body>
+</html>

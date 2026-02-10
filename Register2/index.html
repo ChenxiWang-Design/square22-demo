@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="数字分身注册流程" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>注册流程 Register2</title>
+  <link rel="stylesheet" href="register2.css">
+</head>
+<body>
+  <div class="register2-container">
+    <div class="page-wrapper">
+      <!-- R1 页面 -->
+      <div class="page page-1 active" data-page="1">
+        <div class="page-content page-1-content">
+          <!-- R1 背景图片 -->
+          <div class="page-background">
+            <img src="../Pic/Register/渐变背景.jpg" alt="背景" class="page-background-image" />
+          </div>
+          
+          <!-- R1 Header -->
+          <div class="r1-header">
+            <img src="../Pic/Register/R2/header.svg" alt="Header" class="r1-header-svg" />
+            <!-- Header文字1：数字分身 -->
+            <span id="header文字1" class="header-text-1">数字分身</span>
+          </div>
+          <!-- R1 左上角返回按钮：跳转到主界面 -->
+          <div class="r1-back-button" onclick="goToMainInterface()" title="返回主界面"></div>
+          <!-- R1 AI说 SVG -->
+          <div class="r1-ai-say">
+            <img src="../Pic/Register/R1AI说.svg" alt="AI说" class="r1-ai-say-svg" />
+          </div>
+          
+          <!-- R1 头像 -->
+          <div class="r1-avatar">
+            <img src="../Pic/Register/头像.svg" alt="头像" class="r1-avatar-svg" />
+          </div>
+          
+          <!-- R1 眼睛 -->
+          <svg class="r1-eyes-container" viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+            <!-- 渐变定义 -->
+            <defs>
+              <linearGradient id="r1-eye-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#E1B8E6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <!-- 左眼：线段长度14，中心在(172.5, 206.5) -->
+            <line class="r1-eye r1-eye-left" 
+                  x1="172.5" y1="199.5" 
+                  x2="172.5" y2="213.5" 
+                  stroke="#000000" 
+                  stroke-width="8" 
+                  stroke-linecap="round" />
+            <!-- 右眼：线段长度14，中心在(187.5, 206.5)，距离左眼15 -->
+            <line class="r1-eye r1-eye-right" 
+                  x1="187.5" y1="199.5" 
+                  x2="187.5" y2="213.5" 
+                  stroke="#000000" 
+                  stroke-width="8" 
+                  stroke-linecap="round" />
+          </svg>
+          
+          <!-- R1 输入框 -->
+          <div class="r1-input">
+            <img src="../Pic/Register/R1输入框.svg" alt="输入框" class="r1-input-svg" />
+          </div>
+          
+          <!-- R1 输入框可点击区域（独立定位） -->
+          <div class="r1-input-clickable" onclick="openR1Input()"></div>
+          
+          <!-- R1 分身名称显示文本 -->
+          <div id="r1-avatar-name-display" class="r1-avatar-name-display"></div>
+          
+          <!-- R1 隐藏的输入框 -->
+          <input type="text" 
+                 id="r1-avatar-name-input" 
+                 class="r1-avatar-name-input" 
+                 placeholder="" 
+                 style="display: none;" />
+          
+          <!-- R1 用户称呼下拉菜单 -->
+          <div class="r1-title-selector">
+            <!-- 下拉菜单触发器 -->
+            <div id="r1-title-trigger" class="r1-title-trigger" onclick="toggleR1TitleMenu()">
+              <div class="r1-title-trigger-content">
+                <!-- 触发器内容为空，箭头单独定位 -->
+              </div>
+            </div>
+            <!-- 下拉菜单选项 -->
+            <div id="r1-title-menu" class="r1-title-menu">
+              <div class="r1-title-option" data-value="1" onclick="selectR1Title(1)">
+                <span class="r1-title-option-text">本人-正式通用的称呼</span>
+              </div>
+              <div class="r1-title-option" data-value="2" onclick="selectR1Title(2)">
+                <span class="r1-title-option-text">本尊-威风凛凛的称呼</span>
+              </div>
+              <div class="r1-title-option" data-value="3" onclick="selectR1Title(3)">
+                <span class="r1-title-option-text">正主-娱乐有趣的称呼</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- R1 下拉箭头（单独定位，保持位置不变） -->
+          <svg id="r1-title-arrow" class="r1-title-arrow" width="12" height="8" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg" onclick="toggleR1TitleMenu()">
+            <path d="M1 1 L6 6 L11 1" stroke="rgba(0, 0, 0, 0.38)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          
+          <!-- R1 用户称呼显示文本 -->
+          <div id="r1-user-title-display" class="r1-user-title-display"></div>
+          
+          <!-- R1 称呼简短文本（根据选项显示"本人"/"本尊"/"正主"） -->
+          <div id="r1-title-short-display" class="r1-title-short-display">本人</div>
+          
+          <!-- R1 进度点 -->
+          <div class="r1-progress-dots">
+            <div class="r1-progress-dot active" data-page="1"></div>
+            <div class="r1-progress-dot" data-page="2"></div>
+            <div class="r1-progress-dot" data-page="3"></div>
+            <div class="r1-progress-dot" data-page="4"></div>
+            <div class="r1-progress-dot" data-page="5"></div>
+          </div>
+          
+          <!-- R1 按钮 -->
+          <div id="r1-next-button" class="r1-button r1-button-disabled" onclick="handleR1NextButtonClick()">
+            <img src="../Pic/Register/下一步按钮.svg" alt="按钮" class="r1-button-svg" />
+          </div>
+          
+          <!-- R1 内容层 -->
+          <div class="page-content-layer">
+          </div>
+        </div>
+      </div>
+      
+      <!-- R2 页面 -->
+      <div class="page page-2" data-page="2">
+        <div class="page-content page-2-content">
+          <!-- R2 背景图片 -->
+          <div class="page-background">
+            <img src="../Pic/Register/渐变背景.jpg" alt="背景" class="page-background-image" />
+          </div>
+          
+          <!-- R2 Header -->
+          <div class="r2-header">
+            <img src="../Pic/Register/R2/header.svg" alt="Header" class="r2-header-svg" />
+            <!-- Header文字：分身名称（使用R1输入的变量） -->
+            <span id="r2-header-avatar-name" class="r2-header-avatar-name"></span>
+          </div>
+          
+          <!-- R2 返回按钮（独立元素，不受header的pointer-events影响） -->
+          <div class="r2-back-button" onclick="goToPrevPage()"></div>
+          
+          <!-- R2 AI说 SVG -->
+          <div class="r2-ai-say">
+            <img src="../Pic/Register/R2/R2AI说.svg" alt="AI说" class="r2-ai-say-svg" />
+          </div>
+          
+          <!-- R2 头像容器 -->
+          <div class="r2-avatar-eyes-container">
+            <!-- R2 头像 -->
+            <div class="r2-avatar">
+              <img src="../Pic/Register/头像.svg" alt="头像" class="r2-avatar-svg" />
+            </div>
+          </div>
+          
+          <!-- R2 眼睛（独立容器，确保在最顶层） -->
+          <svg class="r2-eyes-container" viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+            <!-- 渐变定义 -->
+            <defs>
+              <linearGradient id="r2-eye-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#E1B8E6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <!-- 左眼：线段长度14，中心在(172.5, 206.5)，放大后间距约32.7px -->
+            <line class="r2-eye r2-eye-left" 
+                  x1="172.5" y1="199.5" 
+                  x2="172.5" y2="213.5" 
+                  stroke="#000000" 
+                  stroke-width="8" 
+                  stroke-linecap="round" />
+            <!-- 右眼：线段长度14，中心在(205.2, 206.5)，距离左眼32.7px（15*2.18） -->
+            <line class="r2-eye r2-eye-right" 
+                  x1="205.2" y1="199.5" 
+                  x2="205.2" y2="213.5" 
+                  stroke="#000000" 
+                  stroke-width="8" 
+                  stroke-linecap="round" />
+          </svg>
+          
+          <!-- R2 进度点 -->
+          <div class="r2-progress-dots">
+            <div class="r2-progress-dot" data-page="1"></div>
+            <div class="r2-progress-dot active" data-page="2"></div>
+            <div class="r2-progress-dot" data-page="3"></div>
+            <div class="r2-progress-dot" data-page="4"></div>
+            <div class="r2-progress-dot" data-page="5"></div>
+          </div>
+          
+          <!-- R2 自动生成按钮 -->
+          <div class="r2-auto-generate-button" onclick="goToR3()">
+            <img src="../Pic/Register/R2/自动生成按钮.svg" alt="自动生成" class="r2-auto-generate-button-svg" />
+          </div>
+          
+          <!-- R2 拍照按钮 -->
+          <div class="r2-camera-button" onclick="openCameraInterface()">
+            <img src="../Pic/Register/R2/拍照按钮.svg" alt="拍照" class="r2-camera-button-svg" />
+          </div>
+          
+          <!-- R2 内容层 -->
+          <div class="page-content-layer">
+          </div>
+        </div>
+      </div>
+      
+      <!-- 拍照界面 -->
+      <div id="camera-interface" class="camera-interface">
+        <!-- 相机预览容器 -->
+        <div class="camera-preview-container">
+          <!-- 背景渐变层（在容器内，受overflow限制） -->
+          <div class="camera-background">
+            <div class="camera-gradient"></div>
+            <div class="camera-dot-pattern"></div>
+          </div>
+          
+          <video id="camera-preview" class="camera-preview" autoplay playsinline></video>
+          <canvas id="camera-canvas" class="camera-canvas"></canvas>
+          <!-- 扫描线动画 -->
+          <div class="camera-scan-line"></div>
+        </div>
+        
+        <!-- 控制按钮区域 -->
+        <div class="camera-controls">
+          <!-- 拍摄按钮（未拍摄时显示） -->
+          <button id="camera-capture-btn" class="camera-btn camera-capture-btn" onclick="capturePhoto()">
+            <div class="camera-btn-inner"></div>
+          </button>
+          
+          <!-- 重拍和确定按钮（拍摄后显示） -->
+          <div id="camera-review-btns" class="camera-review-btns" style="display: none;">
+            <button class="camera-btn camera-retake-btn" onclick="retakePhoto()">重拍</button>
+            <button class="camera-btn camera-confirm-btn" onclick="confirmPhoto()">确定</button>
+          </div>
+        </div>
+        
+        <!-- 关闭按钮 -->
+        <button class="camera-close-btn" onclick="closeCameraInterface()">×</button>
+      </div>
+      
+      <!-- R3 页面 -->
+      <div class="page page-3" data-page="3">
+        <div class="page-content page-3-content">
+          <!-- R3 背景图片 -->
+          <div class="page-background">
+            <img src="../Pic/Register/渐变背景.jpg" alt="背景" class="page-background-image" />
+          </div>
+          
+          <!-- R3 Header -->
+          <div class="r3-header">
+            <img src="../Pic/Register/R2/header.svg" alt="Header" class="r3-header-svg" />
+            <!-- Header文字：分身名称（使用R1输入的变量） -->
+            <span id="r3-header-avatar-name" class="r3-header-avatar-name"></span>
+          </div>
+          
+          <!-- R3 返回按钮（独立元素，不受header的pointer-events影响） -->
+          <div class="r3-back-button" onclick="goToPrevPage()"></div>
+          
+          <!-- R3 AI说 SVG -->
+          <div class="r3-ai-say">
+            <img src="../Pic/Register/R3/R3AI说.svg" alt="AI说" class="r3-ai-say-svg" />
+          </div>
+          
+          <!-- R3 头像容器 -->
+          <div class="r3-avatar-eyes-container">
+            <!-- R3 头像 -->
+            <div class="r3-avatar">
+              <img src="../Pic/Register/R3/深色头像.svg" alt="头像" class="r3-avatar-svg" />
+            </div>
+          </div>
+          
+          <!-- R3 眼睛（独立容器，确保在最顶层） -->
+          <svg class="r3-eyes-container" viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+            <!-- 渐变定义 -->
+            <defs>
+              <linearGradient id="r3-eye-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#E1B8E6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <!-- 左眼：使用path以便实现高兴动画 -->
+            <path class="r3-eye r3-eye-left" 
+                  d="M 172.5 199.5 L 172.5 213.5"
+                  stroke="#000000" 
+                  stroke-width="8" 
+                  stroke-linecap="round"
+                  fill="none" />
+            <!-- 右眼：使用path以便实现高兴动画 -->
+            <path class="r3-eye r3-eye-right" 
+                  d="M 205.2 199.5 L 205.2 213.5"
+                  stroke="#000000" 
+                  stroke-width="8" 
+                  stroke-linecap="round"
+                  fill="none" />
+          </svg>
+          
+          <!-- R3 进度点 -->
+          <div class="r3-progress-dots">
+            <div class="r3-progress-dot active" data-page="1"></div>
+            <div class="r3-progress-dot active" data-page="2"></div>
+            <div class="r3-progress-dot" data-page="3"></div>
+            <div class="r3-progress-dot" data-page="4"></div>
+            <div class="r3-progress-dot" data-page="5"></div>
+          </div>
+          
+          <!-- R3 下一步按钮 -->
+          <div id="r3-next-button" class="r3-button" onclick="handleR3NextButtonClick()">
+            <img src="../Pic/Register/下一步按钮.svg" alt="下一步" class="r3-button-svg" />
+          </div>
+          
+          <!-- R3 用户头像 -->
+          <div class="r3-user-avatar" onclick="handleR3UserAvatarClick()">
+            <img src="../Pic/Register/R3/用户头像.png" alt="用户头像" class="r3-user-avatar-img" />
+          </div>
+          
+          <!-- R3 Load动画 -->
+          <div class="r3-load-animation">
+            <div class="r3-load-circle">
+              <div class="r3-load-dot" style="--index: 0;"></div>
+              <div class="r3-load-dot" style="--index: 1;"></div>
+              <div class="r3-load-dot" style="--index: 2;"></div>
+              <div class="r3-load-dot" style="--index: 3;"></div>
+              <div class="r3-load-dot" style="--index: 4;"></div>
+              <div class="r3-load-dot" style="--index: 5;"></div>
+              <div class="r3-load-dot" style="--index: 6;"></div>
+              <div class="r3-load-dot" style="--index: 7;"></div>
+              <div class="r3-load-dot" style="--index: 8;"></div>
+              <div class="r3-load-dot" style="--index: 9;"></div>
+              <div class="r3-load-dot" style="--index: 10;"></div>
+              <div class="r3-load-dot" style="--index: 11;"></div>
+            </div>
+          </div>
+          
+          <!-- R3 内容层 -->
+          <div class="page-content-layer">
+          </div>
+        </div>
+      </div>
+      
+      <!-- R4 页面 -->
+      <div class="page page-4" data-page="4">
+        <div class="page-content page-4-content">
+          <!-- R4 背景图片 -->
+          <div class="page-background">
+            <img src="../Pic/Register/渐变背景.jpg" alt="背景" class="page-background-image" />
+          </div>
+          
+          <!-- R4 Header -->
+          <div class="r4-header">
+            <img src="../Pic/Register/R2/header.svg" alt="Header" class="r4-header-svg" />
+            <!-- Header文字：分身名称（使用R1输入的变量） -->
+            <span id="r4-header-avatar-name" class="r4-header-avatar-name"></span>
+          </div>
+          
+          <!-- R4 返回按钮（独立元素，不受header的pointer-events影响） -->
+          <div class="r4-back-button" onclick="goToPrevPage()"></div>
+          
+          <!-- R4 头像和眼睛容器（作为一个整体） -->
+          <div class="r4-avatar-eyes-wrapper">
+            <!-- R4 头像（深色头像） -->
+            <div class="r4-avatar">
+              <img src="../Pic/Register/R3/深色头像.svg" alt="头像" class="r4-avatar-svg" />
+            </div>
+            
+            <!-- R4 眼睛（复制R1的眼睛动画组合） -->
+            <svg class="r4-eyes-container" viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+              <!-- 渐变定义 -->
+              <defs>
+                <linearGradient id="r4-eye-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#E1B8E6;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <!-- 左眼：线段长度14，中心在(172.5, 206.5) -->
+              <line class="r4-eye r4-eye-left" 
+                    x1="172.5" y1="199.5" 
+                    x2="172.5" y2="213.5" 
+                    stroke="#000000" 
+                    stroke-width="8" 
+                    stroke-linecap="round" />
+              <!-- 右眼：线段长度14，中心在(187.5, 206.5)，距离左眼15 -->
+              <line class="r4-eye r4-eye-right" 
+                    x1="187.5" y1="199.5" 
+                    x2="187.5" y2="213.5" 
+                    stroke="#000000" 
+                    stroke-width="8" 
+                    stroke-linecap="round" />
+            </svg>
+          </div>
+          
+          <!-- R4 文本内容 -->
+          <div class="r4-text-content">
+            <div class="r4-text-title">现在，请让我了解你</div>
+          </div>
+          
+          <!-- R4 对话区域容器 -->
+          <div class="r4-chat-container">
+            <!-- R4 AI初始消息（第二段文本） -->
+            <div class="r4-ai-message r4-text-body">
+              可以跟我聊聊你是一个怎样的人，来帮我注入灵魂。我们可以从你的经历开始聊起。<br><br>你觉得，童年时期发生了哪些事情，让你印象深刻？这些事情是否一定程度上改变了你？
+            </div>
+            
+            <!-- R4 对话气泡容器 -->
+            <div id="r4-messages-container" class="r4-messages-container"></div>
+          </div>
+          
+          <!-- R4 进度点 -->
+          <div class="r4-progress-dots">
+            <div class="r4-progress-dot active" data-page="1"></div>
+            <div class="r4-progress-dot active" data-page="2"></div>
+            <div class="r4-progress-dot active" data-page="3"></div>
+            <div class="r4-progress-dot" data-page="4"></div>
+            <div class="r4-progress-dot" data-page="5"></div>
+          </div>
+          
+          <!-- R4 语音输入组件（与下方原 SVG 顶端位置一致：top 712px） -->
+          <div class="r4-voice-wrap" id="r4-voice-wrap">
+            <div class="r4-voice-layer r4-voice-idle" id="r4-voice-idle">
+              <img src="../Pic/Register/R4/小艺语音输入-常规态.svg" alt="" width="334" height="90" />
+          </div>
+            <div class="r4-voice-layer r4-voice-recording" id="r4-voice-recording">
+              <img src="../Pic/Register/R5/按住说.svg" alt="" width="320" height="125" />
+              <div class="r4-voice-wave-container" id="r4-voice-wave-container">
+                <svg id="r4-voice-wave-svg" width="192" height="20" viewBox="0 0 192 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="r4-voice-wave-g1" x1="-2.56" y1="9.9" x2="191" y2="12" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#FFC629"/><stop offset="0.265" stop-color="#FF5757"/><stop offset="0.52" stop-color="#FF42D2"/><stop offset="1" stop-color="#1FD0EE"/>
+                    </linearGradient>
+                    <linearGradient id="r4-voice-wave-g2" x1="-7.26" y1="22.6" x2="191" y2="22.6" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#F748DA"/><stop offset="1" stop-color="#1FD0EE"/>
+                    </linearGradient>
+                  </defs>
+                  <path class="r4-voice-wave-bar" data-index="0" fill-rule="evenodd" clip-rule="evenodd" d="M3 11C3 11.552 2.5523 12 2 12C1.4477 12 1 11.552 1 11V9C1 8.448 1.4477 8 2 8C2.5523 8 3 8.448 3 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="1" fill-rule="evenodd" clip-rule="evenodd" d="M6 12C6.5523 12 7 11.552 7 11V9C7 8.448 6.5523 8 6 8C5.4477 8 5 8.448 5 9V11C5 11.552 5.4477 12 6 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="2" fill-rule="evenodd" clip-rule="evenodd" d="M11 11C11 11.552 10.552 12 10 12C9.4477 12 9 11.552 9 11V9C9 8.448 9.4477 8 10 8C10.552 8 11 8.448 11 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="3" fill-rule="evenodd" clip-rule="evenodd" d="M15 11C15 11.552 14.552 12 14 12C13.448 12 13 11.552 13 11V9C13 8.448 13.448 8 14 8C14.552 8 15 8.448 15 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="4" fill-rule="evenodd" clip-rule="evenodd" d="M18 12C18.552 12 19 11.552 19 11V9C19 8.448 18.552 8 18 8C17.448 8 17 8.448 17 9V11C17 11.552 17.448 12 18 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="5" fill-rule="evenodd" clip-rule="evenodd" d="M23 11C23 11.552 22.552 12 22 12C21.448 12 21 11.552 21 11V9C21 8.448 21.448 8 22 8C22.552 8 23 8.448 23 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="6" fill-rule="evenodd" clip-rule="evenodd" d="M27 11C27 11.552 26.552 12 26 12C25.448 12 25 11.552 25 11V9C25 8.448 25.448 8 26 8C26.552 8 27 8.448 27 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="7" fill-rule="evenodd" clip-rule="evenodd" d="M30 12C30.552 12 31 11.552 31 11V9C31 8.448 30.552 8 30 8C29.448 8 29 8.448 29 9V11C29 11.552 29.448 12 30 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="8" fill-rule="evenodd" clip-rule="evenodd" d="M35 11C35 11.552 34.552 12 34 12C33.448 12 33 11.552 33 11V9C33 8.448 33.448 8 34 8C34.552 8 35 8.448 35 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="9" fill-rule="evenodd" clip-rule="evenodd" d="M39 11C39 11.552 38.552 12 38 12C37.448 12 37 11.552 37 11V9C37 8.448 37.448 8 38 8C38.552 8 39 8.448 39 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="10" fill-rule="evenodd" clip-rule="evenodd" d="M42 12C42.552 12 43 11.552 43 11V9C43 8.448 42.552 8 42 8C41.448 8 41 8.448 41 9V11C41 11.552 41.448 12 42 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="11" fill-rule="evenodd" clip-rule="evenodd" d="M47 11C47 11.552 46.552 12 46 12C45.448 12 45 11.552 45 11V9C45 8.448 45.448 8 46 8C46.552 8 47 8.448 47 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="12" fill-rule="evenodd" clip-rule="evenodd" d="M51 11C51 11.552 50.552 12 50 12C49.448 12 49 11.552 49 11V9C49 8.448 49.448 8 50 8C50.552 8 51 8.448 51 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="13" fill-rule="evenodd" clip-rule="evenodd" d="M54 12C54.552 12 55 11.552 55 11V9C55 8.448 54.552 8 54 8C53.448 8 53 8.448 53 9V11C53 11.552 53.448 12 54 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="14" fill-rule="evenodd" clip-rule="evenodd" d="M59 11C59 11.552 58.552 12 58 12C57.448 12 57 11.552 57 11V9C57 8.448 57.448 8 58 8C58.552 8 59 8.448 59 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="15" fill-rule="evenodd" clip-rule="evenodd" d="M63 11C63 11.552 62.552 12 62 12C61.448 12 61 11.552 61 11V9C61 8.448 61.448 8 62 8C62.552 8 63 8.448 63 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="16" fill-rule="evenodd" clip-rule="evenodd" d="M66 12C66.552 12 67 11.552 67 11V9C67 8.448 66.552 8 66 8C65.448 8 65 8.448 65 9V11C65 11.552 65.448 12 66 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="17" fill-rule="evenodd" clip-rule="evenodd" d="M71 11C71 11.552 70.552 12 70 12C69.448 12 69 11.552 69 11V9C69 8.448 69.448 8 70 8C70.552 8 71 8.448 71 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="18" fill-rule="evenodd" clip-rule="evenodd" d="M75 11C75 11.552 74.552 12 74 12C73.448 12 73 11.552 73 11V9C73 8.448 73.448 8 74 8C74.552 8 75 8.448 75 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="19" fill-rule="evenodd" clip-rule="evenodd" d="M78 12C78.552 12 79 11.552 79 11V9C79 8.448 78.552 8 78 8C77.448 8 77 8.448 77 9V11C77 11.552 77.448 12 78 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="20" fill-rule="evenodd" clip-rule="evenodd" d="M83 11C83 11.552 82.552 12 82 12C81.448 12 81 11.552 81 11V9C81 8.448 81.448 8 82 8C82.552 8 83 8.448 83 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="21" fill-rule="evenodd" clip-rule="evenodd" d="M87 11C87 11.552 86.552 12 86 12C85.448 12 85 11.552 85 11V9C85 8.448 85.448 8 86 8C86.552 8 87 8.448 87 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="22" fill-rule="evenodd" clip-rule="evenodd" d="M90 12C90.552 12 91 11.552 91 11V9C91 8.448 90.552 8 90 8C89.448 8 89 8.448 89 9V11C89 11.552 89.448 12 90 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="23" fill-rule="evenodd" clip-rule="evenodd" d="M95 11C95 11.552 94.552 12 94 12C93.448 12 93 11.552 93 11V9C93 8.448 93.448 8 94 8C94.552 8 95 8.448 95 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="24" fill-rule="evenodd" clip-rule="evenodd" d="M99 11C99 11.552 98.552 12 98 12C97.448 12 97 11.552 97 11V9C97 8.448 97.448 8 98 8C98.552 8 99 8.448 99 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="25" fill-rule="evenodd" clip-rule="evenodd" d="M102 12C102.552 12 103 11.552 103 11V9C103 8.448 102.552 8 102 8C101.448 8 101 8.448 101 9V11C101 11.552 101.448 12 102 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="26" fill-rule="evenodd" clip-rule="evenodd" d="M107 11C107 11.552 106.552 12 106 12C105.448 12 105 11.552 105 11V9C105 8.448 105.448 8 106 8C106.552 8 107 8.448 107 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="27" fill-rule="evenodd" clip-rule="evenodd" d="M111 11C111 11.552 110.552 12 110 12C109.448 12 109 11.552 109 11V9C109 8.448 109.448 8 110 8C110.552 8 111 8.448 111 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="28" fill-rule="evenodd" clip-rule="evenodd" d="M114 12C114.552 12 115 11.552 115 11V9C115 8.448 114.552 8 114 8C113.448 8 113 8.448 113 9V11C113 11.552 113.448 12 114 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="29" fill-rule="evenodd" clip-rule="evenodd" d="M119 11C119 11.552 118.552 12 118 12C117.448 12 117 11.552 117 11V9C117 8.448 117.448 8 118 8C118.552 8 119 8.448 119 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="30" fill-rule="evenodd" clip-rule="evenodd" d="M123 11C123 11.552 122.552 12 122 12C121.448 12 121 11.552 121 11V9C121 8.448 121.448 8 122 8C122.552 8 123 8.448 123 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="31" fill-rule="evenodd" clip-rule="evenodd" d="M126 12C126.552 12 127 11.552 127 11V9C127 8.448 126.552 8 126 8C125.448 8 125 8.448 125 9V11C125 11.552 125.448 12 126 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="32" fill-rule="evenodd" clip-rule="evenodd" d="M131 11C131 11.552 130.552 12 130 12C129.448 12 129 11.552 129 11V9C129 8.448 129.448 8 130 8C130.552 8 131 8.448 131 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="33" fill-rule="evenodd" clip-rule="evenodd" d="M135 11C135 11.552 134.552 12 134 12C133.448 12 133 11.552 133 11V9C133 8.448 133.448 8 134 8C134.552 8 135 8.448 135 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="34" fill-rule="evenodd" clip-rule="evenodd" d="M138 12C138.552 12 139 11.552 139 11V9C139 8.448 138.552 8 138 8C137.448 8 137 8.448 137 9V11C137 11.552 137.448 12 138 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="35" fill-rule="evenodd" clip-rule="evenodd" d="M143 11C143 11.552 142.552 12 142 12C141.448 12 141 11.552 141 11V9C141 8.448 141.448 8 142 8C142.552 8 143 8.448 143 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="36" fill-rule="evenodd" clip-rule="evenodd" d="M147 11C147 11.552 146.552 12 146 12C145.448 12 145 11.552 145 11V9C145 8.448 145.448 8 146 8C146.552 8 147 8.448 147 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="37" fill-rule="evenodd" clip-rule="evenodd" d="M150 12C150.552 12 151 11.552 151 11V9C151 8.448 150.552 8 150 8C149.448 8 149 8.448 149 9V11C149 11.552 149.448 12 150 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="38" fill-rule="evenodd" clip-rule="evenodd" d="M155 11C155 11.552 154.552 12 154 12C153.448 12 153 11.552 153 11V9C153 8.448 153.448 8 154 8C154.552 8 155 8.448 155 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="39" fill-rule="evenodd" clip-rule="evenodd" d="M159 11C159 11.552 158.552 12 158 12C157.448 12 157 11.552 157 11V9C157 8.448 157.448 8 158 8C158.552 8 159 8.448 159 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="40" fill-rule="evenodd" clip-rule="evenodd" d="M162 12C162.552 12 163 11.552 163 11V9C163 8.448 162.552 8 162 8C161.448 8 161 8.448 161 9V11C161 11.552 161.448 12 162 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="41" fill-rule="evenodd" clip-rule="evenodd" d="M167 11C167 11.552 166.552 12 166 12C165.448 12 165 11.552 165 11V9C165 8.448 165.448 8 166 8C166.552 8 167 8.448 167 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="42" fill-rule="evenodd" clip-rule="evenodd" d="M171 11C171 11.552 170.552 12 170 12C169.448 12 169 11.552 169 11V9C169 8.448 169.448 8 170 8C170.552 8 171 8.448 171 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="43" fill-rule="evenodd" clip-rule="evenodd" d="M174 12C174.552 12 175 11.552 175 11V9C175 8.448 174.552 8 174 8C173.448 8 173 8.448 173 9V11C173 11.552 173.448 12 174 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="44" fill-rule="evenodd" clip-rule="evenodd" d="M179 11C179 11.552 178.552 12 178 12C177.448 12 177 11.552 177 11V9C177 8.448 177.448 8 178 8C178.552 8 179 8.448 179 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="45" fill-rule="evenodd" clip-rule="evenodd" d="M183 11C183 11.552 182.552 12 182 12C181.448 12 181 11.552 181 11V9C181 8.448 181.448 8 182 8C182.552 8 183 8.448 183 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="46" fill-rule="evenodd" clip-rule="evenodd" d="M187 11C187 11.552 186.552 12 186 12C185.448 12 185 11.552 185 11V9C185 8.448 185.448 8 186 8C186.552 8 187 8.448 187 9V11Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="47" fill-rule="evenodd" clip-rule="evenodd" d="M190 12C190.552 12 191 11.552 191 11V9C191 8.448 190.552 8 190 8C189.448 8 189 8.448 189 9V11C189 11.552 189.448 12 190 12Z" fill="url(#r4-voice-wave-g1)"/>
+                  <path class="r4-voice-wave-bar" data-index="48" fill-rule="evenodd" clip-rule="evenodd" d="M3 11C3 11.552 2.5523 12 2 12C1.4477 12 1 11.552 1 11V9C1 8.448 1.4477 8 2 8C2.5523 8 3 8.448 3 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="49" fill-rule="evenodd" clip-rule="evenodd" d="M6 12C6.5523 12 7 11.552 7 11V9C7 8.448 6.5523 8 6 8C5.4477 8 5 8.448 5 9V11C5 11.552 5.4477 12 6 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="50" fill-rule="evenodd" clip-rule="evenodd" d="M11 11C11 11.552 10.552 12 10 12C9.4477 12 9 11.552 9 11V9C9 8.448 9.4477 8 10 8C10.552 8 11 8.448 11 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="51" fill-rule="evenodd" clip-rule="evenodd" d="M15 11C15 11.552 14.552 12 14 12C13.448 12 13 11.552 13 11V9C13 8.448 13.448 8 14 8C14.552 8 15 8.448 15 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="52" fill-rule="evenodd" clip-rule="evenodd" d="M18 12C18.552 12 19 11.552 19 11V9C19 8.448 18.552 8 18 8C17.448 8 17 8.448 17 9V11C17 11.552 17.448 12 18 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="53" fill-rule="evenodd" clip-rule="evenodd" d="M23 11C23 11.552 22.552 12 22 12C21.448 12 21 11.552 21 11V9C21 8.448 21.448 8 22 8C22.552 8 23 8.448 23 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="54" fill-rule="evenodd" clip-rule="evenodd" d="M27 11C27 11.552 26.552 12 26 12C25.448 12 25 11.552 25 11V9C25 8.448 25.448 8 26 8C26.552 8 27 8.448 27 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="55" fill-rule="evenodd" clip-rule="evenodd" d="M30 12C30.552 12 31 11.552 31 11V9C31 8.448 30.552 8 30 8C29.448 8 29 8.448 29 9V11C29 11.552 29.448 12 30 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="56" fill-rule="evenodd" clip-rule="evenodd" d="M35 11C35 11.552 34.552 12 34 12C33.448 12 33 11.552 33 11V9C33 8.448 33.448 8 34 8C34.552 8 35 8.448 35 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="57" fill-rule="evenodd" clip-rule="evenodd" d="M39 11C39 11.552 38.552 12 38 12C37.448 12 37 11.552 37 11V9C37 8.448 37.448 8 38 8C38.552 8 39 8.448 39 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="58" fill-rule="evenodd" clip-rule="evenodd" d="M42 12C42.552 12 43 11.552 43 11V9C43 8.448 42.552 8 42 8C41.448 8 41 8.448 41 9V11C41 11.552 41.448 12 42 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="59" fill-rule="evenodd" clip-rule="evenodd" d="M47 11C47 11.552 46.552 12 46 12C45.448 12 45 11.552 45 11V9C45 8.448 45.448 8 46 8C46.552 8 47 8.448 47 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="60" fill-rule="evenodd" clip-rule="evenodd" d="M51 11C51 11.552 50.552 12 50 12C49.448 12 49 11.552 49 11V9C49 8.448 49.448 8 50 8C50.552 8 51 8.448 51 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="61" fill-rule="evenodd" clip-rule="evenodd" d="M54 12C54.552 12 55 11.552 55 11V9C55 8.448 54.552 8 54 8C53.448 8 53 8.448 53 9V11C53 11.552 53.448 12 54 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="62" fill-rule="evenodd" clip-rule="evenodd" d="M59 11C59 11.552 58.552 12 58 12C57.448 12 57 11.552 57 11V9C57 8.448 57.448 8 58 8C58.552 8 59 8.448 59 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="63" fill-rule="evenodd" clip-rule="evenodd" d="M63 11C63 11.552 62.552 12 62 12C61.448 12 61 11.552 61 11V9C61 8.448 61.448 8 62 8C62.552 8 63 8.448 63 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="64" fill-rule="evenodd" clip-rule="evenodd" d="M66 12C66.552 12 67 11.552 67 11V9C67 8.448 66.552 8 66 8C65.448 8 65 8.448 65 9V11C65 11.552 65.448 12 66 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="65" fill-rule="evenodd" clip-rule="evenodd" d="M71 11C71 11.552 70.552 12 70 12C69.448 12 69 11.552 69 11V9C69 8.448 69.448 8 70 8C70.552 8 71 8.448 71 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="66" fill-rule="evenodd" clip-rule="evenodd" d="M75 11C75 11.552 74.552 12 74 12C73.448 12 73 11.552 73 11V9C73 8.448 73.448 8 74 8C74.552 8 75 8.448 75 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="67" fill-rule="evenodd" clip-rule="evenodd" d="M78 12C78.552 12 79 11.552 79 11V9C79 8.448 78.552 8 78 8C77.448 8 77 8.448 77 9V11C77 11.552 77.448 12 78 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="68" fill-rule="evenodd" clip-rule="evenodd" d="M83 11C83 11.552 82.552 12 82 12C81.448 12 81 11.552 81 11V9C81 8.448 81.448 8 82 8C82.552 8 83 8.448 83 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="69" fill-rule="evenodd" clip-rule="evenodd" d="M87 11C87 11.552 86.552 12 86 12C85.448 12 85 11.552 85 11V9C85 8.448 85.448 8 86 8C86.552 8 87 8.448 87 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="70" fill-rule="evenodd" clip-rule="evenodd" d="M90 12C90.552 12 91 11.552 91 11V9C91 8.448 90.552 8 90 8C89.448 8 89 8.448 89 9V11C89 11.552 89.448 12 90 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="71" fill-rule="evenodd" clip-rule="evenodd" d="M95 11C95 11.552 94.552 12 94 12C93.448 12 93 11.552 93 11V9C93 8.448 93.448 8 94 8C94.552 8 95 8.448 95 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="72" fill-rule="evenodd" clip-rule="evenodd" d="M99 11C99 11.552 98.552 12 98 12C97.448 12 97 11.552 97 11V9C97 8.448 97.448 8 98 8C98.552 8 99 8.448 99 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="73" fill-rule="evenodd" clip-rule="evenodd" d="M102 12C102.552 12 103 11.552 103 11V9C103 8.448 102.552 8 102 8C101.448 8 101 8.448 101 9V11C101 11.552 101.448 12 102 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="74" fill-rule="evenodd" clip-rule="evenodd" d="M107 11C107 11.552 106.552 12 106 12C105.448 12 105 11.552 105 11V9C105 8.448 105.448 8 106 8C106.552 8 107 8.448 107 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="75" fill-rule="evenodd" clip-rule="evenodd" d="M111 11C111 11.552 110.552 12 110 12C109.448 12 109 11.552 109 11V9C109 8.448 109.448 8 110 8C110.552 8 111 8.448 111 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="76" fill-rule="evenodd" clip-rule="evenodd" d="M114 12C114.552 12 115 11.552 115 11V9C115 8.448 114.552 8 114 8C113.448 8 113 8.448 113 9V11C113 11.552 113.448 12 114 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="77" fill-rule="evenodd" clip-rule="evenodd" d="M119 11C119 11.552 118.552 12 118 12C117.448 12 117 11.552 117 11V9C117 8.448 117.448 8 118 8C118.552 8 119 8.448 119 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="78" fill-rule="evenodd" clip-rule="evenodd" d="M123 11C123 11.552 122.552 12 122 12C121.448 12 121 11.552 121 11V9C121 8.448 121.448 8 122 8C122.552 8 123 8.448 123 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="79" fill-rule="evenodd" clip-rule="evenodd" d="M126 12C126.552 12 127 11.552 127 11V9C127 8.448 126.552 8 126 8C125.448 8 125 8.448 125 9V11C125 11.552 125.448 12 126 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="80" fill-rule="evenodd" clip-rule="evenodd" d="M131 11C131 11.552 130.552 12 130 12C129.448 12 129 11.552 129 11V9C129 8.448 129.448 8 130 8C130.552 8 131 8.448 131 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="81" fill-rule="evenodd" clip-rule="evenodd" d="M135 11C135 11.552 134.552 12 134 12C133.448 12 133 11.552 133 11V9C133 8.448 133.448 8 134 8C134.552 8 135 8.448 135 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="82" fill-rule="evenodd" clip-rule="evenodd" d="M138 12C138.552 12 139 11.552 139 11V9C139 8.448 138.552 8 138 8C137.448 8 137 8.448 137 9V11C137 11.552 137.448 12 138 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="83" fill-rule="evenodd" clip-rule="evenodd" d="M143 11C143 11.552 142.552 12 142 12C141.448 12 141 11.552 141 11V9C141 8.448 141.448 8 142 8C142.552 8 143 8.448 143 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="84" fill-rule="evenodd" clip-rule="evenodd" d="M147 11C147 11.552 146.552 12 146 12C145.448 12 145 11.552 145 11V9C145 8.448 145.448 8 146 8C146.552 8 147 8.448 147 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="85" fill-rule="evenodd" clip-rule="evenodd" d="M150 12C150.552 12 151 11.552 151 11V9C151 8.448 150.552 8 150 8C149.448 8 149 8.448 149 9V11C149 11.552 149.448 12 150 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="86" fill-rule="evenodd" clip-rule="evenodd" d="M155 11C155 11.552 154.552 12 154 12C153.448 12 153 11.552 153 11V9C153 8.448 153.448 8 154 8C154.552 8 155 8.448 155 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="87" fill-rule="evenodd" clip-rule="evenodd" d="M159 11C159 11.552 158.552 12 158 12C157.448 12 157 11.552 157 11V9C157 8.448 157.448 8 158 8C158.552 8 159 8.448 159 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="88" fill-rule="evenodd" clip-rule="evenodd" d="M162 12C162.552 12 163 11.552 163 11V9C163 8.448 162.552 8 162 8C161.448 8 161 8.448 161 9V11C161 11.552 161.448 12 162 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="89" fill-rule="evenodd" clip-rule="evenodd" d="M167 11C167 11.552 166.552 12 166 12C165.448 12 165 11.552 165 11V9C165 8.448 165.448 8 166 8C166.552 8 167 8.448 167 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="90" fill-rule="evenodd" clip-rule="evenodd" d="M171 11C171 11.552 170.552 12 170 12C169.448 12 169 11.552 169 11V9C169 8.448 169.448 8 170 8C170.552 8 171 8.448 171 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="91" fill-rule="evenodd" clip-rule="evenodd" d="M174 12C174.552 12 175 11.552 175 11V9C175 8.448 174.552 8 174 8C173.448 8 173 8.448 173 9V11C173 11.552 173.448 12 174 12Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="92" fill-rule="evenodd" clip-rule="evenodd" d="M179 11C179 11.552 178.552 12 178 12C177.448 12 177 11.552 177 11V9C177 8.448 177.448 8 178 8C178.552 8 179 8.448 179 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="93" fill-rule="evenodd" clip-rule="evenodd" d="M183 11C183 11.552 182.552 12 182 12C181.448 12 181 11.552 181 11V9C181 8.448 181.448 8 182 8C182.552 8 183 8.448 183 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="94" fill-rule="evenodd" clip-rule="evenodd" d="M187 11C187 11.552 186.552 12 186 12C185.448 12 185 11.552 185 11V9C185 8.448 185.448 8 186 8C186.552 8 187 8.448 187 9V11Z" fill="url(#r4-voice-wave-g2)"/>
+                  <path class="r4-voice-wave-bar" data-index="95" fill-rule="evenodd" clip-rule="evenodd" d="M190 12C190.552 12 191 11.552 191 11V9C191 8.448 190.552 8 190 8C189.448 8 189 8.448 189 9V11C189 11.552 189.448 12 190 12Z" fill="url(#r4-voice-wave-g2)"/>
+                </svg>
+              </div>
+            </div>
+            <div class="r4-voice-layer r4-voice-result" id="r4-voice-result">
+              <div class="r4-voice-result-inner">
+                <div class="r4-voice-result-svg-wrap">
+                  <img src="../Pic/Register/R4/小艺语音输入-文本输入 (1).svg" alt="" width="314" height="73" />
+                  <div class="r4-voice-result-text" id="r4-voice-result-text"></div>
+                  <div class="r4-voice-back-btn" id="r4-voice-back-btn" title="返回空白状态" aria-label="返回空白"></div>
+                  <div class="r4-voice-send-btn" id="r4-voice-send-btn" title="发送" aria-label="发送">
+            <svg width="23" height="23" viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                        <linearGradient id="r4-voice-send-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#9370DB;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+                      <circle cx="11.5" cy="11.5" r="11" fill="none" stroke="url(#r4-voice-send-gradient)" stroke-width="1"/>
+                      <path d="M11.5 6L16 11.5L11.5 17M16 11.5H6" stroke="url(#r4-voice-send-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="r4-voice-hit" id="r4-voice-hit" aria-label="按住说话"></div>
+          </div>
+          
+          <!-- R4 下一步按钮（5轮对话后显示） -->
+          <div id="r4-next-button" class="r4-next-button" onclick="handleR4NextButtonClick()" style="display: none;">
+            <img src="../Pic/Register/下一步按钮.svg" alt="下一步" class="r4-next-button-svg" />
+          </div>
+          
+          <!-- R4 内容层 -->
+          <div class="page-content-layer">
+          </div>
+        </div>
+      </div>
+      
+      <!-- R5 页面 -->
+      <div class="page page-5" data-page="5">
+        <div class="page-content page-5-content">
+          <!-- R5 背景图片 -->
+          <div class="page-background">
+            <img src="../Pic/Register/渐变背景.jpg" alt="背景" class="page-background-image" />
+          </div>
+          
+          <!-- R5 Header（与R4一致） -->
+          <div class="r5-header">
+            <img src="../Pic/Register/R2/header.svg" alt="Header" class="r5-header-svg" />
+            <!-- Header文字：分身名称（使用R1输入的变量） -->
+            <span id="r5-header-avatar-name" class="r5-header-avatar-name"></span>
+          </div>
+          
+          <!-- R5 返回按钮（独立元素，不受header的pointer-events影响） -->
+          <div class="r5-back-button" onclick="goToPrevPage()"></div>
+          
+          <!-- R5 AI说 SVG（与R1位置一致） -->
+          <div class="r5-ai-say">
+            <img src="../Pic/Register/R5/R5AI说.svg" alt="AI说" class="r5-ai-say-svg" />
+          </div>
+          
+          <!-- R5 头像（使用浓郁头像） -->
+          <div class="r5-avatar">
+            <img src="../Pic/Register/R5/浓郁头像.svg" alt="头像" class="r5-avatar-svg" />
+          </div>
+          
+          <!-- R5 耳朵（覆盖在头像上方） -->
+          <div class="r5-ear">
+            <img src="../Pic/Register/R5/耳朵.svg" alt="耳朵" class="r5-ear-svg" />
+          </div>
+          
+          <!-- R5 眼睛（使用path以便实现闭眼动画） -->
+          <svg class="r5-eyes-container" viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+            <!-- 渐变定义 -->
+            <defs>
+              <linearGradient id="r5-eye-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#E1B8E6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <!-- 左眼：使用path以便实现闭眼动画（初始位置X137，不超过160） -->
+            <path class="r5-eye r5-eye-left" 
+                  d="M 137 199.5 L 137 213.5"
+                  stroke="#000000" 
+                  stroke-width="8" 
+                  stroke-linecap="round"
+                  fill="none" />
+            <!-- 右眼：使用path以便实现闭眼动画（初始位置X160，不超过160） -->
+            <path class="r5-eye r5-eye-right" 
+                  d="M 160 199.5 L 160 213.5"
+                  stroke="#000000" 
+                  stroke-width="8" 
+                  stroke-linecap="round"
+                  fill="none" />
+          </svg>
+          
+          <!-- R5 进度点（前四个都是active，第五个透明度10%） -->
+          <div class="r5-progress-dots">
+            <div class="r5-progress-dot active" data-page="1"></div>
+            <div class="r5-progress-dot active" data-page="2"></div>
+            <div class="r5-progress-dot active" data-page="3"></div>
+            <div class="r5-progress-dot active" data-page="4"></div>
+            <div class="r5-progress-dot" data-page="5"></div>
+          </div>
+          
+          <!-- R5 语音声波跳动条 -->
+          <div class="r5-voice-wave-container" id="r5-voice-wave-container">
+            <svg id="r5-voice-wave-svg" width="192" height="20" viewBox="0 0 192 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="r5-wave-gradient-1" x1="-2.55763" y1="9.90039" x2="191" y2="12" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#FFC629"/>
+                  <stop offset="0.264524" stop-color="#FF5757"/>
+                  <stop offset="0.521551" stop-color="#FF42D2"/>
+                  <stop offset="1" stop-color="#1FD0EE"/>
+                </linearGradient>
+                <linearGradient id="r5-wave-gradient-2" x1="-7.25747" y1="22.6245" x2="191" y2="22.6245" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#F748DA"/>
+                  <stop offset="1" stop-color="#1FD0EE"/>
+                </linearGradient>
+              </defs>
+              <!-- 第一层小条（使用渐变1） -->
+              <path class="r5-wave-bar" data-index="0" fill-rule="evenodd" clip-rule="evenodd" d="M3 11C3 11.552 2.5523 12 2 12C1.4477 12 1 11.552 1 11V9C1 8.448 1.4477 8 2 8C2.5523 8 3 8.448 3 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="1" fill-rule="evenodd" clip-rule="evenodd" d="M6 12C6.5523 12 7 11.552 7 11V9C7 8.448 6.5523 8 6 8C5.4477 8 5 8.448 5 9V11C5 11.552 5.4477 12 6 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="2" fill-rule="evenodd" clip-rule="evenodd" d="M11 11C11 11.552 10.552 12 10 12C9.4477 12 9 11.552 9 11V9C9 8.448 9.4477 8 10 8C10.552 8 11 8.448 11 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="3" fill-rule="evenodd" clip-rule="evenodd" d="M15 11C15 11.552 14.552 12 14 12C13.448 12 13 11.552 13 11V9C13 8.448 13.448 8 14 8C14.552 8 15 8.448 15 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="4" fill-rule="evenodd" clip-rule="evenodd" d="M18 12C18.552 12 19 11.552 19 11V9C19 8.448 18.552 8 18 8C17.448 8 17 8.448 17 9V11C17 11.552 17.448 12 18 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="5" fill-rule="evenodd" clip-rule="evenodd" d="M23 11C23 11.552 22.552 12 22 12C21.448 12 21 11.552 21 11V9C21 8.448 21.448 8 22 8C22.552 8 23 8.448 23 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="6" fill-rule="evenodd" clip-rule="evenodd" d="M27 11C27 11.552 26.552 12 26 12C25.448 12 25 11.552 25 11V9C25 8.448 25.448 8 26 8C26.552 8 27 8.448 27 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="7" fill-rule="evenodd" clip-rule="evenodd" d="M30 12C30.552 12 31 11.552 31 11V9C31 8.448 30.552 8 30 8C29.448 8 29 8.448 29 9V11C29 11.552 29.448 12 30 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="8" fill-rule="evenodd" clip-rule="evenodd" d="M35 11C35 11.552 34.552 12 34 12C33.448 12 33 11.552 33 11V9C33 8.448 33.448 8 34 8C34.552 8 35 8.448 35 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="9" fill-rule="evenodd" clip-rule="evenodd" d="M39 11C39 11.552 38.552 12 38 12C37.448 12 37 11.552 37 11V9C37 8.448 37.448 8 38 8C38.552 8 39 8.448 39 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="10" fill-rule="evenodd" clip-rule="evenodd" d="M42 12C42.552 12 43 11.552 43 11V9C43 8.448 42.552 8 42 8C41.448 8 41 8.448 41 9V11C41 11.552 41.448 12 42 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="11" fill-rule="evenodd" clip-rule="evenodd" d="M47 11C47 11.552 46.552 12 46 12C45.448 12 45 11.552 45 11V9C45 8.448 45.448 8 46 8C46.552 8 47 8.448 47 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="12" fill-rule="evenodd" clip-rule="evenodd" d="M51 11C51 11.552 50.552 12 50 12C49.448 12 49 11.552 49 11V9C49 8.448 49.448 8 50 8C50.552 8 51 8.448 51 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="13" fill-rule="evenodd" clip-rule="evenodd" d="M54 12C54.552 12 55 11.552 55 11V9C55 8.448 54.552 8 54 8C53.448 8 53 8.448 53 9V11C53 11.552 53.448 12 54 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="14" fill-rule="evenodd" clip-rule="evenodd" d="M59 11C59 11.552 58.552 12 58 12C57.448 12 57 11.552 57 11V9C57 8.448 57.448 8 58 8C58.552 8 59 8.448 59 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="15" fill-rule="evenodd" clip-rule="evenodd" d="M63 11C63 11.552 62.552 12 62 12C61.448 12 61 11.552 61 11V9C61 8.448 61.448 8 62 8C62.552 8 63 8.448 63 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="16" fill-rule="evenodd" clip-rule="evenodd" d="M66 12C66.552 12 67 11.552 67 11V9C67 8.448 66.552 8 66 8C65.448 8 65 8.448 65 9V11C65 11.552 65.448 12 66 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="17" fill-rule="evenodd" clip-rule="evenodd" d="M71 11C71 11.552 70.552 12 70 12C69.448 12 69 11.552 69 11V9C69 8.448 69.448 8 70 8C70.552 8 71 8.448 71 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="18" fill-rule="evenodd" clip-rule="evenodd" d="M75 11C75 11.552 74.552 12 74 12C73.448 12 73 11.552 73 11V9C73 8.448 73.448 8 74 8C74.552 8 75 8.448 75 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="19" fill-rule="evenodd" clip-rule="evenodd" d="M78 12C78.552 12 79 11.552 79 11V9C79 8.448 78.552 8 78 8C77.448 8 77 8.448 77 9V11C77 11.552 77.448 12 78 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="20" fill-rule="evenodd" clip-rule="evenodd" d="M83 11C83 11.552 82.552 12 82 12C81.448 12 81 11.552 81 11V9C81 8.448 81.448 8 82 8C82.552 8 83 8.448 83 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="21" fill-rule="evenodd" clip-rule="evenodd" d="M87 11C87 11.552 86.552 12 86 12C85.448 12 85 11.552 85 11V9C85 8.448 85.448 8 86 8C86.552 8 87 8.448 87 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="22" fill-rule="evenodd" clip-rule="evenodd" d="M90 12C90.552 12 91 11.552 91 11V9C91 8.448 90.552 8 90 8C89.448 8 89 8.448 89 9V11C89 11.552 89.448 12 90 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="23" fill-rule="evenodd" clip-rule="evenodd" d="M95 11C95 11.552 94.552 12 94 12C93.448 12 93 11.552 93 11V9C93 8.448 93.448 8 94 8C94.552 8 95 8.448 95 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="24" fill-rule="evenodd" clip-rule="evenodd" d="M99 11C99 11.552 98.552 12 98 12C97.448 12 97 11.552 97 11V9C97 8.448 97.448 8 98 8C98.552 8 99 8.448 99 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="25" fill-rule="evenodd" clip-rule="evenodd" d="M102 12C102.552 12 103 11.552 103 11V9C103 8.448 102.552 8 102 8C101.448 8 101 8.448 101 9V11C101 11.552 101.448 12 102 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="26" fill-rule="evenodd" clip-rule="evenodd" d="M107 11C107 11.552 106.552 12 106 12C105.448 12 105 11.552 105 11V9C105 8.448 105.448 8 106 8C106.552 8 107 8.448 107 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="27" fill-rule="evenodd" clip-rule="evenodd" d="M111 11C111 11.552 110.552 12 110 12C109.448 12 109 11.552 109 11V9C109 8.448 109.448 8 110 8C110.552 8 111 8.448 111 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="28" fill-rule="evenodd" clip-rule="evenodd" d="M114 12C114.552 12 115 11.552 115 11V9C115 8.448 114.552 8 114 8C113.448 8 113 8.448 113 9V11C113 11.552 113.448 12 114 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="29" fill-rule="evenodd" clip-rule="evenodd" d="M119 11C119 11.552 118.552 12 118 12C117.448 12 117 11.552 117 11V9C117 8.448 117.448 8 118 8C118.552 8 119 8.448 119 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="30" fill-rule="evenodd" clip-rule="evenodd" d="M123 11C123 11.552 122.552 12 122 12C121.448 12 121 11.552 121 11V9C121 8.448 121.448 8 122 8C122.552 8 123 8.448 123 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="31" fill-rule="evenodd" clip-rule="evenodd" d="M126 12C126.552 12 127 11.552 127 11V9C127 8.448 126.552 8 126 8C125.448 8 125 8.448 125 9V11C125 11.552 125.448 12 126 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="32" fill-rule="evenodd" clip-rule="evenodd" d="M131 11C131 11.552 130.552 12 130 12C129.448 12 129 11.552 129 11V9C129 8.448 129.448 8 130 8C130.552 8 131 8.448 131 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="33" fill-rule="evenodd" clip-rule="evenodd" d="M135 11C135 11.552 134.552 12 134 12C133.448 12 133 11.552 133 11V9C133 8.448 133.448 8 134 8C134.552 8 135 8.448 135 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="34" fill-rule="evenodd" clip-rule="evenodd" d="M138 12C138.552 12 139 11.552 139 11V9C139 8.448 138.552 8 138 8C137.448 8 137 8.448 137 9V11C137 11.552 137.448 12 138 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="35" fill-rule="evenodd" clip-rule="evenodd" d="M143 11C143 11.552 142.552 12 142 12C141.448 12 141 11.552 141 11V9C141 8.448 141.448 8 142 8C142.552 8 143 8.448 143 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="36" fill-rule="evenodd" clip-rule="evenodd" d="M147 11C147 11.552 146.552 12 146 12C145.448 12 145 11.552 145 11V9C145 8.448 145.448 8 146 8C146.552 8 147 8.448 147 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="37" fill-rule="evenodd" clip-rule="evenodd" d="M150 12C150.552 12 151 11.552 151 11V9C151 8.448 150.552 8 150 8C149.448 8 149 8.448 149 9V11C149 11.552 149.448 12 150 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="38" fill-rule="evenodd" clip-rule="evenodd" d="M155 11C155 11.552 154.552 12 154 12C153.448 12 153 11.552 153 11V9C153 8.448 153.448 8 154 8C154.552 8 155 8.448 155 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="39" fill-rule="evenodd" clip-rule="evenodd" d="M159 11C159 11.552 158.552 12 158 12C157.448 12 157 11.552 157 11V9C157 8.448 157.448 8 158 8C158.552 8 159 8.448 159 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="40" fill-rule="evenodd" clip-rule="evenodd" d="M162 12C162.552 12 163 11.552 163 11V9C163 8.448 162.552 8 162 8C161.448 8 161 8.448 161 9V11C161 11.552 161.448 12 162 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="41" fill-rule="evenodd" clip-rule="evenodd" d="M167 11C167 11.552 166.552 12 166 12C165.448 12 165 11.552 165 11V9C165 8.448 165.448 8 166 8C166.552 8 167 8.448 167 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="42" fill-rule="evenodd" clip-rule="evenodd" d="M171 11C171 11.552 170.552 12 170 12C169.448 12 169 11.552 169 11V9C169 8.448 169.448 8 170 8C170.552 8 171 8.448 171 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="43" fill-rule="evenodd" clip-rule="evenodd" d="M174 12C174.552 12 175 11.552 175 11V9C175 8.448 174.552 8 174 8C173.448 8 173 8.448 173 9V11C173 11.552 173.448 12 174 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="44" fill-rule="evenodd" clip-rule="evenodd" d="M179 11C179 11.552 178.552 12 178 12C177.448 12 177 11.552 177 11V9C177 8.448 177.448 8 178 8C178.552 8 179 8.448 179 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="45" fill-rule="evenodd" clip-rule="evenodd" d="M183 11C183 11.552 182.552 12 182 12C181.448 12 181 11.552 181 11V9C181 8.448 181.448 8 182 8C182.552 8 183 8.448 183 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="46" fill-rule="evenodd" clip-rule="evenodd" d="M187 11C187 11.552 186.552 12 186 12C185.448 12 185 11.552 185 11V9C185 8.448 185.448 8 186 8C186.552 8 187 8.448 187 9V11Z" fill="url(#r5-wave-gradient-1)"/>
+              <path class="r5-wave-bar" data-index="47" fill-rule="evenodd" clip-rule="evenodd" d="M190 12C190.552 12 191 11.552 191 11V9C191 8.448 190.552 8 190 8C189.448 8 189 8.448 189 9V11C189 11.552 189.448 12 190 12Z" fill="url(#r5-wave-gradient-1)"/>
+              <!-- 第二层小条（使用渐变2，与第一层重叠但稍微偏移） -->
+              <path class="r5-wave-bar" data-index="48" fill-rule="evenodd" clip-rule="evenodd" d="M3 11C3 11.552 2.5523 12 2 12C1.4477 12 1 11.552 1 11V9C1 8.448 1.4477 8 2 8C2.5523 8 3 8.448 3 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="49" fill-rule="evenodd" clip-rule="evenodd" d="M6 12C6.5523 12 7 11.552 7 11V9C7 8.448 6.5523 8 6 8C5.4477 8 5 8.448 5 9V11C5 11.552 5.4477 12 6 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="50" fill-rule="evenodd" clip-rule="evenodd" d="M11 11C11 11.552 10.552 12 10 12C9.4477 12 9 11.552 9 11V9C9 8.448 9.4477 8 10 8C10.552 8 11 8.448 11 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="51" fill-rule="evenodd" clip-rule="evenodd" d="M15 11C15 11.552 14.552 12 14 12C13.448 12 13 11.552 13 11V9C13 8.448 13.448 8 14 8C14.552 8 15 8.448 15 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="52" fill-rule="evenodd" clip-rule="evenodd" d="M18 12C18.552 12 19 11.552 19 11V9C19 8.448 18.552 8 18 8C17.448 8 17 8.448 17 9V11C17 11.552 17.448 12 18 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="53" fill-rule="evenodd" clip-rule="evenodd" d="M23 11C23 11.552 22.552 12 22 12C21.448 12 21 11.552 21 11V9C21 8.448 21.448 8 22 8C22.552 8 23 8.448 23 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="54" fill-rule="evenodd" clip-rule="evenodd" d="M27 11C27 11.552 26.552 12 26 12C25.448 12 25 11.552 25 11V9C25 8.448 25.448 8 26 8C26.552 8 27 8.448 27 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="55" fill-rule="evenodd" clip-rule="evenodd" d="M30 12C30.552 12 31 11.552 31 11V9C31 8.448 30.552 8 30 8C29.448 8 29 8.448 29 9V11C29 11.552 29.448 12 30 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="56" fill-rule="evenodd" clip-rule="evenodd" d="M35 11C35 11.552 34.552 12 34 12C33.448 12 33 11.552 33 11V9C33 8.448 33.448 8 34 8C34.552 8 35 8.448 35 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="57" fill-rule="evenodd" clip-rule="evenodd" d="M39 11C39 11.552 38.552 12 38 12C37.448 12 37 11.552 37 11V9C37 8.448 37.448 8 38 8C38.552 8 39 8.448 39 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="58" fill-rule="evenodd" clip-rule="evenodd" d="M42 12C42.552 12 43 11.552 43 11V9C43 8.448 42.552 8 42 8C41.448 8 41 8.448 41 9V11C41 11.552 41.448 12 42 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="59" fill-rule="evenodd" clip-rule="evenodd" d="M47 11C47 11.552 46.552 12 46 12C45.448 12 45 11.552 45 11V9C45 8.448 45.448 8 46 8C46.552 8 47 8.448 47 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="60" fill-rule="evenodd" clip-rule="evenodd" d="M51 11C51 11.552 50.552 12 50 12C49.448 12 49 11.552 49 11V9C49 8.448 49.448 8 50 8C50.552 8 51 8.448 51 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="61" fill-rule="evenodd" clip-rule="evenodd" d="M54 12C54.552 12 55 11.552 55 11V9C55 8.448 54.552 8 54 8C53.448 8 53 8.448 53 9V11C53 11.552 53.448 12 54 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="62" fill-rule="evenodd" clip-rule="evenodd" d="M59 11C59 11.552 58.552 12 58 12C57.448 12 57 11.552 57 11V9C57 8.448 57.448 8 58 8C58.552 8 59 8.448 59 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="63" fill-rule="evenodd" clip-rule="evenodd" d="M63 11C63 11.552 62.552 12 62 12C61.448 12 61 11.552 61 11V9C61 8.448 61.448 8 62 8C62.552 8 63 8.448 63 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="64" fill-rule="evenodd" clip-rule="evenodd" d="M66 12C66.552 12 67 11.552 67 11V9C67 8.448 66.552 8 66 8C65.448 8 65 8.448 65 9V11C65 11.552 65.448 12 66 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="65" fill-rule="evenodd" clip-rule="evenodd" d="M71 11C71 11.552 70.552 12 70 12C69.448 12 69 11.552 69 11V9C69 8.448 69.448 8 70 8C70.552 8 71 8.448 71 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="66" fill-rule="evenodd" clip-rule="evenodd" d="M75 11C75 11.552 74.552 12 74 12C73.448 12 73 11.552 73 11V9C73 8.448 73.448 8 74 8C74.552 8 75 8.448 75 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="67" fill-rule="evenodd" clip-rule="evenodd" d="M78 12C78.552 12 79 11.552 79 11V9C79 8.448 78.552 8 78 8C77.448 8 77 8.448 77 9V11C77 11.552 77.448 12 78 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="68" fill-rule="evenodd" clip-rule="evenodd" d="M83 11C83 11.552 82.552 12 82 12C81.448 12 81 11.552 81 11V9C81 8.448 81.448 8 82 8C82.552 8 83 8.448 83 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="69" fill-rule="evenodd" clip-rule="evenodd" d="M87 11C87 11.552 86.552 12 86 12C85.448 12 85 11.552 85 11V9C85 8.448 85.448 8 86 8C86.552 8 87 8.448 87 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="70" fill-rule="evenodd" clip-rule="evenodd" d="M90 12C90.552 12 91 11.552 91 11V9C91 8.448 90.552 8 90 8C89.448 8 89 8.448 89 9V11C89 11.552 89.448 12 90 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="71" fill-rule="evenodd" clip-rule="evenodd" d="M95 11C95 11.552 94.552 12 94 12C93.448 12 93 11.552 93 11V9C93 8.448 93.448 8 94 8C94.552 8 95 8.448 95 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="72" fill-rule="evenodd" clip-rule="evenodd" d="M99 11C99 11.552 98.552 12 98 12C97.448 12 97 11.552 97 11V9C97 8.448 97.448 8 98 8C98.552 8 99 8.448 99 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="73" fill-rule="evenodd" clip-rule="evenodd" d="M102 12C102.552 12 103 11.552 103 11V9C103 8.448 102.552 8 102 8C101.448 8 101 8.448 101 9V11C101 11.552 101.448 12 102 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="74" fill-rule="evenodd" clip-rule="evenodd" d="M107 11C107 11.552 106.552 12 106 12C105.448 12 105 11.552 105 11V9C105 8.448 105.448 8 106 8C106.552 8 107 8.448 107 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="75" fill-rule="evenodd" clip-rule="evenodd" d="M111 11C111 11.552 110.552 12 110 12C109.448 12 109 11.552 109 11V9C109 8.448 109.448 8 110 8C110.552 8 111 8.448 111 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="76" fill-rule="evenodd" clip-rule="evenodd" d="M114 12C114.552 12 115 11.552 115 11V9C115 8.448 114.552 8 114 8C113.448 8 113 8.448 113 9V11C113 11.552 113.448 12 114 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="77" fill-rule="evenodd" clip-rule="evenodd" d="M119 11C119 11.552 118.552 12 118 12C117.448 12 117 11.552 117 11V9C117 8.448 117.448 8 118 8C118.552 8 119 8.448 119 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="78" fill-rule="evenodd" clip-rule="evenodd" d="M123 11C123 11.552 122.552 12 122 12C121.448 12 121 11.552 121 11V9C121 8.448 121.448 8 122 8C122.552 8 123 8.448 123 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="79" fill-rule="evenodd" clip-rule="evenodd" d="M126 12C126.552 12 127 11.552 127 11V9C127 8.448 126.552 8 126 8C125.448 8 125 8.448 125 9V11C125 11.552 125.448 12 126 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="80" fill-rule="evenodd" clip-rule="evenodd" d="M131 11C131 11.552 130.552 12 130 12C129.448 12 129 11.552 129 11V9C129 8.448 129.448 8 130 8C130.552 8 131 8.448 131 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="81" fill-rule="evenodd" clip-rule="evenodd" d="M135 11C135 11.552 134.552 12 134 12C133.448 12 133 11.552 133 11V9C133 8.448 133.448 8 134 8C134.552 8 135 8.448 135 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="82" fill-rule="evenodd" clip-rule="evenodd" d="M138 12C138.552 12 139 11.552 139 11V9C139 8.448 138.552 8 138 8C137.448 8 137 8.448 137 9V11C137 11.552 137.448 12 138 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="83" fill-rule="evenodd" clip-rule="evenodd" d="M143 11C143 11.552 142.552 12 142 12C141.448 12 141 11.552 141 11V9C141 8.448 141.448 8 142 8C142.552 8 143 8.448 143 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="84" fill-rule="evenodd" clip-rule="evenodd" d="M147 11C147 11.552 146.552 12 146 12C145.448 12 145 11.552 145 11V9C145 8.448 145.448 8 146 8C146.552 8 147 8.448 147 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="85" fill-rule="evenodd" clip-rule="evenodd" d="M150 12C150.552 12 151 11.552 151 11V9C151 8.448 150.552 8 150 8C149.448 8 149 8.448 149 9V11C149 11.552 149.448 12 150 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="86" fill-rule="evenodd" clip-rule="evenodd" d="M155 11C155 11.552 154.552 12 154 12C153.448 12 153 11.552 153 11V9C153 8.448 153.448 8 154 8C154.552 8 155 8.448 155 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="87" fill-rule="evenodd" clip-rule="evenodd" d="M159 11C159 11.552 158.552 12 158 12C157.448 12 157 11.552 157 11V9C157 8.448 157.448 8 158 8C158.552 8 159 8.448 159 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="88" fill-rule="evenodd" clip-rule="evenodd" d="M162 12C162.552 12 163 11.552 163 11V9C163 8.448 162.552 8 162 8C161.448 8 161 8.448 161 9V11C161 11.552 161.448 12 162 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="89" fill-rule="evenodd" clip-rule="evenodd" d="M167 11C167 11.552 166.552 12 166 12C165.448 12 165 11.552 165 11V9C165 8.448 165.448 8 166 8C166.552 8 167 8.448 167 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="90" fill-rule="evenodd" clip-rule="evenodd" d="M171 11C171 11.552 170.552 12 170 12C169.448 12 169 11.552 169 11V9C169 8.448 169.448 8 170 8C170.552 8 171 8.448 171 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="91" fill-rule="evenodd" clip-rule="evenodd" d="M174 12C174.552 12 175 11.552 175 11V9C175 8.448 174.552 8 174 8C173.448 8 173 8.448 173 9V11C173 11.552 173.448 12 174 12Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="92" fill-rule="evenodd" clip-rule="evenodd" d="M179 11C179 11.552 178.552 12 178 12C177.448 12 177 11.552 177 11V9C177 8.448 177.448 8 178 8C178.552 8 179 8.448 179 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="93" fill-rule="evenodd" clip-rule="evenodd" d="M183 11C183 11.552 182.552 12 182 12C181.448 12 181 11.552 181 11V9C181 8.448 181.448 8 182 8C182.552 8 183 8.448 183 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="94" fill-rule="evenodd" clip-rule="evenodd" d="M187 11C187 11.552 186.552 12 186 12C185.448 12 185 11.552 185 11V9C185 8.448 185.448 8 186 8C186.552 8 187 8.448 187 9V11Z" fill="url(#r5-wave-gradient-2)"/>
+              <path class="r5-wave-bar" data-index="95" fill-rule="evenodd" clip-rule="evenodd" d="M190 12C190.552 12 191 11.552 191 11V9C191 8.448 190.552 8 190 8C189.448 8 189 8.448 189 9V11C189 11.552 189.448 12 190 12Z" fill="url(#r5-wave-gradient-2)"/>
+            </svg>
+          </div>
+          
+          <!-- R5 常规态按钮（底端紧贴容器，默认显示；按下后隐藏并切换为按住说） -->
+          <div id="r5-normal-state-button" class="r5-normal-state-button"
+               onmousedown="handleR5NormalStateDown(event)"
+               ontouchstart="handleR5NormalStateDown(event)">
+            <img src="../Pic/Register/R4/小艺语音输入-常规态.svg" alt="语音输入" class="r5-normal-state-button-svg" />
+          </div>
+          <!-- R5 按住说按钮（同位置，默认隐藏；常规态按下后显示，彩色小条与扫描条动画显现） -->
+          <div id="r5-hold-speak-button" class="r5-hold-speak-button" style="display: none;"
+               onmousedown="handleR5HoldSpeakDown()" 
+               onmouseup="handleR5HoldSpeakUp()"
+               onmouseleave="handleR5HoldSpeakUp()"
+               ontouchstart="handleR5HoldSpeakDown()"
+               ontouchend="handleR5HoldSpeakUp()"
+               ontouchcancel="handleR5HoldSpeakUp()">
+            <img src="../Pic/Register/R5/按住说.svg" alt="按住说" class="r5-hold-speak-button-svg" />
+          </div>
+          
+          <!-- R5 下一步按钮（扫描条移动完毕后显示，位置与R1一致） -->
+          <div id="r5-next-button" class="r5-next-button" onclick="handleR5NextButtonClick()" style="display: none;">
+            <img src="../Pic/Register/下一步按钮.svg" alt="下一步" class="r5-next-button-svg" />
+          </div>
+          
+          <!-- R5 扫描文字组件（可拖动） -->
+          <div class="r5-scan-text-container" id="r5-scan-text-container">
+            <!-- 底部白色药丸容器 -->
+            <div class="r5-scan-pill" id="r5-scan-pill">
+              <!-- 黑色文字（底层） -->
+              <div class="r5-scan-text-base" id="r5-scan-text-base">嘿，是你吗？我的第二自我</div>
+              
+              <!-- 渐变文字层（可拖动，宽度受限） -->
+              <div class="r5-scan-gradient-wrapper" id="r5-scan-gradient-wrapper">
+                <div class="r5-scan-gradient-text" id="r5-scan-gradient-text">嘿，是你吗？我的第二自我</div>
+              </div>
+              
+              <!-- 粉色扫描条（与渐变矩形同步移动） -->
+              <div class="r5-scan-bar" id="r5-scan-bar"></div>
+            </div>
+          </div>
+          
+          <!-- R5 内容层 -->
+          <div class="page-content-layer">
+          </div>
+        </div>
+      </div>
+      
+      <!-- R6 页面 -->
+      <div class="page page-6" data-page="6">
+        <div class="page-content page-6-content">
+          <!-- R6 背景图片 -->
+          <div class="page-background">
+            <img src="../Pic/Register/渐变背景.jpg" alt="背景" class="page-background-image" />
+          </div>
+          
+          <!-- R6 Header（与R5一致） -->
+          <div class="r6-header">
+            <img src="../Pic/Register/R2/header.svg" alt="Header" class="r6-header-svg" />
+            <span id="r6-header-avatar-name" class="r6-header-avatar-name"></span>
+          </div>
+          
+          <!-- R6 返回按钮 -->
+          <div class="r6-back-button" onclick="goToPrevPage()"></div>
+          
+          <!-- R6 头像（与R5一致） -->
+          <div class="r6-avatar">
+            <img src="../Pic/Register/R5/浓郁头像.svg" alt="头像" class="r6-avatar-svg" />
+          </div>
+          
+          <!-- R6 眼睛（R1状态与移动范围，四处张望） -->
+          <svg class="r6-eyes-container" viewBox="0 0 360 793" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="r6-eye-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#E1B8E6;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <line class="r6-eye r6-eye-left" x1="172.5" y1="199.5" x2="172.5" y2="213.5" stroke="#000000" stroke-width="8" stroke-linecap="round" />
+            <line class="r6-eye r6-eye-right" x1="187.5" y1="199.5" x2="187.5" y2="213.5" stroke="#000000" stroke-width="8" stroke-linecap="round" />
+          </svg>
+          
+          <!-- R6 嘴巴（眼睛下方6px，随眼睛移动，缩放0.8-1.2） -->
+          <div class="r6-mouth">
+            <img src="../Pic/Register/R6/嘴巴.svg" alt="嘴巴" class="r6-mouth-svg" />
+          </div>
+          
+          <!-- R6 介绍气泡（顶端Y307，中轴对齐）；放大后 3 秒以顶端为原点缩小到 0.1%，随后显示空白气泡并同方式放大 -->
+          <div class="r6-intro-bubble" id="r6-intro-bubble">
+            <img src="../Pic/Register/R6/介绍气泡.svg" alt="介绍气泡" class="r6-intro-bubble-svg" />
+          </div>
+          <div class="r6-blank-bubble" id="r6-blank-bubble">
+            <img src="../Pic/Register/R6/空白气泡.svg" alt="" class="r6-blank-bubble-svg" />
+            <div class="r6-blank-bubble-content">
+              <p class="r6-blank-bubble-title">是否接入小艺，让我更了解你</p>
+              <div class="r6-blank-bubble-option r6-blank-option-auth" data-option="auth" role="button" tabindex="0">
+                <span class="r6-blank-bubble-option-text">授权数字分身接入小艺的信息</span>
+                <span class="r6-blank-bubble-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="r6-option-circle" cx="7.5" cy="7.5" r="6.5" stroke="black" stroke-width="1.5" fill="none"/><path class="r6-option-check" d="M4 7.5L6.5 10L11 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+              </div>
+              <div class="r6-blank-bubble-option r6-blank-option-skip" data-option="skip" role="button" tabindex="0">
+                <span class="r6-blank-bubble-option-text">暂时不</span>
+                <span class="r6-blank-bubble-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="r6-option-circle" cx="7.5" cy="7.5" r="6.5" stroke="black" stroke-width="1.5" fill="none"/><path class="r6-option-check" d="M4 7.5L6.5 10L11 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- R6 声波底下渐变（中心Y550，中轴对齐） -->
+          <div class="r6-wave-gradient">
+            <img src="../Pic/Register/R6/声波底下渐变.svg" alt="声波底下渐变" class="r6-wave-gradient-svg" />
+          </div>
+          <!-- R6 声波2 + 紫色倒影（内联 SVG，黑色粗条，两端透明渐降，循环动效） -->
+          <div class="r6-wave-2-wrap">
+            <div class="r6-wave-2">
+              <svg id="r6-wave-2-svg" width="207" height="29" viewBox="0 0 207 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path class="r6-wave2-bar" data-index="0" d="M2.5 12.5V16.716" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="1" d="M17.1182 11.833V17.671" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="2" d="M31.072 11.833V17.671" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="3" d="M45.69 5.16699V23.329" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="4" d="M60.309 8.5V20.176" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="5" d="M74.927 9.83301V19.239" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="6" d="M88.881 5.16699V23.329" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="7" d="M103.5 2.5V26.5" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="8" d="M118.118 5.16699V23.329" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="9" d="M132.072 3.83301V25.239" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="10" d="M146.69 8.5V20.176" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="11" d="M161.309 11.167V18.302" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="12" d="M175.927 12.5V16.716" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="13" d="M189.881 12.5V16.716" stroke="black" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="14" d="M204.5 12.5V16.716" stroke="black" stroke-width="5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <!-- 紫色镜像倒影 -->
+            <div class="r6-wave-2-reflection">
+              <svg id="r6-wave-2-svg-reflection" width="207" height="29" viewBox="0 0 207 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path class="r6-wave2-bar" data-index="0" d="M2.5 12.5V16.716" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="1" d="M17.1182 11.833V17.671" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="2" d="M31.072 11.833V17.671" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="3" d="M45.69 5.16699V23.329" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="4" d="M60.309 8.5V20.176" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="5" d="M74.927 9.83301V19.239" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="6" d="M88.881 5.16699V23.329" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="7" d="M103.5 2.5V26.5" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="8" d="M118.118 5.16699V23.329" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="9" d="M132.072 3.83301V25.239" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="10" d="M146.69 8.5V20.176" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="11" d="M161.309 11.167V18.302" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="12" d="M175.927 12.5V16.716" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="13" d="M189.881 12.5V16.716" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+                <path class="r6-wave2-bar" data-index="14" d="M204.5 12.5V16.716" stroke="#B19CD9" stroke-width="5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- R6 进度点（5个点透明度均为100%） -->
+          <div class="r6-progress-dots">
+            <div class="r6-progress-dot active" data-page="1"></div>
+            <div class="r6-progress-dot active" data-page="2"></div>
+            <div class="r6-progress-dot active" data-page="3"></div>
+            <div class="r6-progress-dot active" data-page="4"></div>
+            <div class="r6-progress-dot active" data-page="5"></div>
+          </div>
+          
+          <!-- R6 进入广场按钮（未选择气泡选项前禁用） -->
+          <div id="r6-next-button" class="r6-next-button r6-next-button-disabled" onclick="handleR6NextButtonClick()">
+            <img src="../Pic/Register/R6/进入广场按钮.svg" alt="进入广场" class="r6-next-button-svg" />
+          </div>
+          
+          <div class="page-content-layer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="../api-config.js"></script>
+  <script src="register2.js"></script>
+  <script>
+    // PWA Service Worker 注册
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('Service Worker 注册成功:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('Service Worker 注册失败:', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>

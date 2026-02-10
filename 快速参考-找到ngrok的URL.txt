@@ -1,0 +1,41 @@
+========================================
+快速参考：如何找到 ngrok 的 URL
+========================================
+
+【方法1：查看 ngrok 窗口】
+
+1. 找到标题为"ngrok-8080"的命令行窗口
+   - 在任务栏查找
+   - 或按 Alt+Tab 切换窗口
+
+2. 在窗口中查找这一行：
+   Forwarding    https://xxxxx.ngrok-free.app -> http://localhost:8080
+
+3. 复制 https://xxxxx.ngrok-free.app 这个URL
+   （你的URL会不同，但格式类似）
+
+4. 在手机浏览器访问这个URL
+
+
+【方法2：使用 Web Interface（推荐，更简单）】
+
+1. 打开电脑浏览器（Chrome、Edge等）
+
+2. 访问：http://127.0.0.1:4040
+
+3. 在网页中会显示清晰的URL信息
+
+4. 直接复制URL，在手机浏览器访问
+
+
+【注意事项】
+
+✓ 确保电脑已连接VPN（保证AI功能）
+✓ URL格式类似：https://abc123-def456.ngrok-free.app
+✓ 首次访问可能需要点击"Visit Site"
+✓ 保持ngrok窗口打开，关闭后URL会失效
+
+
+【如果找不到】
+
+查看详细说明：如何找到ngrok的URL.md

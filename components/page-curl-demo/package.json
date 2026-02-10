@@ -1,0 +1,17 @@
+{
+  "name": "page-curl-demo",
+  "version": "1.0.0",
+  "description": "本目录是一个**独立的翻书演示**，仅做翻书效果，无正文内容。用于对比「真实仿真翻书」与气泡里当前实现的差异。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "^4.0.0",
+    "page-flip": "^2.0.7",
+    "turn.js": "^1.0.5"
+  }
+}

@@ -1,0 +1,85 @@
+/**
+ * StPageFlip 读书翻页 demo 样式
+ * 固定尺寸、内容随页翻动
+ */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #e5e5e5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+}
+
+h1 {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.hint a { color: #06c; }
+
+/* 固定容器：避免翻书区域飘动 */
+.book-container {
+  width: 320px;
+  height: 440px;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.flip-book {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* 每页内容：随页翻动 */
+.page {
+  background: #f5f0e6;
+}
+
+.page-content {
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.page-cover .page-content {
+  background: linear-gradient(135deg, #8b7355 0%, #6b5344 100%);
+  color: #f5f0e6;
+}
+
+.page-cover-bottom .page-content {
+  background: linear-gradient(135deg, #6b5344 0%, #5a4a3d 100%);
+}
+
+.page-label {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.page-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+  text-align: center;
+  max-width: 90%;
+}

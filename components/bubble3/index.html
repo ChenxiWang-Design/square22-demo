@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bubble3 预览 · 默认态</title>
+  <link rel="stylesheet" href="bubble3.css" />
+</head>
+<body>
+  <div class="preview-page">
+    <div class="preview-row">
+      <div class="bubble3" id="bubble3">
+        <!-- 默认态：与 Bubble3-默认态 frame 201×111 一致，从底往上 -->
+        <div class="bubble3__default" id="bubble3-default">
+          <!-- 1. 底层：渐变色灰白气泡形状 -->
+          <div class="bubble3__bubble-shape" aria-hidden="true">
+            <!-- viewBox 留出 1px 描边空间，避免描边被裁剪 -->
+            <svg class="bubble3__bubble-svg" viewBox="-1 -1 157 86" width="155" height="84" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="bubble3-bubble-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#FFFFFF" />
+                  <stop offset="100%" stop-color="#AFAFAF" />
+                </linearGradient>
+              </defs>
+              <path d="M12 0l131 0q12 0 12 12l0 52q0 12-12 12l-54 0-11.5 8-11.5-8-54 0q-12 0-12-12l0-52q0-12 12-12z" fill="url(#bubble3-bubble-gradient)" stroke="#000" stroke-width="1" />
+            </svg>
+          </div>
+          <!-- 2. 浅黄色圆角矩形 -->
+          <div class="bubble3__yellow-rect" aria-hidden="true"></div>
+          <!-- 3. 噪点图：正片叠底到矩形上（同尺寸同位置） -->
+          <div class="bubble3__noise-layer" aria-hidden="true"></div>
+          <!-- 文本：黄色矩形中央，字号 14，距噪点矩形左边 12 -->
+          <div class="bubble3__yellow-text-wrap" aria-hidden="true">
+            <span class="bubble3__yellow-text">今天校园的阳光太美了</span>
+          </div>
+          <!-- 4. 照片：Pic/pic1.png -->
+          <img src="../../Pic/pic1.png" alt="" class="bubble3__photo" aria-hidden="true" />
+          <!-- 5. 红色图钉：Pic/pin.png -->
+          <img src="../../Pic/pin.png" alt="" class="bubble3__pin" aria-hidden="true" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 展开态浮层：长按默认态后显示 -->
+  <div class="bubble3__overlay" id="bubble3-overlay" aria-hidden="true">
+    <div class="bubble3__overlay-backdrop" id="bubble3-backdrop"></div>
+    <div class="bubble3__expanded" id="bubble3-expanded">
+      <div class="bubble3__expanded-card">
+        <!-- 灰白渐变气泡：223×274，描边 1（与 .pen 展开态一致） -->
+        <div class="bubble3__expanded-bubble" aria-hidden="true"></div>
+        <!-- 噪点矩形：203×255，圆角 10，描边 1 -->
+        <div class="bubble3__expanded-yellow-rect" aria-hidden="true"></div>
+        <div class="bubble3__expanded-noise-layer" aria-hidden="true"></div>
+        <!-- 顶部文本：宽度 203-24=179 -->
+        <div class="bubble3__expanded-text-wrap" aria-hidden="true">
+          <span class="bubble3__expanded-text">今天校园的阳光太美了</span>
+        </div>
+        <!-- 照片叠层：先 展开态1 0.5s，再散落成 展开态2，可滑动带惯性 -->
+        <div class="bubble3__expanded-photos" id="bubble3-expanded-photos" aria-hidden="true">
+          <div class="bubble3__expanded-photos-track" id="bubble3-photos-track">
+            <div class="bubble3__expanded-photo" data-index="0"><img src="../../Pic/pic1.png" alt="" /></div>
+            <div class="bubble3__expanded-photo" data-index="1"><img src="../../Pic/pic2.png" alt="" /></div>
+            <div class="bubble3__expanded-photo" data-index="2"><img src="../../Pic/pic3.png" alt="" /></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="bubble3.js"></script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+/**
+ * Bubble4 组件样式
+ * 默认态：160×88，与 bubble4.pen 中「Bubble4-默认态」对应
+ */
+
+:root {
+  --bubble4-transition-duration: 280ms;
+  --bubble4-transition-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 基础样式 */
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent; /* 透明背景 */
+}
+
+/* ---------- 预览页面布局 ---------- */
+.preview-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent; /* 透明背景 */
+  padding: 40px;
+}
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Bubble4 默认态（160×88） ---------- */
+.bubble4 {
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  background: transparent; /* 确保容器背景透明 */
+}
+
+.bubble4__default {
+  position: relative;
+  width: 184px; /* 增加宽度以容纳投影（160 + 24投影左右各12px） */
+  height: 100px; /* 增加高度以容纳投影（88 + 12投影） */
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: transform var(--bubble4-transition-duration) var(--bubble4-transition-ease);
+  z-index: 1;
+  background: transparent; /* 确保背景透明 */
+}
+
+.bubble4__default:focus {
+  outline: none;
+}
+
+.bubble4__default:focus-visible {
+  outline: 2px solid #94A4FF;
+  outline-offset: 2px;
+}
+
+.bubble4__default:hover {
+  transform: scale(1.02);
+}
+
+.bubble4__default.is-long-pressing {
+  transform: scale(0.98);
+}
+
+/* 气泡形状（白色路径） */
+.bubble4__shape {
+  position: absolute;
+  left: 14.5px; /* 向右移动12px以容纳左侧投影（2.5 + 12） */
+  top: 0;
+  width: 155px;
+  height: 84px;
+  z-index: 1;
+  filter: drop-shadow(0 8px 12px rgba(148, 164, 255, 0.4)); /* 淡紫色投影 */
+}
+
+/* 渐变矩形（143×64，圆角10，位置8.5, 6，四边距离6px） */
+.bubble4__gradient-rect {
+  position: absolute;
+  left: 21px; /* 向右移动12px（8.5 + 12） */
+  top: 6px;
+  width: 143px;
+  height: 64px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #94A4FF 0%, #ECBEFF 100%);
+  z-index: 2;
+}
+
+/* 默认态上半部分文案：Hi! 字号28，加粗，居中 */
+.bubble4__default-greeting {
+  position: absolute;
+  left: 21px;
+  top: 6px;
+  width: 143px;
+  height: 32px;   /* 上半部分 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #000000;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* 蒙版容器（143×64，圆角10，clip，位置8.5, 6，四边距离6px） */
+.bubble4__mask-container {
+  position: absolute;
+  left: 21px; /* 向右移动12px（8.5 + 12） */
+  top: 6px;
+  width: 143px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 3;
+}
+
+/* 图片包装器（包含图片和脸部元素） */
+.bubble4__image-wrapper {
+  position: relative;
+  width: 328px;
+  height: 328px;
+  left: -94.5px;
+  top: -84px;
+}
+
+/* 圆球图片 */
+.bubble4__ball-image {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+}
+
+/* 脸部元素组 */
+.bubble4__face-group {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 328px;
+  height: 328px;
+}
+
+/* 眼睛（药丸形，4×13，垂直拉长） */
+.bubble4__eye {
+  position: absolute;
+  width: 4px;
+  height: 13px;
+  border-radius: 2px; /* 药丸形状 */
+  background: linear-gradient(180deg, #000000 0%, #ECBEFF 100%);
+  /* 添加平滑过渡动画 */
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bubble4__eye--left {
+  left: 150px;
+  top: 118px; /* 水平对齐 */
+}
+
+.bubble4__eye--right {
+  left: 162px;
+  top: 118px; /* 水平对齐，与左眼同一水平线 */
+}
+
+/* 嘴巴（切掉一半的椭圆，6×12，显示下半部分） */
+.bubble4__mouth {
+  position: absolute;
+  left: 155px; /* 聚拢，向右移动一点居中 */
+  top: 126px; /* 距离眼睛底部-5px（嘴巴在眼睛上方5px） */
+  width: 6px;
+  height: 12px;
+  overflow: hidden;
+  /* 添加平滑过渡动画，与眼睛动画同步 */
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 设置transform-origin为顶部，确保缩放时顶部位置不变 */
+  transform-origin: center top;
+}
+
+/* ---------- 展开态（Bubble4-展开态）：230×280 ---------- */
+.bubble4__overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent; /* 遮罩层背景透明 */
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition: opacity var(--bubble4-transition-duration) ease,
+              visibility 0s linear var(--bubble4-transition-duration),
+              backdrop-filter var(--bubble4-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble4-transition-duration) ease;
+}
+
+.bubble4__overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity var(--bubble4-transition-duration) ease,
+              backdrop-filter var(--bubble4-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble4-transition-duration) ease;
+}
+
+.bubble4__overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+.bubble4__expanded {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform-origin: left top;
+  transform: scale(0.25);
+  opacity: 0;
+  transition: transform var(--bubble4-transition-duration) var(--bubble4-transition-ease),
+              opacity var(--bubble4-transition-duration) ease;
+  z-index: 1;
+  cursor: default;
+  background: transparent; /* 确保展开态背景透明 */
+}
+
+.bubble4__overlay.is-visible .bubble4__expanded {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* 展开态容器：230×280 */
+.bubble4__expanded-container {
+  position: relative;
+  width: 230px;
+  height: 280px;
+  background: transparent; /* 确保容器背景透明 */
+}
+
+/* 白色圆角矩形背景（223×274，圆角16） */
+.bubble4__expanded-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 223px;
+  height: 274px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+/* 渐变矩形（211×262，圆角10，位置6, 6，四边距离6px） */
+.bubble4__expanded-gradient-rect {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 211px;
+  height: 262px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #94A4FF 0%, #ECBEFF 100%);
+  z-index: 1;
+}
+
+/* 文本显示区域（上半部分） */
+.bubble4__expanded-text-container {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 211px;
+  height: 131px; /* 上半部分，约262的一半 */
+  border-radius: 10px 10px 0 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  pointer-events: none; /* 不阻挡点击 */
+  overflow: hidden;
+}
+
+.bubble4__expanded-text-content {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #000000;
+  text-align: center;
+  word-break: break-word;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  max-width: 100%;
+}
+
+.bubble4__expanded-text-content.is-visible {
+  opacity: 1;
+}
+
+.bubble4__expanded-text-content.text-large {
+  font-size: 32px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+/* 蒙版容器（211×262，圆角10，clip，位置6, 6，四边距离6px） */
+.bubble4__expanded-mask-container {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 211px;
+  height: 262px;
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* 图片包装器 */
+.bubble4__expanded-image-wrapper {
+  position: relative;
+  width: 792px;
+  height: 792px;
+  left: -294.5px;
+  top: -88.5px;
+}
+
+/* 圆球图片 */
+.bubble4__expanded-ball-image {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+}
+
+/* 展开态脸部元素组 */
+.bubble4__expanded-face-group {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 792px;
+  height: 792px;
+}
+
+/* 展开态眼睛（药丸形，等比放大2.4146倍：9.7×31.4） */
+.bubble4__expanded-eye {
+  position: absolute;
+  width: 9.7px;
+  height: 31.4px;
+  border-radius: 4.85px; /* 药丸形状 */
+  background: linear-gradient(180deg, #000000 0%, #ECBEFF 100%);
+  /* 添加平滑过渡动画 */
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bubble4__expanded-eye--left {
+  left: 362px;
+  top: 285px; /* 水平对齐 */
+}
+
+.bubble4__expanded-eye--right {
+  left: 391px;
+  top: 285px; /* 水平对齐，与左眼同一水平线 */
+}
+
+/* 展开态嘴巴（切掉一半的椭圆，等比放大2.4146倍：14.5×29，显示下半部分） */
+.bubble4__expanded-mouth {
+  position: absolute;
+  left: 374px; /* 聚拢，向右移动一点居中 */
+  top: 304px; /* 距离眼睛底部-5px（等比放大后） */
+  width: 14.5px;
+  height: 29px;
+  overflow: hidden;
+  /* 添加平滑过渡动画，与眼睛动画同步 */
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 设置transform-origin为顶部，确保缩放时顶部位置不变 */
+  transform-origin: center top;
+}
+
+/* 默认态下方的图片 */
+
+/* 嵌入模式（iframe）样式调整 */
+body.embed-mode {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body.embed-mode .preview-page {
+  padding: 0;
+  min-height: auto;
+}

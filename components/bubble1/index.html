@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bubble1 预览</title>
+  <link rel="stylesheet" href="bubble1.css" />
+  <link rel="stylesheet" href="stPageFlip.css" />
+</head>
+<body>
+  <div class="preview-page">
+    <div class="preview-row">
+      <div class="bubble1">
+        <div class="bubble1__default">
+          <div class="bubble1__default-border" aria-hidden="true"></div>
+          <!-- StPageFlip 内页柔软卷曲：无 data-density="hard"，两页均为软页 -->
+          <div class="bubble1__flipbook-wrap">
+            <div id="bubble-flipbook" class="bubble1__flipbook">
+              <div class="page bubble1-page bubble1-page--green">
+                <div class="page-content">
+                  <p class="bubble1-page__text">求助一个高数问题，有谁...</p>
+                </div>
+              </div>
+              <div class="page bubble1-page bubble1-page--expanded">
+                <div class="page-content"></div>
+              </div>
+            </div>
+          </div>
+          <span class="bubble1__tail" aria-hidden="true"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 展开态浮层：翻到第 2 页后显示 -->
+  <div class="bubble1__overlay" aria-hidden="true">
+    <div class="bubble1__overlay-backdrop"></div>
+    <div class="bubble1__expanded">
+      <img src="tape.svg" alt="" class="bubble1__expanded-tape" aria-hidden="true" />
+      <p class="bubble1__expanded-text">
+        求助一个高数问题，有谁比较熟悉洛必达法则的吗？求极限为什么有时候越求越复杂？什么情况下不能用？
+      </p>
+    </div>
+  </div>
+
+  <script src="page-flip.browser.js"></script>
+  <script src="bubble1.js"></script>
+</body>
+</html>
