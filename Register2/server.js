@@ -96,6 +96,8 @@ app.use(express.json());
 // 提供静态文件服务（HTML、CSS、JS等）
 // 将根目录设置为父目录，以便访问 ../Pic/Register/ 中的图片
 app.use(express.static(path.join(__dirname, '..')));
+// 同时提供Register2目录的静态文件服务，确保register2.css和register2.js可以访问
+app.use('/Register2', express.static(__dirname));
 
 // Claude API 配置（优先使用环境变量，避免密钥过期导致 403）
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
@@ -243,11 +245,30 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.listen(PORT, () => {
+// 根路径：返回移动端入口页面
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// 处理Register2目录下的资源文件（CSS、JS等）
+// 当HTML中使用相对路径时，需要这些路由来正确提供文件
+app.get('/register2.css', (req, res) => {
+  res.sendFile(path.join(__dirname, 'register2.css'));
+});
+app.get('/register2.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'register2.js'));
+});
+
+// 获取Railway/Vercel等平台提供的端口，如果没有则使用3000
+const HOST = '0.0.0.0'; // 绑定到所有网络接口，允许外部访问
+const SERVER_PORT = process.env.PORT || PORT;
+
+app.listen(SERVER_PORT, HOST, () => {
   console.log(`========================================`);
-  console.log(`代理服务器运行在 http://localhost:${PORT}`);
-  console.log(`Claude API代理端点: http://localhost:${PORT}/api/claude`);
-  console.log(`健康检查端点: http://localhost:${PORT}/health`);
+  console.log(`代理服务器运行在 http://${HOST}:${SERVER_PORT}`);
+  console.log(`Claude API代理端点: http://${HOST}:${SERVER_PORT}/api/claude`);
+  console.log(`健康检查端点: http://${HOST}:${SERVER_PORT}/health`);
+  console.log(`移动端入口: http://${HOST}:${SERVER_PORT}/`);
   console.log(`API 密钥: ${process.env.CLAUDE_API_KEY ? '使用环境变量 CLAUDE_API_KEY' : '使用 server.js 内默认密钥'}`);
   console.log(`========================================`);
 });
