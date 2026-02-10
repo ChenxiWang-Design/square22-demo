@@ -36,8 +36,18 @@ function getProxyUrl() {
   if (fromEnv) return { url: fromEnv, source: 'env' };
   
   // 在云平台（Railway/Vercel）上，不使用本地代理
-  const isCloudPlatform = process.env.RAILWAY_ENVIRONMENT || process.env.VERCEL || process.env.NODE_ENV === 'production';
+  // Railway 会设置 RAILWAY_ENVIRONMENT_NAME 或 RAILWAY_ENVIRONMENT
+  // Vercel 会设置 VERCEL
+  const isCloudPlatform = process.env.RAILWAY_ENVIRONMENT_NAME || 
+                          process.env.RAILWAY_ENVIRONMENT || 
+                          process.env.VERCEL || 
+                          process.env.RENDER ||
+                          process.env.HEROKU_APP_NAME ||
+                          // 如果不在Windows系统，也认为是云平台
+                          (process.platform !== 'win32' && !process.env.HOME?.includes('Users'));
+  
   if (isCloudPlatform) {
+    console.log('检测到云平台环境，不使用本地代理');
     return { url: null, source: 'cloud-platform-no-proxy' };
   }
   
@@ -67,6 +77,8 @@ if (proxyAgent) {
   console.log('代理(来源:', PROXY_SOURCE + '):', PROXY_URL.replace(/:[^:@]+@/, ':****@'));
 } else if (PROXY_SOURCE === 'cloud-platform-no-proxy') {
   console.log('云平台环境：不使用代理，直接访问 Anthropic API');
+} else {
+  console.log('未使用代理，直接访问 Anthropic API');
 }
 
 // 启用CORS - 允许公网和本地访问
