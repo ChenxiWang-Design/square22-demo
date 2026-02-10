@@ -15,9 +15,8 @@ const API_BASE_URL = (() => {
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:3000'; // 本地开发
   } else {
-    // 公网环境，需要设置Railway API地址
-    // 部署后，将下面的地址替换为你的Railway API地址
-    return 'https://your-api.up.railway.app'; // TODO: 替换为你的Railway地址
+    // 公网环境，使用Railway API地址
+    return 'https://square22-demo-production.up.railway.app'; // Railway部署的API地址
   }
 })();
 
