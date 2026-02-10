@@ -820,24 +820,35 @@ async function callClaudeAPI(userMessage) {
       fetchOptions.body = JSON.stringify(requestBody);
     }
     
-    // 添加超时控制（30秒）
+    // 添加超时控制（15秒，避免手机浏览器长时间等待）
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       controller.abort();
-      console.error('请求超时（30秒）');
-    }, 30000);
+      console.error('请求超时（15秒）');
+    }, 15000);
     
     let response;
     try {
+      console.log('[API] 发送请求到:', API_URL);
       response = await fetch(API_URL, {
         ...fetchOptions,
         signal: controller.signal
       });
       clearTimeout(timeoutId);
+      console.log('[API] 收到响应:', response.status, response.statusText);
     } catch (error) {
       clearTimeout(timeoutId);
+      console.error('[API] 请求错误:', error);
       if (error.name === 'AbortError') {
-        throw new Error('请求超时，请稍后重试');
+        throw new Error('请求超时（15秒），请检查网络连接或稍后重试');
+      }
+      // 提供更详细的错误信息
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        throw new Error('网络连接失败。请检查：1) Railway服务是否在线 2) 网络连接是否正常 3) API地址是否正确');
+      }
+      // 如果是连接被拒绝，可能是Railway服务未启动或API地址错误
+      if (error.message.includes('ECONNREFUSED') || error.message.includes('127.0.0.1')) {
+        throw new Error('无法连接到API服务器。请确认Railway服务已部署并运行');
       }
       throw error;
     }
