@@ -29,9 +29,19 @@ const app = express();
 const PORT = 3000;
 
 // 自动解析代理：环境变量 > Windows 系统代理 > 默认 7890（Clash 常见），无需在 bat 里手动 set
+// 注意：在 Railway/Vercel 等云平台部署时，不使用本地代理
 function getProxyUrl() {
+  // 优先检查环境变量
   const fromEnv = process.env.HTTPS_PROXY || process.env.ANTHROPIC_PROXY || process.env.HTTP_PROXY;
   if (fromEnv) return { url: fromEnv, source: 'env' };
+  
+  // 在云平台（Railway/Vercel）上，不使用本地代理
+  const isCloudPlatform = process.env.RAILWAY_ENVIRONMENT || process.env.VERCEL || process.env.NODE_ENV === 'production';
+  if (isCloudPlatform) {
+    return { url: null, source: 'cloud-platform-no-proxy' };
+  }
+  
+  // 仅在 Windows 本地环境检查系统代理
   if (process.platform === 'win32') {
     try {
       const out = execSync('reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable 2>nul', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
@@ -47,11 +57,17 @@ function getProxyUrl() {
       }
     } catch (_) {}
   }
+  
+  // 本地开发环境默认使用 7890（Clash 常见端口）
   return { url: 'http://127.0.0.1:7890', source: 'default(7890)' };
 }
 const { url: PROXY_URL, source: PROXY_SOURCE } = getProxyUrl();
 const proxyAgent = PROXY_URL && HttpsProxyAgent ? new HttpsProxyAgent(PROXY_URL) : null;
-if (proxyAgent) console.log('代理(来源:', PROXY_SOURCE + '):', PROXY_URL.replace(/:[^:@]+@/, ':****@'));
+if (proxyAgent) {
+  console.log('代理(来源:', PROXY_SOURCE + '):', PROXY_URL.replace(/:[^:@]+@/, ':****@'));
+} else if (PROXY_SOURCE === 'cloud-platform-no-proxy') {
+  console.log('云平台环境：不使用代理，直接访问 Anthropic API');
+}
 
 // 启用CORS - 允许公网和本地访问
 app.use(cors({
