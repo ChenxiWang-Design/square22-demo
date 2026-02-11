@@ -554,6 +554,10 @@
       height: 100%;
       transition: width 0.28s ease, height 0.28s ease;
     }
+    /* bubble6 iframe 特殊处理：确保置顶显示 */
+    .main-frame .iframe-bubble6 {
+      z-index: 9999 !important;
+    }
     /* 按截图布局：右上→左中上→右中→左中→右下，重叠 ≤50×50 */
     /* bubble1：右上（翻书），默认态 160×90，展开态 230×280 */
     .main-frame .bubble-wrapper-bubble1 {
@@ -598,7 +602,7 @@
     /* bubble3：左中（校园阳光+照片），默认态 201×111，展开态 237×289 */
     .main-frame .bubble-wrapper-bubble3 {
       left: 20px;
-      top: 430px;
+      top: 380px;
       width: 201px;
       height: 111px;
     }
@@ -655,7 +659,76 @@
       width: 260px;
       height: 300px;
     }
-    /* 主界面全屏遮罩：仅模糊、不变暗，任一气泡（含 bubble5）长按展开时显示，点击关闭 */
+    /* bubble6：中央位置（居中显示，向右偏移530px，向上偏移120px），默认态 151×191，展开态 235×286，置顶显示 */
+    .main-frame .bubble-wrapper-bubble6 {
+      left: calc(50% + 530px);
+      top: calc(50% - 120px);
+      transform: translate(-50%, -50%);
+      width: 151px;
+      height: 191px;
+      z-index: 10 !important;
+      pointer-events: auto !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    /* 拖拽时移除居中定位，使用绝对定位跟随岛屿 */
+    /* 注意：left 和 top 由 JavaScript 动态设置，这里只清除 transform */
+    .main-frame .bubble-wrapper-bubble6.is-dragging {
+      transform: translate(0, 0) !important;
+    }
+    .main-frame .iframe-bubble6 {
+      width: 151px;
+      height: 191px;
+      transition: width 0.28s ease, height 0.28s ease;
+      background: transparent;
+      z-index: 10 !important;
+      pointer-events: auto !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    .main-frame .iframe-bubble6.is-expanded {
+      width: 235px;
+      height: 286px;
+    }
+    .main-frame .bubble-wrapper-bubble6.is-expanded {
+      width: 235px;
+      height: 286px;
+    }
+    /* bubble7：容器中心位置（向右偏移400px，向下偏移100px），默认态 158×178，展开态 223×274，置顶显示 */
+    .main-frame .bubble-wrapper-bubble7 {
+      left: calc(50% + 400px);
+      top: calc(50% + 100px);
+      transform: translate(-50%, -50%);
+      width: 158px;
+      height: 178px;
+      z-index: 10 !important;
+      pointer-events: auto !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    /* 拖拽时移除居中定位，使用绝对定位跟随岛屿 */
+    .main-frame .bubble-wrapper-bubble7.is-dragging {
+      transform: translate(0, 0) !important;
+    }
+    .main-frame .iframe-bubble7 {
+      width: 158px;
+      height: 178px;
+      transition: width 0.28s ease, height 0.28s ease;
+      background: transparent;
+      z-index: 10 !important;
+      pointer-events: auto !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    .main-frame .iframe-bubble7.is-expanded {
+      width: 223px;
+      height: 274px;
+    }
+    .main-frame .bubble-wrapper-bubble7.is-expanded {
+      width: 223px;
+      height: 274px;
+    }
+    /* 主界面全屏遮罩：仅模糊、不变暗，任一气泡（含 bubble5、bubble6、bubble7）长按展开时显示，点击关闭 */
     .main-overlay {
       position: absolute;
       left: 0;
@@ -763,7 +836,7 @@
       <img src="Pic/Square/islandColor.svg" alt="" class="island-color" />
       <img src="Pic/Square/islandBlur.svg" alt="" class="island-blur" />
       <img src="Pic/Square/island.svg" alt="" class="island" />
-      <img src="Pic/Square/islandText.svg" alt="" class="island-text" />
+      <img src="Pic/Square/islanText2.svg" alt="" class="island-text" />
     </div>
     <!-- Tab and Top SVG - 固定在界面顶部，不随岛屿移动 -->
     <img src="Pic/TabandTopandSide/80 (2).svg" alt="" class="tab-and-top" id="tab-and-top" />
@@ -982,6 +1055,26 @@
         scrolling="no"
       ></iframe>
     </div>
+    <div class="bubble-wrapper bubble-wrapper-bubble6" id="wrapper-bubble6" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+      <iframe
+        class="iframe-bubble6"
+        id="iframe-bubble6"
+        src="components/bubble6/index.html?embed=1"
+        title="Bubble6 组件"
+        scrolling="no"
+        style="display: block !important; visibility: visible !important; opacity: 1 !important;"
+      ></iframe>
+    </div>
+    <div class="bubble-wrapper bubble-wrapper-bubble7" id="wrapper-bubble7" style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+      <iframe
+        class="iframe-bubble7"
+        id="iframe-bubble7"
+        src="components/bubble7/index.html?embed=1"
+        title="Bubble7 组件"
+        scrolling="no"
+        style="display: block !important; visibility: visible !important; opacity: 1 !important;"
+      ></iframe>
+    </div>
     <div class="main-overlay" id="main-overlay" aria-hidden="true"></div>
     <!-- 黑色梯形侧边栏 -->
     <div class="liquid-sidebar" id="liquid-sidebar">
@@ -1009,6 +1102,98 @@
     <div class="right-edge-detector" id="right-edge-detector"></div>
   </div>
   <script>
+    // 确保 bubble6 元素存在
+    (function ensureBubble6Exists() {
+      function checkBubble6() {
+        var wrapper6 = document.getElementById("wrapper-bubble6");
+        var iframe6 = document.getElementById("iframe-bubble6");
+        if (!wrapper6 || !iframe6) {
+          console.error("[Bubble6] 元素未找到！wrapper6:", wrapper6, "iframe6:", iframe6);
+          // 如果元素不存在，尝试重新创建
+          var mainFrame = document.querySelector(".main-frame");
+          if (mainFrame && !wrapper6) {
+            console.log("[Bubble6] 尝试创建 wrapper-bubble6...");
+            var newWrapper = document.createElement("div");
+            newWrapper.className = "bubble-wrapper bubble-wrapper-bubble6";
+            newWrapper.id = "wrapper-bubble6";
+            newWrapper.style.cssText = "display: block !important; visibility: visible !important; opacity: 1 !important; left: calc(50% + 530px) !important; top: calc(50% - 120px) !important; transform: translate(-50%, -50%) !important; width: 151px; height: 191px; z-index: 10 !important;";
+            var newIframe = document.createElement("iframe");
+            newIframe.className = "iframe-bubble6";
+            newIframe.id = "iframe-bubble6";
+            newIframe.src = "components/bubble6/index.html?embed=1";
+            newIframe.title = "Bubble6 组件";
+            newIframe.scrolling = "no";
+            newIframe.style.cssText = "display: block !important; visibility: visible !important; opacity: 1 !important; width: 151px; height: 191px; z-index: 10 !important;";
+            newWrapper.appendChild(newIframe);
+            var overlay = document.getElementById("main-overlay");
+            if (overlay && overlay.parentNode) {
+              overlay.parentNode.insertBefore(newWrapper, overlay);
+              console.log("[Bubble6] 已创建 wrapper-bubble6");
+            }
+          }
+        } else {
+          console.log("[Bubble6] 元素已存在");
+        }
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", checkBubble6);
+      } else {
+        checkBubble6();
+      }
+      // 延迟再次检查
+      setTimeout(checkBubble6, 100);
+      setTimeout(checkBubble6, 500);
+    })();
+    
+    // 确保 bubble7 元素存在
+    (function ensureBubble7Exists() {
+      function checkBubble7() {
+        var wrapper7 = document.getElementById("wrapper-bubble7");
+        var iframe7 = document.getElementById("iframe-bubble7");
+        if (!wrapper7 || !iframe7) {
+          console.error("[Bubble7] 元素未找到！wrapper7:", wrapper7, "iframe7:", iframe7);
+          // 如果元素不存在，尝试重新创建
+          var mainFrame = document.querySelector(".main-frame");
+          if (mainFrame && !wrapper7) {
+            console.log("[Bubble7] 尝试创建 wrapper-bubble7...");
+            var newWrapper = document.createElement("div");
+            newWrapper.className = "bubble-wrapper bubble-wrapper-bubble7";
+            newWrapper.id = "wrapper-bubble7";
+            newWrapper.style.cssText = "display: block !important; visibility: visible !important; opacity: 1 !important; left: calc(50% + 400px) !important; top: calc(50% + 100px) !important; transform: translate(-50%, -50%) !important; width: 158px; height: 178px; z-index: 10 !important;";
+            var newIframe = document.createElement("iframe");
+            newIframe.className = "iframe-bubble7";
+            newIframe.id = "iframe-bubble7";
+            newIframe.src = "components/bubble7/index.html?embed=1";
+            newIframe.title = "Bubble7 组件";
+            newIframe.scrolling = "no";
+            newIframe.style.cssText = "display: block !important; visibility: visible !important; opacity: 1 !important; width: 158px; height: 178px; z-index: 10 !important;";
+            newWrapper.appendChild(newIframe);
+            var overlay = document.getElementById("main-overlay");
+            if (overlay && overlay.parentNode) {
+              overlay.parentNode.insertBefore(newWrapper, overlay);
+              console.log("[Bubble7] 已创建 wrapper-bubble7");
+            }
+          }
+        } else {
+          console.log("[Bubble7] 元素已存在");
+        }
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", checkBubble7);
+      } else {
+        checkBubble7();
+      }
+      // 延迟再次检查
+      setTimeout(checkBubble7, 100);
+      setTimeout(checkBubble7, 500);
+      // 确保bubble7位置初始化：在元素创建后，立即初始化位置
+      setTimeout(function() {
+        if (typeof initializeBubbleRelativeOffsets === 'function') {
+          initializeBubbleRelativeOffsets();
+        }
+      }, 600);
+    })();
+    
     (function () {
       // R6 进入广场后：隐藏创建数字分身按钮，80(2) 置于遮罩下；按状态2/状态3 显示不同内容；bubble4 默认隐藏，仅点击「发布」后显示
       (function applySquareState() {
@@ -1149,9 +1334,48 @@
       var iframe3 = document.getElementById("iframe-bubble3");
       var iframe4 = document.getElementById("iframe-bubble4");
       var iframe5 = document.getElementById("iframe-bubble5");
+      var iframe6 = document.getElementById("iframe-bubble6");
+      var iframe7 = document.getElementById("iframe-bubble7");
+      // 调试：确保 bubble6 元素存在
+      if (!iframe6) {
+        console.warn("[Bubble6] iframe-bubble6 未找到，尝试重新查找...");
+        setTimeout(function() {
+          iframe6 = document.getElementById("iframe-bubble6");
+          if (iframe6) {
+            console.log("[Bubble6] iframe-bubble6 已找到");
+          } else {
+            console.error("[Bubble6] iframe-bubble6 仍然未找到！请检查 HTML 结构");
+          }
+        }, 100);
+      }
       var activeIframe = null;
       var bubblesHidden = false;
       var mainFrame = document.querySelector(".main-frame");
+      
+      // 调试：检查 bubble6 iframe 加载状态
+      if (iframe6) {
+        iframe6.addEventListener("load", function() {
+          console.log("[Bubble6] iframe 加载成功");
+        });
+        iframe6.addEventListener("error", function() {
+          console.error("[Bubble6] iframe 加载失败");
+        });
+        // 检查 iframe 是否可见
+        setTimeout(function() {
+          var wrapper6 = document.getElementById("wrapper-bubble6");
+          if (wrapper6) {
+            var rect = wrapper6.getBoundingClientRect();
+            console.log("[Bubble6] wrapper 位置:", rect);
+            console.log("[Bubble6] wrapper 样式:", window.getComputedStyle(wrapper6).zIndex);
+          }
+          if (iframe6) {
+            console.log("[Bubble6] iframe src:", iframe6.src);
+            console.log("[Bubble6] iframe 内容窗口:", iframe6.contentWindow ? "存在" : "不存在");
+          }
+        }, 1000);
+      } else {
+        console.error("[Bubble6] iframe 元素不存在");
+      }
 
       /** 展开时若 iframe 超出主框架四边，用 left/top 微调使布局盒移入框内（左/右/上/下均生效） */
       function clampExpandedPosition(iframe) {
@@ -1183,6 +1407,8 @@
         else if (wrapperId === "wrapper-bubble3") bubbleIndex = 3;
         else if (wrapperId === "wrapper-bubble4") bubbleIndex = 4;
         else if (wrapperId === "wrapper-bubble5") bubbleIndex = 5;
+        else if (wrapperId === "wrapper-bubble6") bubbleIndex = 6;
+        else if (wrapperId === "wrapper-bubble7") bubbleIndex = 7;
         
         if (bubbleIndex) {
           bubbleOffsets["bubble" + bubbleIndex] = {
@@ -1206,6 +1432,8 @@
         else if (wrapperId === "wrapper-bubble3") bubbleIndex = 3;
         else if (wrapperId === "wrapper-bubble4") bubbleIndex = 4;
         else if (wrapperId === "wrapper-bubble5") bubbleIndex = 5;
+        else if (wrapperId === "wrapper-bubble6") bubbleIndex = 6;
+        else if (wrapperId === "wrapper-bubble7") bubbleIndex = 7;
         
         if (bubbleIndex && bubbleRelativeOffsets["bubble" + bubbleIndex]) {
           // 有相对位置记录，基于相对位置恢复到默认态位置
@@ -1285,7 +1513,11 @@
           showOverlay(iframe4);
         } else if (e.data === "bubble5-expanded") {
           showOverlay(iframe5);
-        } else if (e.data === "bubble1-collapsed" || e.data === "bubble2-collapsed" || e.data === "bubble3-collapsed" || e.data === "bubble4-collapsed" || e.data === "bubble5-collapsed") {
+        } else if (e.data === "bubble6-expanded") {
+          showOverlay(iframe6);
+        } else if (e.data === "bubble7-expanded") {
+          showOverlay(iframe7);
+        } else if (e.data === "bubble1-collapsed" || e.data === "bubble2-collapsed" || e.data === "bubble3-collapsed" || e.data === "bubble4-collapsed" || e.data === "bubble5-collapsed" || e.data === "bubble6-collapsed" || e.data === "bubble7-collapsed") {
           if (activeIframe) {
             var wrapper = activeIframe.parentElement;
             if (wrapper && wrapper.classList.contains("bubble-wrapper")) {
@@ -1362,8 +1594,9 @@
       
       /** 初始化气泡的相对位置（基于初始状态，只执行一次） */
       function initializeBubbleRelativeOffsets() {
-        // 如果已经初始化过，不再重复初始化
-        if (Object.keys(bubbleRelativeOffsets).length > 0) return;
+        // 如果已经初始化过，不再重复初始化（但允许强制重新初始化）
+        var forceReinit = arguments[0] === true;
+        if (!forceReinit && Object.keys(bubbleRelativeOffsets).length > 0) return;
         
         var mainFrame = document.querySelector(".main-frame");
         var islandLayer = document.querySelector(".island-layer");
@@ -1379,7 +1612,9 @@
           document.getElementById("wrapper-bubble2"),
           document.getElementById("wrapper-bubble3"),
           document.getElementById("wrapper-bubble4"),
-          document.getElementById("wrapper-bubble5")
+          document.getElementById("wrapper-bubble5"),
+          document.getElementById("wrapper-bubble6"),
+          document.getElementById("wrapper-bubble7")
         ];
         
         wrappers.forEach(function(wrapper, index) {
@@ -1389,12 +1624,65 @@
             var bubbleCenterY = wrapperRect.top + wrapperRect.height / 2;
             
             // 计算相对位置（气泡中心相对于岛屿中心，基于初始状态）
+            var relativeX = bubbleCenterX - islandCenterX;
+            var relativeY = bubbleCenterY - islandCenterY;
+            
+            // 计算相对位置（不要重置为(0, 0)，保持计算出的值）
+            // bubble6和bubble7使用居中定位，可能不在中心位置，相对位置较大是正常的
+            // bubble6向右偏移650px向上偏移100px，相对位置X约为650，Y约为-100是正常的
+            // bubble7在容器中心，相对位置应该接近(0, 0)
+            if (wrapper.id === "wrapper-bubble6" && (Math.abs(relativeX - 650) > 50 || Math.abs(relativeY + 100) > 50)) {
+              console.warn("[Bubble6] 初始化时相对位置异常，但保持计算值:", relativeX, relativeY);
+            }
+            if (wrapper.id === "wrapper-bubble7" && (Math.abs(relativeX) > 50 || Math.abs(relativeY) > 50)) {
+              console.warn("[Bubble7] 初始化时相对位置异常（应该在中心附近），但保持计算值:", relativeX, relativeY);
+            }
+            
             bubbleRelativeOffsets["bubble" + (index + 1)] = {
-              x: bubbleCenterX - islandCenterX,
-              y: bubbleCenterY - islandCenterY
+              x: relativeX,
+              y: relativeY
             };
+            
+            // bubble6 和 bubble7 同时保存两种key格式
+            if (wrapper.id === "wrapper-bubble6") {
+              bubbleRelativeOffsets["bubble6"] = {
+                x: relativeX,
+                y: relativeY
+              };
+            } else if (wrapper.id === "wrapper-bubble7") {
+              bubbleRelativeOffsets["bubble7"] = {
+                x: relativeX,
+                y: relativeY
+              };
+            }
           }
         });
+        
+        // 初始化后，立即将bubble7从居中定位转换为绝对定位（基于相对位置）
+        var wrapperBubble7 = document.getElementById("wrapper-bubble7");
+        if (wrapperBubble7 && bubbleRelativeOffsets["bubble7"]) {
+          var mainFrame = document.querySelector(".main-frame");
+          var islandLayer = document.querySelector(".island-layer");
+          if (mainFrame && islandLayer) {
+            var mainRect = mainFrame.getBoundingClientRect();
+            var islandRect = islandLayer.getBoundingClientRect();
+            var islandCenterX = islandRect.left + islandRect.width / 2;
+            var islandCenterY = islandRect.top + islandRect.height / 2;
+            var relativeOffset = bubbleRelativeOffsets["bubble7"];
+            var size = getBubbleLayoutSize(wrapperBubble7);
+            var bubbleWidth = size.width;
+            var bubbleHeight = size.height;
+            // 计算气泡左上角位置（基于相对位置）
+            var leftValue = islandCenterX + relativeOffset.x - bubbleWidth / 2 - mainRect.left;
+            var topValue = islandCenterY + relativeOffset.y - bubbleHeight / 2 - mainRect.top;
+            // 转换为绝对定位
+            wrapperBubble7.style.left = leftValue + "px";
+            wrapperBubble7.style.top = topValue + "px";
+            wrapperBubble7.style.right = "auto";
+            wrapperBubble7.style.bottom = "auto";
+            wrapperBubble7.style.transform = "translate(0, 0)";
+          }
+        }
       }
 
       /** 切换所有气泡的显示/隐藏状态，带随机延迟 */
@@ -1405,7 +1693,9 @@
           document.getElementById("wrapper-bubble2"),
           document.getElementById("wrapper-bubble3"),
           document.getElementById("wrapper-bubble4"),
-          document.getElementById("wrapper-bubble5")
+          document.getElementById("wrapper-bubble5"),
+          document.getElementById("wrapper-bubble6"),
+          document.getElementById("wrapper-bubble7")
         ];
         var islandText = document.querySelector(".island-text");
         var maxDelay = 0;
@@ -1430,7 +1720,10 @@
               var delay = Math.random() * 500;
               setTimeout(function() {
                 // 清除拖拽/惯性设置的内联 transform 和 transition，避免覆盖显示动画和最终状态
-                wrapper.style.transform = "";
+                // 注意：bubble6和bubble7使用居中定位，需要保留transform
+                if (wrapper.id !== "wrapper-bubble6" && wrapper.id !== "wrapper-bubble7") {
+                  wrapper.style.transform = "";
+                }
                 wrapper.style.transition = "";
                 // 移除隐藏动画类
                 wrapper.classList.remove("is-hidden");
@@ -1441,6 +1734,16 @@
                 // 动画结束后（0.5s）移除 is-showing 类，恢复默认可见状态
                 setTimeout(function() {
                   wrapper.classList.remove("is-showing");
+                  // bubble6和bubble7使用居中定位，确保transform正确
+                  if (wrapper.id === "wrapper-bubble6" || wrapper.id === "wrapper-bubble7") {
+                    // 如果wrapper没有内联的left/top（即使用CSS居中定位），恢复transform
+                    if (!wrapper.style.left && !wrapper.style.top) {
+                      wrapper.style.transform = "translate(-50%, -50%)";
+                    } else {
+                      // 如果已经转换为绝对定位，保持transform为空
+                      wrapper.style.transform = "translate(0, 0)";
+                    }
+                  }
                 }, 500);
               }, delay);
             }
@@ -1516,6 +1819,8 @@
       var islandLayer = document.querySelector(".island-layer");
       var islandOffsetX = 0;
       var islandOffsetY = 0;
+      var dragStartIslandOffsetX = 0; // 拖拽开始时的岛屿偏移（用于计算相对位置）
+      var dragStartIslandOffsetY = 0;
       var bubbleOffsets = {}; // 存储每个气泡的绝对位置（相对于主框架）
       var bubbleRelativeOffsets = {}; // 存储每个气泡相对于岛屿的相对位置（基于 scale=1.1 时的初始位置）
       
@@ -1566,29 +1871,133 @@
         islandOffsetX = (layerRect.left + layerRect.width / 2) - (mainRect.left + mainRect.width / 2);
         islandOffsetY = (layerRect.top + layerRect.height / 2) - (mainRect.top + mainRect.height / 2);
         
+        // 保存拖拽开始时的岛屿偏移（用于计算相对位置）
+        dragStartIslandOffsetX = islandOffsetX;
+        dragStartIslandOffsetY = islandOffsetY;
+        
+        // 如果相对位置还没有初始化，立即初始化（特别是 bubble6）
+        if (Object.keys(bubbleRelativeOffsets).length === 0) {
+          initializeBubbleRelativeOffsets();
+        }
+        
+        // 确保 bubble6 和 bubble7 的相对位置已初始化（如果还未初始化，立即计算）
+        // bubble6 和 bubble7 初始是居中定位，中心应该在主框架中心，相对位置应该是(0, 0)或接近(0, 0)
+        var wrapperBubble6 = document.getElementById("wrapper-bubble6");
+        var wrapperBubble7 = document.getElementById("wrapper-bubble7");
+        if (wrapperBubble6 && !bubbleRelativeOffsets["bubble6"] && !bubbleRelativeOffsets["bubble6"]) {
+          var wrapperRect = wrapperBubble6.getBoundingClientRect();
+          var bubbleCenterX = wrapperRect.left + wrapperRect.width / 2;
+          var bubbleCenterY = wrapperRect.top + wrapperRect.height / 2;
+          // 注意：应该使用拖拽开始时的岛屿偏移，而不是当前偏移
+          var islandCenterX = mainRect.left + mainRect.width / 2 + dragStartIslandOffsetX;
+          var islandCenterY = mainRect.top + mainRect.height / 2 + dragStartIslandOffsetY;
+          var relativeX = bubbleCenterX - islandCenterX;
+          var relativeY = bubbleCenterY - islandCenterY;
+          // 如果计算出的相对位置异常（比如绝对值很大），说明计算错误
+          // 但不要重置为(0, 0)，而是使用计算出的值（bubble6可能不在中心位置）
+          // 如果确实异常，记录警告但不重置
+          if (Math.abs(relativeX) > 500 || Math.abs(relativeY) > 500) {
+            console.warn("[Bubble6] 相对位置异常，但保持计算值:", relativeX, relativeY);
+          }
+          bubbleRelativeOffsets["bubble6"] = {
+            x: relativeX,
+            y: relativeY
+          };
+        }
+        // bubble7初始在容器中心，相对位置应该接近(0, 0)
+        // 如果相对位置不存在，基于当前位置计算
+        if (wrapperBubble7 && !bubbleRelativeOffsets["bubble7"]) {
+          var wrapperRect = wrapperBubble7.getBoundingClientRect();
+          var bubbleCenterX = wrapperRect.left + wrapperRect.width / 2;
+          var bubbleCenterY = wrapperRect.top + wrapperRect.height / 2;
+          var islandCenterX = mainRect.left + mainRect.width / 2 + dragStartIslandOffsetX;
+          var islandCenterY = mainRect.top + mainRect.height / 2 + dragStartIslandOffsetY;
+          var relativeX = bubbleCenterX - islandCenterX;
+          var relativeY = bubbleCenterY - islandCenterY;
+          // bubble7在容器中心，相对位置应该接近(0, 0)
+          if (Math.abs(relativeX) > 50 || Math.abs(relativeY) > 50) {
+            console.warn("[Bubble7] 相对位置异常（应该在中心附近），但保持计算值:", relativeX, relativeY);
+          }
+          bubbleRelativeOffsets["bubble7"] = {
+            x: relativeX,
+            y: relativeY
+          };
+        }
+        
         // 批量获取气泡位置，减少 reflow
         wrappers.forEach(function(wrapper, index) {
           if (wrapper) {
-            // 优先使用内联样式，避免 getComputedStyle 和 getBoundingClientRect
-            var leftValue = parseFloat(wrapper.style.left);
-            var topValue = parseFloat(wrapper.style.top);
-            
-            // 如果内联样式不存在，才使用 getBoundingClientRect 或相对位置计算
-            if (isNaN(leftValue) || isNaN(topValue)) {
-              if (wrapper.classList.contains("is-hidden") && bubbleRelativeOffsets["bubble" + (index + 1)]) {
-                // 隐藏态时 getBoundingClientRect 会得到缩放后的错误位置，改用相对位置计算
-                var layerRect = islandLayer.getBoundingClientRect();
-                var islandCenterX = layerRect.left + layerRect.width / 2;
-                var islandCenterY = layerRect.top + layerRect.height / 2;
-                var rel = bubbleRelativeOffsets["bubble" + (index + 1)];
-                var size = getBubbleLayoutSize(wrapper);
-                leftValue = islandCenterX + rel.x - size.width / 2 - mainRect.left;
-                topValue = islandCenterY + rel.y - size.height / 2 - mainRect.top;
-              } else {
-                var wrapperRect = wrapper.getBoundingClientRect();
-                leftValue = wrapperRect.left - mainRect.left;
-                topValue = wrapperRect.top - mainRect.top;
+            // bubble6 和 bubble7 使用居中定位，拖拽开始时需要先转换为绝对定位
+            if (wrapper.id === "wrapper-bubble6" || wrapper.id === "wrapper-bubble7") {
+              // 关键修复：基于当前位置重新计算相对位置，而不是使用之前保存的相对位置
+              // 这样可以确保从居中定位转换为绝对定位时，视觉位置保持不变
+              var wrapperRect = wrapper.getBoundingClientRect();
+              var bubbleCenterX = wrapperRect.left + wrapperRect.width / 2;
+              var bubbleCenterY = wrapperRect.top + wrapperRect.height / 2;
+              // 使用拖拽开始时的岛屿偏移计算岛屿中心位置
+              var islandCenterX = mainRect.left + mainRect.width / 2 + dragStartIslandOffsetX;
+              var islandCenterY = mainRect.top + mainRect.height / 2 + dragStartIslandOffsetY;
+              // 基于当前位置计算相对位置
+              var relativeX = bubbleCenterX - islandCenterX;
+              var relativeY = bubbleCenterY - islandCenterY;
+              
+              // 更新保存的相对位置
+              var relativeOffset = {
+                x: relativeX,
+                y: relativeY
+              };
+              bubbleRelativeOffsets["bubble" + (index + 1)] = relativeOffset;
+              // bubble6 和 bubble7 同时保存两种key格式
+              if (wrapper.id === "wrapper-bubble6") {
+                bubbleRelativeOffsets["bubble6"] = relativeOffset;
+              } else if (wrapper.id === "wrapper-bubble7") {
+                bubbleRelativeOffsets["bubble7"] = relativeOffset;
               }
+              
+              // 转换为绝对定位（基于刚计算的相对位置）
+              var size = getBubbleLayoutSize(wrapper);
+              var bubbleWidth = size.width;
+              var bubbleHeight = size.height;
+              
+              // 计算气泡左上角位置（基于相对位置）
+              var leftValue = islandCenterX + relativeOffset.x - bubbleWidth / 2 - mainRect.left;
+              var topValue = islandCenterY + relativeOffset.y - bubbleHeight / 2 - mainRect.top;
+              
+              // 直接设置位置，内联样式优先级高于CSS类选择器
+              wrapper.style.left = leftValue + "px";
+              wrapper.style.top = topValue + "px";
+              wrapper.style.right = "auto";
+              wrapper.style.bottom = "auto";
+              wrapper.style.transform = "translate(0, 0)";
+            } else {
+              // 优先使用内联样式，避免 getComputedStyle 和 getBoundingClientRect
+              var leftValue = parseFloat(wrapper.style.left);
+              var topValue = parseFloat(wrapper.style.top);
+              
+              // 如果内联样式不存在，才使用 getBoundingClientRect 或相对位置计算
+              if (isNaN(leftValue) || isNaN(topValue)) {
+                if (wrapper.classList.contains("is-hidden") && bubbleRelativeOffsets["bubble" + (index + 1)]) {
+                  // 隐藏态时 getBoundingClientRect 会得到缩放后的错误位置，改用相对位置计算
+                  var layerRect = islandLayer.getBoundingClientRect();
+                  var islandCenterX = layerRect.left + layerRect.width / 2;
+                  var islandCenterY = layerRect.top + layerRect.height / 2;
+                  var rel = bubbleRelativeOffsets["bubble" + (index + 1)];
+                  var size = getBubbleLayoutSize(wrapper);
+                  leftValue = islandCenterX + rel.x - size.width / 2 - mainRect.left;
+                  topValue = islandCenterY + rel.y - size.height / 2 - mainRect.top;
+                } else {
+                  var wrapperRect = wrapper.getBoundingClientRect();
+                  leftValue = wrapperRect.left - mainRect.left;
+                  topValue = wrapperRect.top - mainRect.top;
+                }
+              }
+            }
+            
+            // 确保 leftValue 和 topValue 已定义（bubble6 在上面已设置）
+            if (typeof leftValue === 'undefined' || typeof topValue === 'undefined') {
+              var wrapperRect = wrapper.getBoundingClientRect();
+              leftValue = wrapperRect.left - mainRect.left;
+              topValue = wrapperRect.top - mainRect.top;
             }
             
             // 保存绝对位置（相对于主框架）
@@ -1631,7 +2040,9 @@
             document.getElementById("wrapper-bubble2"),
             document.getElementById("wrapper-bubble3"),
             document.getElementById("wrapper-bubble4"),
-            document.getElementById("wrapper-bubble5")
+            document.getElementById("wrapper-bubble5"),
+            document.getElementById("wrapper-bubble6"),
+            document.getElementById("wrapper-bubble7")
           ];
         }
         return cachedWrappers;
@@ -1694,44 +2105,76 @@
         
         for (var i = 0; i < wrappers.length; i++) {
           var wrapper = wrappers[i];
-          if (wrapper && bubbleRelativeOffsets["bubble" + (i + 1)]) {
-            var relativeOffset = bubbleRelativeOffsets["bubble" + (i + 1)];
-            
-            // 基于相对位置计算新位置；隐藏态时用布局尺寸，否则 getBoundingClientRect 会得到缩放后的错误尺寸
-            var size = getBubbleLayoutSize(wrapper);
-            var bubbleWidth = size.width;
-            var bubbleHeight = size.height;
-            
-            // 气泡中心的新位置 = 岛屿中心 + 相对偏移 * 缩放比例
-            // 相对位置是基于 scale=1.1 时的初始位置，需要根据当前缩放比例调整
-            var bubbleCenterX = newIslandCenterX + relativeOffset.x;
-            var bubbleCenterY = newIslandCenterY + relativeOffset.y;
-            
-            // 应用实时惯性跟随效果（减小系数，让跟随更紧密，延迟更小）
-            var inertiaFactor = 0.1; // 进一步减小惯性系数，减少延迟
-            var delayFactor = (i + 1) * 0.05; // 进一步减小延迟系数，让效果更实时
-            var inertiaX = velocityX * inertiaFactor * delayFactor;
-            var inertiaY = velocityY * inertiaFactor * delayFactor;
-            
-            // 计算气泡左上角位置（中心位置 - 宽度/2 + 惯性偏移）
-            // 注意：惯性只影响视觉位置，不影响相对位置
-            var baseX = bubbleCenterX - bubbleWidth / 2 - mainRect.left + inertiaX;
-            var baseY = bubbleCenterY - bubbleHeight / 2 - mainRect.top + inertiaY;
-            
-            // 实时更新位置，应用惯性跟随（立即响应）
-            wrapper.style.left = baseX + "px";
-            wrapper.style.top = baseY + "px";
-            wrapper.style.right = "auto";
-            wrapper.style.bottom = "auto";
-            
-            // 更新绝对位置（包含惯性）
-            bubbleOffsets["bubble" + (i + 1)] = {
-              x: baseX,
-              y: baseY
-            };
-            // 相对位置保持不变（因为岛屿和气泡都移动了相同的距离，惯性只是视觉效果）
-            // bubbleRelativeOffsets 不需要更新
+          if (!wrapper) continue;
+          
+          // 确保相对位置已初始化（如果不存在，说明初始化失败，使用拖拽开始时的岛屿位置计算）
+          var relativeOffset = bubbleRelativeOffsets["bubble" + (i + 1)];
+          
+          // bubble6 和 bubble7 可能使用特殊key，需要兼容
+          if (wrapper.id === "wrapper-bubble6" && !relativeOffset) {
+            relativeOffset = bubbleRelativeOffsets["bubble6"];
+          } else if (wrapper.id === "wrapper-bubble7" && !relativeOffset) {
+            relativeOffset = bubbleRelativeOffsets["bubble7"];
           }
+          
+          if (!relativeOffset) {
+            // 如果相对位置不存在，使用拖拽开始时的岛屿位置来计算（而不是移动后的位置）
+            var dragStartIslandCenterX = mainRect.left + mainRect.width / 2 + dragStartIslandOffsetX;
+            var dragStartIslandCenterY = mainRect.top + mainRect.height / 2 + dragStartIslandOffsetY;
+            var wrapperRect = wrapper.getBoundingClientRect();
+            var bubbleCenterX = wrapperRect.left + wrapperRect.width / 2;
+            var bubbleCenterY = wrapperRect.top + wrapperRect.height / 2;
+            relativeOffset = {
+              x: bubbleCenterX - dragStartIslandCenterX,
+              y: bubbleCenterY - dragStartIslandCenterY
+            };
+            bubbleRelativeOffsets["bubble" + (i + 1)] = relativeOffset;
+            // bubble6 和 bubble7 同时保存两种key格式
+            if (wrapper.id === "wrapper-bubble6") {
+              bubbleRelativeOffsets["bubble6"] = relativeOffset;
+            } else if (wrapper.id === "wrapper-bubble7") {
+              bubbleRelativeOffsets["bubble7"] = relativeOffset;
+            }
+          }
+          
+          // 基于相对位置计算新位置；隐藏态时用布局尺寸，否则 getBoundingClientRect 会得到缩放后的错误尺寸
+          var size = getBubbleLayoutSize(wrapper);
+          var bubbleWidth = size.width;
+          var bubbleHeight = size.height;
+          
+          // 气泡中心的新位置 = 岛屿中心 + 相对偏移
+          // 相对位置是基于初始状态的，直接加上新的岛屿中心位置即可
+          var bubbleCenterX = newIslandCenterX + relativeOffset.x;
+          var bubbleCenterY = newIslandCenterY + relativeOffset.y;
+          
+          // 应用实时惯性跟随效果（减小系数，让跟随更紧密，延迟更小）
+          var inertiaFactor = 0.1; // 进一步减小惯性系数，减少延迟
+          var delayFactor = (i + 1) * 0.05; // 进一步减小延迟系数，让效果更实时
+          var inertiaX = velocityX * inertiaFactor * delayFactor;
+          var inertiaY = velocityY * inertiaFactor * delayFactor;
+          
+          // 计算气泡左上角位置（中心位置 - 宽度/2 + 惯性偏移）
+          // 注意：惯性只影响视觉位置，不影响相对位置
+          var baseX = bubbleCenterX - bubbleWidth / 2 - mainRect.left + inertiaX;
+          var baseY = bubbleCenterY - bubbleHeight / 2 - mainRect.top + inertiaY;
+          
+          // 实时更新位置，应用惯性跟随（立即响应）
+          wrapper.style.left = baseX + "px";
+          wrapper.style.top = baseY + "px";
+          wrapper.style.right = "auto";
+          wrapper.style.bottom = "auto";
+          // bubble6 和 bubble7 使用居中定位，拖拽时需要清除 transform
+          if (wrapper.id === "wrapper-bubble6" || wrapper.id === "wrapper-bubble7") {
+            wrapper.style.transform = "translate(0, 0)";
+          }
+          
+          // 更新绝对位置（包含惯性）
+          bubbleOffsets["bubble" + (i + 1)] = {
+            x: baseX,
+            y: baseY
+          };
+          // 相对位置保持不变（因为岛屿和气泡都移动了相同的距离，惯性只是视觉效果）
+          // bubbleRelativeOffsets 不需要更新
         }
       }
       
@@ -1742,13 +2185,7 @@
         var clientX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
         var clientY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
         
-        var wrappers = [
-          document.getElementById("wrapper-bubble1"),
-          document.getElementById("wrapper-bubble2"),
-          document.getElementById("wrapper-bubble3"),
-          document.getElementById("wrapper-bubble4"),
-          document.getElementById("wrapper-bubble5")
-        ];
+        var wrappers = getWrappers();
         
         if (clientX && clientY) {
           var deltaX = clientX - dragStartX;
@@ -1789,6 +2226,10 @@
               wrapper.style.top = finalY + "px";
               wrapper.style.right = "auto";
               wrapper.style.bottom = "auto";
+              // bubble6 和 bubble7 使用居中定位，拖拽结束时需要清除 transform
+              if (wrapper.id === "wrapper-bubble6" || wrapper.id === "wrapper-bubble7") {
+                wrapper.style.transform = "translate(0, 0)";
+              }
               
               // 更新绝对位置（清除惯性）
               bubbleOffsets["bubble" + (index + 1)] = {
@@ -1866,12 +2307,29 @@
               
               // 缩短摆动时间：从 0.6s 改为 0.3s，更快完成
               wrapper.style.transition = "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
-              wrapper.style.transform = "translate3d(" + swingX + "px, " + swingY + "px, 0) scale(" + currentScale + ")";
+              // bubble6和bubble7使用居中定位，需要在居中transform基础上叠加摆动
+              if ((wrapper.id === "wrapper-bubble6" || wrapper.id === "wrapper-bubble7") && !wrapper.style.left && !wrapper.style.top) {
+                // 使用居中定位时，在translate(-50%, -50%)基础上叠加摆动
+                wrapper.style.transform = "translate(calc(-50% + " + swingX + "px), calc(-50% + " + swingY + "px)) scale(" + currentScale + ")";
+              } else {
+                wrapper.style.transform = "translate3d(" + swingX + "px, " + swingY + "px, 0) scale(" + currentScale + ")";
+              }
               
               // 缩短回弹时间：从 0.4s 改为 0.2s，从 600ms 延迟改为 300ms
               setTimeout(function() {
                 wrapper.style.transition = "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)";
-                wrapper.style.transform = "translate3d(0, 0, 0) scale(" + currentScale + ")";
+                // bubble6和bubble7使用居中定位，需要恢复正确的transform
+                if (wrapper.id === "wrapper-bubble6" || wrapper.id === "wrapper-bubble7") {
+                  // 如果wrapper没有内联的left/top（即使用CSS居中定位），恢复居中transform
+                  if (!wrapper.style.left && !wrapper.style.top) {
+                    wrapper.style.transform = "translate(-50%, -50%) scale(" + currentScale + ")";
+                  } else {
+                    // 如果已经转换为绝对定位，保持translate(0, 0)
+                    wrapper.style.transform = "translate3d(0, 0, 0) scale(" + currentScale + ")";
+                  }
+                } else {
+                  wrapper.style.transform = "translate3d(0, 0, 0) scale(" + currentScale + ")";
+                }
               }, 300);
             }, delay);
           }

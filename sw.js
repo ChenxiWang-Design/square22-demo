@@ -1,6 +1,6 @@
 // Service Worker - 基础版本，用于启用PWA功能
 // 版本号用于更新缓存
-const CACHE_NAME = 'digital-avatar-v1';
+const CACHE_NAME = 'digital-avatar-v3-bubble6';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -29,16 +29,18 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
+          // 删除所有旧缓存（包括 v1）
           if (cacheName !== CACHE_NAME) {
             console.log('Service Worker: 删除旧缓存', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      // 立即控制所有页面
+      return self.clients.claim();
     })
   );
-  // 立即控制所有页面
-  return self.clients.claim();
 });
 
 // 拦截请求

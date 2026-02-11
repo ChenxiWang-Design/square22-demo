@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bubble7 预览（长按展开）</title>
+  <link rel="stylesheet" href="bubble7.css" />
+</head>
+<body>
+  <div class="preview-page">
+    <div class="preview-row">
+      <div class="bubble7">
+        <div class="bubble7__default" id="bubble7-default" role="button" tabindex="0" aria-label="长按展开">
+          <img src="../../Pic/bubble7Group/Bubble7默认态.svg" alt="Bubble7 默认态" class="bubble7__default-img" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 展开态浮层：长按默认态后显示 -->
+  <div class="bubble7__overlay" id="bubble7-overlay" aria-hidden="true">
+    <div class="bubble7__overlay-backdrop" id="bubble7-backdrop"></div>
+    <div class="bubble7__expanded" id="bubble7-expanded">
+      <div class="bubble7__expanded-container">
+        <div class="bubble7__chat-scroll" id="bubble7-chat-scroll">
+          <div class="bubble7__chat-messages">
+            <!-- 学习打卡消息 -->
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">小</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小张</div>
+                <div class="bubble7__message-text">今天完成了《JavaScript高级程序设计》第3章的学习，做了10道练习题 ✨</div>
+                <div class="bubble7__message-time">14:23</div>
+              </div>
+            </div>
+            
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">李</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小李</div>
+                <div class="bubble7__message-text">完成了React Hooks的学习，写了一个自定义Hook 📚</div>
+                <div class="bubble7__message-time">14:15</div>
+              </div>
+            </div>
+            
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">王</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小王</div>
+                <div class="bubble7__message-text">今天刷了5道LeetCode算法题，感觉进步了 💪</div>
+                <div class="bubble7__message-time">13:58</div>
+              </div>
+            </div>
+            
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">陈</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小陈</div>
+                <div class="bubble7__message-text">学习了TypeScript的类型系统，做了类型练习 🎯</div>
+                <div class="bubble7__message-time">13:42</div>
+              </div>
+            </div>
+            
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">刘</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小刘</div>
+                <div class="bubble7__message-text">今天完成了Vue3的组合式API学习，写了一个Todo应用 ✅</div>
+                <div class="bubble7__message-time">13:25</div>
+              </div>
+            </div>
+            
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">赵</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小赵</div>
+                <div class="bubble7__message-text">学习了CSS Grid布局，完成了响应式布局练习 📐</div>
+                <div class="bubble7__message-time">13:10</div>
+              </div>
+            </div>
+            
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">孙</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小孙</div>
+                <div class="bubble7__message-text">今天复习了数据结构，重点学习了二叉树 🌳</div>
+                <div class="bubble7__message-time">12:55</div>
+              </div>
+            </div>
+            
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">周</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小周</div>
+                <div class="bubble7__message-text">完成了Node.js的异步编程学习，理解了Promise和async/await 🔄</div>
+                <div class="bubble7__message-time">12:38</div>
+              </div>
+            </div>
+            
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">吴</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小吴</div>
+                <div class="bubble7__message-text">今天学习了Webpack配置，成功打包了第一个项目 📦</div>
+                <div class="bubble7__message-time">12:20</div>
+              </div>
+            </div>
+            
+            <div class="bubble7__message">
+              <div class="bubble7__message-avatar">郑</div>
+              <div class="bubble7__message-content">
+                <div class="bubble7__message-name">小郑</div>
+                <div class="bubble7__message-text">学习了Git的高级用法，掌握了分支合并策略 🌿</div>
+                <div class="bubble7__message-time">12:05</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="bubble7.js"></script>
+</body>
+</html>

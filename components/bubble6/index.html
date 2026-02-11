@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bubble6 预览（长按展开）</title>
+  <link rel="stylesheet" href="bubble6.css" />
+</head>
+<body>
+  <div class="preview-page">
+    <div class="preview-row">
+      <div class="bubble6">
+        <div class="bubble6__default" id="bubble6-default" role="button" tabindex="0" aria-label="长按展开">
+          <img src="../../Pic/bubble6AIGC/Bubble6默认态.svg" alt="Bubble6 默认态" class="bubble6__default-img" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 展开态浮层：长按默认态后显示 -->
+  <div class="bubble6__overlay" id="bubble6-overlay" aria-hidden="true">
+    <div class="bubble6__overlay-backdrop" id="bubble6-backdrop"></div>
+    <div class="bubble6__expanded" id="bubble6-expanded">
+      <img src="../../Pic/bubble6AIGC/Bubble6展开态.svg" alt="Bubble6 展开态" class="bubble6__expanded-img" />
+    </div>
+  </div>
+
+  <script src="bubble6.js"></script>
+</body>
+</html>

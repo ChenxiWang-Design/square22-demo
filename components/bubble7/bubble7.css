@@ -1,0 +1,281 @@
+/**
+ * Bubble7 组件样式
+ * 默认态 + 展开态，使用 SVG 文件
+ * 交互：长按默认态 → 展开态浮层
+ */
+:root {
+  --bubble7-transition-duration: 280ms;
+  --bubble7-transition-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --bubble7-expand-scale-start: 0.25;
+  --bubble7-long-press-ms: 500;
+}
+
+/* ---------- 默认态：158×178 ---------- */
+.bubble7 {
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  height: 100%;
+}
+
+/* 嵌入模式下确保可见 */
+.bubble7-embed .bubble7 {
+  width: 158px;
+  height: 178px;
+  position: relative;
+  display: block;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.bubble7__default {
+  position: relative;
+  width: 158px;
+  height: 178px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: transform var(--bubble7-transition-duration) var(--bubble7-transition-ease);
+  display: block;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.bubble7__default:focus {
+  outline: none;
+}
+
+.bubble7__default:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.bubble7__default-img {
+  display: block;
+  width: 158px;
+  height: 178px;
+  object-fit: contain;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.bubble7__default:hover {
+  transform: scale(1.02);
+}
+
+.bubble7__default.is-long-pressing {
+  transform: scale(0.98);
+}
+
+/* ---------- 展开态：223×274 圆角16 ---------- */
+.bubble7__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition: opacity var(--bubble7-transition-duration) ease,
+              visibility 0s linear var(--bubble7-transition-duration),
+              backdrop-filter var(--bubble7-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble7-transition-duration) ease;
+}
+
+.bubble7__overlay.is-visible {
+  opacity: 1;
+  visibility: visible;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity var(--bubble7-transition-duration) ease,
+              backdrop-filter var(--bubble7-transition-duration) ease,
+              -webkit-backdrop-filter var(--bubble7-transition-duration) ease;
+}
+
+.bubble7__expanded {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform-origin: left top;
+  transform: scale(var(--bubble7-expand-scale-start, 0.25));
+  opacity: 0;
+  transition: transform var(--bubble7-transition-duration) var(--bubble7-transition-ease),
+              opacity var(--bubble7-transition-duration) ease;
+  z-index: 1;
+  cursor: default;
+  width: 223px;
+  height: 274px;
+}
+
+.bubble7__overlay.is-visible .bubble7__expanded {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.bubble7__expanded-container {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 群聊滚动区域 */
+.bubble7__chat-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.bubble7__chat-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.bubble7__chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bubble7__chat-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.bubble7__chat-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.bubble7__chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 聊天消息 */
+.bubble7__message {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.bubble7__message-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.bubble7__message:nth-child(2n) .bubble7__message-avatar {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bubble7__message:nth-child(3n) .bubble7__message-avatar {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.bubble7__message:nth-child(4n) .bubble7__message-avatar {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.bubble7__message:nth-child(5n) .bubble7__message-avatar {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.bubble7__message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.bubble7__message-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 4px;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.bubble7__message-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #666666;
+  word-wrap: break-word;
+  margin-bottom: 4px;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.bubble7__message-time {
+  font-size: 11px;
+  color: #999999;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.bubble7__overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+/* ---------- 预览页布局 ---------- */
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: transparent;
+}
+
+.preview-page {
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.preview-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+/* 嵌入主界面时：内容与 frame 左上对齐，两状态完整呈现 */
+.bubble7-embed .preview-page {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  align-items: flex-start;
+}
+
+.bubble7-embed .preview-row {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bubble7-embed .bubble7 {
+  width: 100%;
+  height: 100%;
+}
+
+/* 嵌入时：遮罩和模糊由主界面负责，组件内展开层不绘制遮罩 */
+.bubble7-embed .bubble7__overlay.is-visible {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}

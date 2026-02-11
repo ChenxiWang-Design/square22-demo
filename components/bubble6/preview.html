@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bubble6 单独预览</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 20px;
+    }
+    
+    .preview-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    
+    .preview-title {
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .preview-instruction {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+  </style>
+  <link rel="stylesheet" href="bubble6.css" />
+</head>
+<body>
+  <div class="preview-container">
+    <h1 class="preview-title">Bubble6 预览</h1>
+    <p class="preview-instruction">
+      长按气泡 500ms 可展开<br>
+      点击遮罩可关闭展开态
+    </p>
+    
+    <div class="preview-page">
+      <div class="preview-row">
+        <div class="bubble6">
+          <div class="bubble6__default" id="bubble6-default" role="button" tabindex="0" aria-label="长按展开">
+            <img src="../../Pic/bubble6AIGC/Bubble6默认态.svg" alt="Bubble6 默认态" class="bubble6__default-img" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 展开态浮层：长按默认态后显示 -->
+  <div class="bubble6__overlay" id="bubble6-overlay" aria-hidden="true">
+    <div class="bubble6__overlay-backdrop" id="bubble6-backdrop"></div>
+    <div class="bubble6__expanded" id="bubble6-expanded">
+      <img src="../../Pic/bubble6AIGC/Bubble6展开态.svg" alt="Bubble6 展开态" class="bubble6__expanded-img" />
+    </div>
+  </div>
+
+  <script src="bubble6.js"></script>
+</body>
+</html>
