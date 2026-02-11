@@ -531,8 +531,8 @@ body {
 
 .r1-avatar-svg {
   display: block;
-  width: auto;
-  height: auto;
+  width: 360px;
+  height: 360px;
 }
 
 /* R1 眼睛容器 */
@@ -1468,8 +1468,8 @@ body {
 
 .r4-avatar-svg {
   display: block;
-  width: auto;
-  height: auto;
+  width: 360px;
+  height: 360px;
 }
 
 /* R4 眼睛容器（复制R1的眼睛动画组合） */
@@ -2464,8 +2464,8 @@ body {
 
 .r5-avatar-svg {
   display: block;
-  width: auto;
-  height: auto;
+  width: 360px;
+  height: 360px;
 }
 
 /* R5 耳朵（覆盖在头像上方，左顶点X196Y155） */
@@ -2807,7 +2807,11 @@ body {
   justify-content: center;
   animation: r1AvatarBreathing 3.2s ease-in-out infinite;
 }
-.r6-avatar-svg { display: block; width: auto; height: auto; }
+.r6-avatar-svg { 
+  display: block; 
+  width: 360px; 
+  height: 360px; 
+}
 /* R6 眼睛（R1状态与移动范围，四处张望） */
 .r6-eyes-container {
   position: absolute;
