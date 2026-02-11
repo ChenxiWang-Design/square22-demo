@@ -622,7 +622,7 @@
     /* bubble4：右中（Hi! 渐变球），默认态 184×100，展开态 230×280 */
     .main-frame .bubble-wrapper-bubble4 {
       right: 8px;
-      top: 350px;
+      top: 250px;
       width: 184px;
       height: 100px;
     }
@@ -693,6 +693,10 @@
     .main-frame .bubble-wrapper-bubble6.is-expanded {
       width: 235px;
       height: 286px;
+      z-index: 10001 !important;
+    }
+    .main-frame .iframe-bubble6.is-expanded {
+      z-index: 10001 !important;
     }
     /* bubble7：容器中心位置（向右偏移400px，向下偏移100px），默认态 158×178，展开态 223×274，置顶显示 */
     .main-frame .bubble-wrapper-bubble7 {
@@ -727,6 +731,10 @@
     .main-frame .bubble-wrapper-bubble7.is-expanded {
       width: 223px;
       height: 274px;
+      z-index: 10001 !important;
+    }
+    .main-frame .iframe-bubble7.is-expanded {
+      z-index: 10001 !important;
     }
     /* 主界面全屏遮罩：仅模糊、不变暗，任一气泡（含 bubble5、bubble6、bubble7）长按展开时显示，点击关闭 */
     .main-overlay {
