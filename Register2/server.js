@@ -290,6 +290,8 @@ app.listen(SERVER_PORT, HOST, () => {
   console.log(`移动端入口: http://${HOST}:${SERVER_PORT}/`);
   console.log(`API 密钥: ${process.env.CLAUDE_API_KEY ? '使用环境变量 CLAUDE_API_KEY' : '使用 server.js 内默认密钥'}`);
   console.log(`========================================`);
+  // 心跳：每 5 秒打一条，用于判断是进程自己退出还是被 Railway 停掉
+  setInterval(() => { console.log('[heartbeat] process alive'); }, 5000);
 });
 
 // 添加404处理，用于调试（必须在所有路由之后）
