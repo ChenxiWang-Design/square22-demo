@@ -2464,8 +2464,8 @@ body {
 
 .r5-avatar-svg {
   display: block;
-  width: 360px;
-  height: 360px;
+  width: 288px;
+  height: 288px;
 }
 
 /* R5 耳朵（覆盖在头像上方，左顶点X196Y155） */
@@ -2809,8 +2809,8 @@ body {
 }
 .r6-avatar-svg { 
   display: block; 
-  width: 360px; 
-  height: 360px; 
+  width: 288px; 
+  height: 288px; 
 }
 /* R6 眼睛（R1状态与移动范围，四处张望） */
 .r6-eyes-container {
