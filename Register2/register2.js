@@ -2028,13 +2028,21 @@ function initR4VoiceInput() {
   document.addEventListener('touchend', docPointerUp, { passive: false });
   document.addEventListener('touchcancel', docPointerUp, { passive: false });
 
+  function doBackToIdle() {
+    resultText.textContent = '';
+    setR4VoiceState('idle');
+  }
   if (backBtn) {
     backBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       e.preventDefault();
-      resultText.textContent = '';
-      setR4VoiceState('idle');
+      doBackToIdle();
     });
+    backBtn.addEventListener('touchend', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      doBackToIdle();
+    }, { passive: false });
   }
   function doSendFromResult() {
     var text = (resultText.textContent || '').trim();

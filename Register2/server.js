@@ -81,17 +81,27 @@ if (proxyAgent) {
   console.log('未使用代理，直接访问 Anthropic API');
 }
 
-// 启用CORS - 允许公网和本地访问
+// 启用CORS - 允许公网和本地访问（含 Vercel 等前端域名跨域请求 Railway）
 app.use(cors({
   origin: function (origin, callback) {
-    // 允许没有origin的请求（如移动应用、Postman等）
     if (!origin) return callback(null, true);
-    // 允许所有来源（生产环境可以限制特定域名）
     callback(null, true);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
 }));
 app.use(express.json());
+
+// 显式处理 /api/claude 预检，确保 Vercel 等跨域来源能通过
+app.options('/api/claude', function (req, res) {
+  const origin = req.headers.origin || '*';
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  res.sendStatus(204);
+});
 
 // 提供静态文件服务（HTML、CSS、JS等）
 // 将根目录设置为父目录，以便访问 ../Pic/Register/ 中的图片

@@ -1887,14 +1887,20 @@ body {
   transform: translateY(-50%);
   width: 52px;
   height: 52px;
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
-  z-index: 2;
+  z-index: 10;
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .page-4 .r4-voice-wrap .r4-voice-send-btn {
   position: absolute;
   right: 0;
-  top: 50%;
+  top: calc(50% - 20px);
   transform: translateY(-50%);
   width: 52px;
   height: 52px;
