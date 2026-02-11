@@ -806,9 +806,8 @@ async function callClaudeAPI(userMessage) {
   let fetchOptions;
   
   if (USE_LOCAL_PROXY) {
-    // 通过代理服务器调用（支持本地和公网）
-    // 优先使用环境变量或配置的API地址，否则使用localhost（本地开发）
-    const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+    // 通过代理服务器调用：同源访问，手机/电脑打开任意域名都请求当前域名下的 /api/claude（Railway、本地均可用）
+    const API_BASE_URL = window.API_BASE_URL || window.location.origin;
     API_URL = `${API_BASE_URL}/api/claude`;
     fetchOptions = {
       method: 'POST',
