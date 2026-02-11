@@ -284,14 +284,14 @@ const SERVER_PORT = process.env.PORT || PORT;
 
 app.listen(SERVER_PORT, HOST, () => {
   console.log(`========================================`);
+  // 部署排查：确认跑的是 Register2 的 server 且监听 Railway 提供的 PORT（若 __dirname 无 Register2 或 PORT 为 8080 则可能跑错服务）
+  console.log(`[deploy] __dirname=${__dirname} | process.env.PORT=${process.env.PORT} | 监听端口=${SERVER_PORT}`);
   console.log(`代理服务器运行在 http://${HOST}:${SERVER_PORT}`);
   console.log(`Claude API代理端点: http://${HOST}:${SERVER_PORT}/api/claude`);
   console.log(`健康检查端点: http://${HOST}:${SERVER_PORT}/health`);
   console.log(`移动端入口: http://${HOST}:${SERVER_PORT}/`);
   console.log(`API 密钥: ${process.env.CLAUDE_API_KEY ? '使用环境变量 CLAUDE_API_KEY' : '使用 server.js 内默认密钥'}`);
   console.log(`========================================`);
-  // 心跳：每 5 秒打一条，用于判断是进程自己退出还是被 Railway 停掉
-  setInterval(() => { console.log('[heartbeat] process alive'); }, 5000);
 });
 
 // 添加404处理，用于调试（必须在所有路由之后）
