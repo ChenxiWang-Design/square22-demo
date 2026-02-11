@@ -28,6 +28,20 @@ try {
 const app = express();
 const PORT = 3000;
 
+// Railway 等平台：防止未捕获错误导致进程静默退出，便于在日志中看到原因
+process.on('uncaughtException', function (err) {
+  console.error('[uncaughtException]', err && err.message, err && err.stack);
+});
+process.on('unhandledRejection', function (reason, p) {
+  console.error('[unhandledRejection]', reason, p);
+});
+
+// 最早注册 /health，避免受静态文件等中间件影响，Railway 健康检查可立即命中
+app.get('/health', function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.status(200).json({ status: 'ok' });
+});
+
 // 最先处理跨域：对 /api/claude 的预检(OPTIONS)和后续请求都加上 CORS 头，避免 Vercel 访问 Railway 被拦
 app.use('/api/claude', function (req, res, next) {
   const origin = req.headers.origin || '*';
@@ -248,11 +262,6 @@ app.post('/api/claude', async (req, res) => {
     console.error('代理错误:', error);
     res.status(500).json({ error: error.message });
   }
-});
-
-// 健康检查
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
 });
 
 // 根路径：返回移动端入口页面
