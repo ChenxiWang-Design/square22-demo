@@ -17,24 +17,24 @@ body {
   align-items: center;
   justify-content: center;
   background-color: #000000;
-  /* 使用动态视口高度，避免浏览器UI遮挡 */
+  /* 使用小视口高度(100svh)，键盘弹出时不变，避免输入姓名后界面整体上移 */
   min-height: 100vh;
-  min-height: 100dvh; /* 动态视口高度，排除浏览器UI */
+  min-height: 100dvh;
+  min-height: 100svh;
 }
 
-/* Register2 主容器：360x793，但使用动态高度适配 */
+/* Register2 主容器：高度用 100svh 避免键盘弹出时变化，防止上移与头像错位 */
 .register2-container {
   width: 360px;
-  /* 优先使用动态视口高度，保持793px比例，但适配实际屏幕 */
   height: min(793px, 100vh);
-  height: min(793px, 100dvh); /* 动态视口高度 */
-  max-height: 793px; /* 最大高度限制 */
+  height: min(793px, 100dvh);
+  height: min(793px, 100svh);
+  max-height: 793px;
   margin: 0;
   position: relative;
   overflow: hidden;
   background-color: #ffffff;
-  flex-shrink: 0; /* 防止容器被压缩 */
-  /* 确保在小屏幕上也能完整显示 */
+  flex-shrink: 0;
   box-sizing: border-box;
 }
 

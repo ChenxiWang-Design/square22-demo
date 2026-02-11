@@ -1946,9 +1946,17 @@ function initR4VoiceInput() {
       isListening = true;
       setR4VoiceState('recording');
       if (!micStream) {
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+        navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true } }).then(function (stream) {
           if (!micStream) {
             micStream = stream;
+            /* 用静音 audio 消耗麦克风流，避免部分设备把麦克风从扬声器回放 */
+            try {
+              var silent = document.createElement('audio');
+              silent.muted = true;
+              silent.autoplay = true;
+              silent.srcObject = stream;
+              silent.play().catch(function () {});
+            } catch (e) {}
             initR4Wave();
             runR4WaveLoop();
           }
