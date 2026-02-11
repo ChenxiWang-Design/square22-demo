@@ -68,11 +68,25 @@ let lastHeight = window.innerHeight;
 window.addEventListener('resize', () => {
   const currentHeight = window.innerHeight;
   if (Math.abs(currentHeight - lastHeight) > 50) {
-    // 高度变化超过50px，可能是浏览器UI显示/隐藏
     setTimeout(adjustViewportForBrowserUI, 100);
     lastHeight = currentHeight;
   }
 });
+
+/** 进入 APP 时预先请求麦克风权限，避免在 R4 长按时才弹窗导致误触或打断 */
+function requestMicPermissionOnLoad() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(function (stream) {
+      stream.getTracks().forEach(function (t) { t.stop(); });
+    })
+    .catch(function () {});
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', requestMicPermissionOnLoad);
+} else {
+  requestMicPermissionOnLoad();
+}
 
 // 分身名称变量（全局变量，供多个页面复用）
 let 分身名称 = '';
@@ -89,70 +103,51 @@ function resetPageScroll() {
   if (document.body) document.body.scrollTop = 0;
 }
 
-/** R1 输入框聚焦时保存的滚动位置，用于 blur 时恢复（手机端防上移） */
-var r1InputScrollY = 0;
-
 /**
- * 打开R1输入框（手机端：聚焦时锁定页面不随键盘上移，失焦时恢复）
+ * 打开R1输入框：使用蒙层输入，键盘只影响蒙层，主界面不移动、不缩小（手机端）
  */
 function openR1Input() {
-  const input = document.getElementById('r1-avatar-name-input');
-  const display = document.getElementById('r1-avatar-name-display');
-  
-  if (input && display) {
-    // 显示输入框
-    input.style.display = 'block';
-    input.value = 分身名称; // 如果有已输入的内容，显示出来
-    input.focus();
-    input.select(); // 选中已有文本
+  var overlay = document.getElementById('r1-name-overlay');
+  var overlayInput = document.getElementById('r1-name-overlay-input');
+  var overlayCancel = document.getElementById('r1-name-overlay-cancel');
+  var overlayConfirm = document.getElementById('r1-name-overlay-confirm');
+  var display = document.getElementById('r1-avatar-name-display');
+  if (!overlay || !overlayInput || !display) return;
 
-    // 手机端：输入时锁定页面不移动（防止键盘顶起导致整体上移）
-    function lockBodyForInput() {
-      r1InputScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
-      document.body.style.position = 'fixed';
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      document.body.style.top = '-' + r1InputScrollY + 'px';
-      document.body.style.overflow = 'hidden';
-      document.body.style.width = '100%';
-    }
-    function unlockBodyAfterInput() {
-      document.body.style.position = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.top = '';
-      document.body.style.overflow = '';
-      document.body.style.width = '';
-      window.scrollTo(0, r1InputScrollY);
-    }
-    setTimeout(lockBodyForInput, 50);
+  overlay.setAttribute('aria-hidden', 'false');
+  overlay.style.display = 'flex';
+  overlayInput.value = 分身名称;
+  overlayInput.focus();
 
-    // 输入框事件处理
-    input.onblur = function() {
-      // 先恢复页面滚动（再改 DOM），避免界面错位
-      unlockBodyAfterInput();
-      // 失去焦点时保存并隐藏输入框
-      分身名称 = input.value.trim();
-      display.textContent = 分身名称;
-      input.style.display = 'none';
-      resetPageScroll();
-      updateR1NextButtonState();
-    };
-    
-    input.onkeydown = function(e) {
-      if (e.key === 'Enter') {
-        input.blur();
-      } else if (e.key === 'Escape') {
-        input.value = 分身名称;
-        input.blur();
-      }
-    };
-    
-    input.oninput = function() {
-      display.textContent = input.value;
-      updateR1NextButtonState();
-    };
+  function closeOverlay() {
+    overlay.style.display = 'none';
+    overlay.setAttribute('aria-hidden', 'true');
+    resetPageScroll();
   }
+
+  function confirmOverlay() {
+    分身名称 = overlayInput.value.trim();
+    display.textContent = 分身名称;
+    closeOverlay();
+    updateR1NextButtonState();
+  }
+
+  overlayCancel.onclick = function () {
+    overlayInput.value = 分身名称;
+    closeOverlay();
+  };
+  overlayConfirm.onclick = function () { confirmOverlay(); };
+  overlay.querySelector('.r1-name-overlay-backdrop').onclick = function () {
+    overlayInput.value = 分身名称;
+    closeOverlay();
+  };
+  overlayInput.onkeydown = function (e) {
+    if (e.key === 'Enter') confirmOverlay();
+    if (e.key === 'Escape') {
+      overlayInput.value = 分身名称;
+      closeOverlay();
+    }
+  };
 }
 
 /**
@@ -1848,29 +1843,15 @@ function initR4VoiceInput() {
   let holdTimer = null;
   let waveBars = [];
   let waveAnimId = null;
-  let micStream = null;
-  let r4SilentAudio = null; /* 静音 audio 消耗麦克风流，避免手机端从扬声器回放 */
-  let audioContext = null;
-  let analyser = null;
-  let freqData = null;
 
+  /* R4 不再请求麦克风流，仅用语音识别，避免手机端从扬声器回放自己声音 */
   r4VoiceReleaseMic = function () {
     stopR4Wave();
-    if (r4SilentAudio) {
-      try { r4SilentAudio.srcObject = null; } catch (e) {}
-      if (r4SilentAudio.parentNode) r4SilentAudio.parentNode.removeChild(r4SilentAudio);
-      r4SilentAudio = null;
-    }
-    if (micStream) {
-      micStream.getTracks().forEach(function (t) { t.stop(); });
-      micStream = null;
-    }
   };
+
   const BASE_H = 2;
   const MIN_H = 1;
   const MAX_H = 16;
-  const VISIBLE_BARS = 48;
-  const VOLUME_THRESHOLD = 18;
 
   function setR4VoiceState(state) {
     layerIdle.classList.remove('active');
@@ -1884,12 +1865,8 @@ function initR4VoiceInput() {
     } else if (state === 'recording') {
       layerRecording.classList.add('active');
       hit.style.display = '';
-      if (micStream) {
-        initR4Wave();
-        runR4WaveLoop();
-      } else {
-        runR4WaveLoop();
-      }
+      initR4WaveFake();
+      runR4WaveLoopFake();
     } else {
       layerResult.classList.add('active');
       wrap.classList.add('r4-voice-state-result');
@@ -1897,46 +1874,26 @@ function initR4VoiceInput() {
     }
   }
 
-  /** 仅用已有流初始化波形（不再在此处调用 getUserMedia，避免与语音识别重复请求） */
-  function initR4Wave() {
-    if (!waveSvg || !micStream) return;
+  /** 假波形：只取 DOM 条形，不请求麦克风 */
+  function initR4WaveFake() {
+    if (!waveSvg) return;
     waveBars = Array.from(waveSvg.querySelectorAll('.r4-voice-wave-bar'));
     waveBars.forEach(function (b) { b.style.transform = 'scaleY(1)'; });
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = 0.6;
-    // 仅做波形分析，不连接 destination，避免麦克风声音从扬声器播放
-    var src = audioContext.createMediaStreamSource(micStream);
-    src.connect(analyser);
-    freqData = new Uint8Array(analyser.frequencyBinCount);
   }
 
-  function runR4WaveLoop() {
+  /** 假波形动画：识别中显示动效，不依赖麦克风数据，绝不播放声音 */
+  function runR4WaveLoopFake() {
     if (waveAnimId != null) return;
+    var startTime = Date.now();
     function animate() {
       if (!layerRecording.classList.contains('active')) {
         waveAnimId = null;
         return;
       }
-      var avg = 0, binPerBar = 0;
-      if (analyser && freqData && freqData.length) {
-        analyser.getByteFrequencyData(freqData);
-        for (var i = 0; i < freqData.length; i++) avg += freqData[i];
-        avg = avg / freqData.length;
-        binPerBar = Math.max(1, Math.floor(freqData.length / VISIBLE_BARS));
-      }
+      var t = (Date.now() - startTime) / 200;
       waveBars.forEach(function (bar, index) {
-        var barIndex = index % VISIBLE_BARS;
-        if (avg < VOLUME_THRESHOLD || !freqData || !binPerBar) {
-          bar.style.transform = 'scaleY(1)';
-          return;
-        }
-        var sum = 0, start = barIndex * binPerBar, end = Math.min(start + binPerBar, freqData.length);
-        for (var j = start; j < end; j++) sum += freqData[j];
-        var val = end > start ? sum / (end - start) : 0;
-        var normalized = Math.min(255, val) / 255;
-        var h = MIN_H + normalized * (MAX_H - MIN_H);
+        var noise = 0.7 + 0.3 * Math.sin(t + index * 0.5);
+        var h = MIN_H + noise * (MAX_H - MIN_H);
         bar.style.transform = 'scaleY(' + (h / BASE_H) + ')';
       });
       waveAnimId = requestAnimationFrame(animate);
@@ -1944,23 +1901,15 @@ function initR4VoiceInput() {
     animate();
   }
 
-  /** 停止波形动画并释放 AudioContext，但不释放麦克风流，以便下次按住时不再弹授权 */
   function stopR4Wave() {
     if (waveAnimId != null) {
       cancelAnimationFrame(waveAnimId);
       waveAnimId = null;
     }
     if (waveBars.length) waveBars.forEach(function (b) { b.style.transform = 'scaleY(1)'; });
-    if (audioContext) {
-      audioContext.close().catch(function () {});
-      audioContext = null;
-    }
-    analyser = null;
-    freqData = null;
-    /* 不在此处 stop micStream，保留流以便复用，仅离开 R4 页面时释放 */
   }
 
-  /** 在用户点击时同步调用，保证 recognition.start() 在用户手势内，否则识别会失败 */
+  /** 仅用语音识别，不请求 getUserMedia，保证不播放自己声音 */
   function startListening() {
     if (isListening) return;
     finalTranscript = '';
@@ -1971,34 +1920,6 @@ function initR4VoiceInput() {
     recognition.onstart = function () {
       isListening = true;
       setR4VoiceState('recording');
-      if (!micStream) {
-        navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true } }).then(function (stream) {
-          if (!micStream) {
-            micStream = stream;
-            /* 手机端：用静音 audio 消耗麦克风流，避免从扬声器回放；先 muted、playsInline 再设 srcObject */
-            try {
-              if (r4SilentAudio) {
-                try { r4SilentAudio.srcObject = null; } catch (e) {}
-                if (r4SilentAudio.parentNode) r4SilentAudio.parentNode.removeChild(r4SilentAudio);
-              }
-              var silent = document.createElement('audio');
-              silent.muted = true;
-              silent.setAttribute('muted', 'muted');
-              silent.setAttribute('playsinline', 'playsinline');
-              silent.setAttribute('webkit-playsinline', 'webkit-playsinline');
-              silent.autoplay = true;
-              silent.volume = 0;
-              silent.style.cssText = 'position:absolute;width:0;height:0;pointer-events:none;opacity:0;';
-              document.body.appendChild(silent);
-              silent.srcObject = stream;
-              r4SilentAudio = silent;
-              silent.play().catch(function () {});
-            } catch (e) {}
-            initR4Wave();
-            runR4WaveLoop();
-          }
-        }).catch(function () {});
-      }
     };
     recognition.onresult = function (e) {
       var any = '';
@@ -2031,13 +1952,12 @@ function initR4VoiceInput() {
     isListening = false;
   }
 
-  /** 点击时先同步启动语音识别（保证在用户手势内），波形在 onstart 或此处用已有流初始化 */
   function ensureMicAndStartRecording() {
     if (layerResult.classList.contains('active')) {
       resultText.textContent = '';
     }
     startListening();
-    if (micStream) setR4VoiceState('recording');
+    setR4VoiceState('recording');
   }
 
   function onPointerDown(e) {

@@ -10,6 +10,18 @@
   <link rel="stylesheet" href="register2.css">
 </head>
 <body>
+  <!-- R1 姓名输入蒙层：键盘只影响蒙层，主界面不移动、不缩小 -->
+  <div id="r1-name-overlay" class="r1-name-overlay" style="display:none;" aria-hidden="true">
+    <div class="r1-name-overlay-backdrop"></div>
+    <div class="r1-name-overlay-box">
+      <label class="r1-name-overlay-label">请输入分身名称</label>
+      <input type="text" id="r1-name-overlay-input" class="r1-name-overlay-input" placeholder="请输入名称" maxlength="20" />
+      <div class="r1-name-overlay-actions">
+        <button type="button" id="r1-name-overlay-cancel" class="r1-name-overlay-btn r1-name-overlay-cancel">取消</button>
+        <button type="button" id="r1-name-overlay-confirm" class="r1-name-overlay-btn r1-name-overlay-confirm">确定</button>
+      </div>
+    </div>
+  </div>
   <div class="register2-container">
     <div class="page-wrapper">
       <!-- R1 页面 -->

@@ -282,10 +282,10 @@ body {
   pointer-events: none;
 }
 
-/* R1 隐藏的输入框 */
+/* R1 隐藏的输入框（保留用于兼容，实际输入在蒙层内） */
 .r1-avatar-name-input {
   position: absolute;
-  top: 448px; /* 与显示文本位置对齐 */
+  top: 448px;
   left: 50%;
   transform: translateX(-50%);
   width: 280px;
@@ -293,12 +293,83 @@ body {
   font-family: "HarmonyOS Sans SC Bold", "PingFang SC Bold", "Microsoft YaHei Bold", sans-serif;
   font-size: 16px;
   font-weight: 700;
-  color: rgba(0, 0, 0, 0.38); /* 黑色，透明度38% */
+  color: rgba(0, 0, 0, 0.38);
   border: none;
   background: transparent;
   outline: none;
   text-align: center;
   z-index: 100;
+}
+
+/* R1 姓名输入蒙层：全屏固定，键盘只影响蒙层，主界面不动 */
+.r1-name-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.r1-name-overlay-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.r1-name-overlay-box {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+.r1-name-overlay-label {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 12px;
+}
+.r1-name-overlay-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  outline: none;
+}
+.r1-name-overlay-input:focus {
+  border-color: #007AFF;
+}
+.r1-name-overlay-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+.r1-name-overlay-btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.r1-name-overlay-cancel {
+  background: #f0f0f0;
+  color: #333;
+}
+.r1-name-overlay-confirm {
+  background: #007AFF;
+  color: #fff;
 }
 
 /* R1 用户称呼下拉菜单 */
