@@ -284,8 +284,7 @@ const SERVER_PORT = process.env.PORT || PORT;
 
 app.listen(SERVER_PORT, HOST, () => {
   console.log(`========================================`);
-  // 部署排查：确认跑的是 Register2 的 server 且监听 Railway 提供的 PORT（若 __dirname 无 Register2 或 PORT 为 8080 则可能跑错服务）
-  console.log(`[deploy] __dirname=${__dirname} | process.env.PORT=${process.env.PORT} | 监听端口=${SERVER_PORT}`);
+  console.log(`[deploy] 监听端口=${SERVER_PORT} (PORT=${process.env.PORT || '未设置'})`);
   console.log(`代理服务器运行在 http://${HOST}:${SERVER_PORT}`);
   console.log(`Claude API代理端点: http://${HOST}:${SERVER_PORT}/api/claude`);
   console.log(`健康检查端点: http://${HOST}:${SERVER_PORT}/health`);
