@@ -11,12 +11,14 @@ const Register2Config = {
 
 /**
  * 调整视口以适应浏览器UI（解决移动端浏览器遮挡问题）
+ * 当 R1 姓名蒙层打开时不再调整，避免打字时键盘导致主界面上移（iPhone 等）
  */
 function adjustViewportForBrowserUI() {
+  var overlay = document.getElementById('r1-name-overlay');
+  if (overlay && overlay.style.display === 'flex') return;
   const container = document.querySelector('.register2-container');
   if (!container) return;
   
-  // 获取实际可用视口高度（排除浏览器UI）
   const availableHeight = window.innerHeight;
   const availableWidth = window.innerWidth;
   
@@ -2035,17 +2037,25 @@ function initR4VoiceInput() {
       setR4VoiceState('idle');
     });
   }
+  function doSendFromResult() {
+    var text = (resultText.textContent || '').trim();
+    if (text) {
+      sendR4Message(text);
+      resultText.textContent = '';
+      setR4VoiceState('idle');
+    }
+  }
   if (sendBtn) {
     sendBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       e.preventDefault();
-      var text = (resultText.textContent || '').trim();
-      if (text) {
-        sendR4Message(text);
-        resultText.textContent = '';
-        setR4VoiceState('idle');
-      }
+      doSendFromResult();
     });
+    sendBtn.addEventListener('touchend', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      doSendFromResult();
+    }, { passive: false });
   }
 
   setR4VoiceState('idle');
