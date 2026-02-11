@@ -89,8 +89,11 @@ function resetPageScroll() {
   if (document.body) document.body.scrollTop = 0;
 }
 
+/** R1 输入框聚焦时保存的滚动位置，用于 blur 时恢复（手机端防上移） */
+var r1InputScrollY = 0;
+
 /**
- * 打开R1输入框
+ * 打开R1输入框（手机端：聚焦时锁定页面不随键盘上移，失焦时恢复）
  */
 function openR1Input() {
   const input = document.getElementById('r1-avatar-name-input');
@@ -102,34 +105,51 @@ function openR1Input() {
     input.value = 分身名称; // 如果有已输入的内容，显示出来
     input.focus();
     input.select(); // 选中已有文本
-    
+
+    // 手机端：输入时锁定页面不移动（防止键盘顶起导致整体上移）
+    function lockBodyForInput() {
+      r1InputScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+      document.body.style.position = 'fixed';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.top = '-' + r1InputScrollY + 'px';
+      document.body.style.overflow = 'hidden';
+      document.body.style.width = '100%';
+    }
+    function unlockBodyAfterInput() {
+      document.body.style.position = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.top = '';
+      document.body.style.overflow = '';
+      document.body.style.width = '';
+      window.scrollTo(0, r1InputScrollY);
+    }
+    setTimeout(lockBodyForInput, 50);
+
     // 输入框事件处理
     input.onblur = function() {
+      // 先恢复页面滚动（再改 DOM），避免界面错位
+      unlockBodyAfterInput();
       // 失去焦点时保存并隐藏输入框
       分身名称 = input.value.trim();
       display.textContent = 分身名称;
       input.style.display = 'none';
-      // 手机端：键盘收起后恢复滚动位置，避免界面整体上移、顶部被遮挡
       resetPageScroll();
-      // 更新下一步按钮状态
       updateR1NextButtonState();
     };
     
     input.onkeydown = function(e) {
       if (e.key === 'Enter') {
-        // 按回车键确认输入
         input.blur();
       } else if (e.key === 'Escape') {
-        // 按ESC键取消
         input.value = 分身名称;
         input.blur();
       }
     };
     
-    // 实时更新显示文本和按钮状态
     input.oninput = function() {
       display.textContent = input.value;
-      // 实时检查按钮状态（输入中）
       updateR1NextButtonState();
     };
   }
@@ -1829,12 +1849,18 @@ function initR4VoiceInput() {
   let waveBars = [];
   let waveAnimId = null;
   let micStream = null;
+  let r4SilentAudio = null; /* 静音 audio 消耗麦克风流，避免手机端从扬声器回放 */
   let audioContext = null;
   let analyser = null;
   let freqData = null;
 
   r4VoiceReleaseMic = function () {
     stopR4Wave();
+    if (r4SilentAudio) {
+      try { r4SilentAudio.srcObject = null; } catch (e) {}
+      if (r4SilentAudio.parentNode) r4SilentAudio.parentNode.removeChild(r4SilentAudio);
+      r4SilentAudio = null;
+    }
     if (micStream) {
       micStream.getTracks().forEach(function (t) { t.stop(); });
       micStream = null;
@@ -1949,12 +1975,23 @@ function initR4VoiceInput() {
         navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true } }).then(function (stream) {
           if (!micStream) {
             micStream = stream;
-            /* 用静音 audio 消耗麦克风流，避免部分设备把麦克风从扬声器回放 */
+            /* 手机端：用静音 audio 消耗麦克风流，避免从扬声器回放；先 muted、playsInline 再设 srcObject */
             try {
+              if (r4SilentAudio) {
+                try { r4SilentAudio.srcObject = null; } catch (e) {}
+                if (r4SilentAudio.parentNode) r4SilentAudio.parentNode.removeChild(r4SilentAudio);
+              }
               var silent = document.createElement('audio');
               silent.muted = true;
+              silent.setAttribute('muted', 'muted');
+              silent.setAttribute('playsinline', 'playsinline');
+              silent.setAttribute('webkit-playsinline', 'webkit-playsinline');
               silent.autoplay = true;
+              silent.volume = 0;
+              silent.style.cssText = 'position:absolute;width:0;height:0;pointer-events:none;opacity:0;';
+              document.body.appendChild(silent);
               silent.srcObject = stream;
+              r4SilentAudio = silent;
               silent.play().catch(function () {});
             } catch (e) {}
             initR4Wave();
