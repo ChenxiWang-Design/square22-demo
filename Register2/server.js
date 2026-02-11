@@ -28,6 +28,19 @@ try {
 const app = express();
 const PORT = 3000;
 
+// 最先处理跨域：对 /api/claude 的预检(OPTIONS)和后续请求都加上 CORS 头，避免 Vercel 访问 Railway 被拦
+app.use('/api/claude', function (req, res, next) {
+  const origin = req.headers.origin || '*';
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 // 自动解析代理：环境变量 > Windows 系统代理 > 默认 7890（Clash 常见），无需在 bat 里手动 set
 // 注意：在 Railway/Vercel 等云平台部署时，不使用本地代理
 function getProxyUrl() {
@@ -81,27 +94,14 @@ if (proxyAgent) {
   console.log('未使用代理，直接访问 Anthropic API');
 }
 
-// 启用CORS - 允许公网和本地访问（含 Vercel 等前端域名跨域请求 Railway）
+// 全局 CORS（其他路由也允许）
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    callback(null, true);
-  },
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 }));
 app.use(express.json());
-
-// 显式处理 /api/claude 预检，确保 Vercel 等跨域来源能通过
-app.options('/api/claude', function (req, res) {
-  const origin = req.headers.origin || '*';
-  res.setHeader('Access-Control-Allow-Origin', origin);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Max-Age', '86400');
-  res.sendStatus(204);
-});
 
 // 提供静态文件服务（HTML、CSS、JS等）
 // 将根目录设置为父目录，以便访问 ../Pic/Register/ 中的图片
