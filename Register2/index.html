@@ -944,14 +944,16 @@
       const targetHeight = Math.min(793, dvh);
       container.style.height = targetHeight + 'px';
       
-      // 如果高度小于793px，按比例缩放内容
+      // 如果高度小于793px，按比例缩放内容；使用 top center 避免键盘弹出时顶部被顶出视口
       if (dvh < 793) {
         const scale = dvh / 793;
         container.style.transform = `scale(${scale})`;
-        container.style.transformOrigin = 'center center';
+        container.style.transformOrigin = 'top center';
       } else {
         container.style.transform = 'none';
       }
+      // 保持滚动在顶部，避免键盘收起后界面仍处于“上移”状态
+      window.scrollTo(0, 0);
     }
     
     // 页面加载时调整

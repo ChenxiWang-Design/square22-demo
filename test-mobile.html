@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>手机访问测试</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #000;
+      color: #fff;
+    }
+    .test-item {
+      margin: 20px 0;
+      padding: 15px;
+      background: #222;
+      border-radius: 8px;
+    }
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success { background: #0a0; }
+    .error { background: #a00; }
+    .loading { background: #aa0; }
+  </style>
+</head>
+<body>
+  <h1>手机访问测试页面</h1>
+  
+  <div class="test-item">
+    <h3>1. 页面加载测试</h3>
+    <div id="page-load-status" class="status loading">加载中...</div>
+  </div>
+  
+  <div class="test-item">
+    <h3>2. API配置测试</h3>
+    <div id="api-config-status" class="status loading">检查中...</div>
+  </div>
+  
+  <div class="test-item">
+    <h3>3. Railway API连接测试</h3>
+    <button onclick="testRailwayAPI()">测试连接</button>
+    <div id="railway-status" class="status" style="display:none;"></div>
+  </div>
+  
+  <div class="test-item">
+    <h3>4. Vercel静态资源测试</h3>
+    <div id="static-status" class="status loading">检查中...</div>
+  </div>
+
+  <script src="api-config.js"></script>
+  <script>
+    // 1. 页面加载测试
+    window.addEventListener('load', () => {
+      document.getElementById('page-load-status').textContent = '页面加载成功';
+      document.getElementById('page-load-status').className = 'status success';
+    });
+
+    // 2. API配置测试
+    setTimeout(() => {
+      const apiUrl = window.API_BASE_URL || '未设置';
+      const statusEl = document.getElementById('api-config-status');
+      if (apiUrl && apiUrl !== '未设置') {
+        statusEl.textContent = `API地址: ${apiUrl}`;
+        statusEl.className = 'status success';
+      } else {
+        statusEl.textContent = 'API配置未加载';
+        statusEl.className = 'status error';
+      }
+    }, 500);
+
+    // 3. Railway API连接测试
+    async function testRailwayAPI() {
+      const statusEl = document.getElementById('railway-status');
+      statusEl.style.display = 'block';
+      statusEl.textContent = '测试中...';
+      statusEl.className = 'status loading';
+      
+      const apiUrl = window.API_BASE_URL || 'https://square22-demo-production.up.railway.app';
+      
+      try {
+        // 先测试健康检查端点
+        const healthUrl = `${apiUrl}/health`;
+        console.log('测试:', healthUrl);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const response = await fetch(healthUrl, {
+          method: 'GET',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          const data = await response.text();
+          statusEl.textContent = `连接成功！状态: ${response.status}`;
+          statusEl.className = 'status success';
+        } else {
+          statusEl.textContent = `连接失败：${response.status} ${response.statusText}`;
+          statusEl.className = 'status error';
+        }
+      } catch (error) {
+        statusEl.textContent = `错误: ${error.message}`;
+        statusEl.className = 'status error';
+        console.error('测试错误:', error);
+      }
+    }
+
+    // 4. 静态资源测试
+    setTimeout(() => {
+      const img = new Image();
+      img.onload = () => {
+        document.getElementById('static-status').textContent = '静态资源加载正常';
+        document.getElementById('static-status').className = 'status success';
+      };
+      img.onerror = () => {
+        document.getElementById('static-status').textContent = '静态资源加载失败';
+        document.getElementById('static-status').className = 'status error';
+      };
+      img.src = '/Pic/Square/Vector Field Generator.jpg';
+    }, 1000);
+  </script>
+</body>
+</html>

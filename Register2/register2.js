@@ -9,11 +9,85 @@ const Register2Config = {
   animationDuration: 300
 };
 
+/**
+ * 调整视口以适应浏览器UI（解决移动端浏览器遮挡问题）
+ */
+function adjustViewportForBrowserUI() {
+  const container = document.querySelector('.register2-container');
+  if (!container) return;
+  
+  // 获取实际可用视口高度（排除浏览器UI）
+  const availableHeight = window.innerHeight;
+  const availableWidth = window.innerWidth;
+  
+  // 设计尺寸：360x793
+  const designWidth = 360;
+  const designHeight = 793;
+  const designRatio = designHeight / designWidth;
+  
+  // 计算最佳显示尺寸
+  let containerWidth = Math.min(designWidth, availableWidth);
+  let containerHeight = containerWidth * designRatio;
+  
+  // 如果计算出的高度超过可用高度，按高度缩放
+  if (containerHeight > availableHeight) {
+    containerHeight = availableHeight;
+    containerWidth = containerHeight / designRatio;
+  }
+  
+  // 应用尺寸
+  container.style.width = containerWidth + 'px';
+  container.style.height = containerHeight + 'px';
+  container.style.transform = `scale(${containerWidth / designWidth})`;
+  container.style.transformOrigin = 'center center';
+  
+  console.log('视口调整:', {
+    availableHeight,
+    availableWidth,
+    containerWidth,
+    containerHeight,
+    scale: containerWidth / designWidth
+  });
+}
+
+// 页面加载完成后调整视口
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', adjustViewportForBrowserUI);
+} else {
+  adjustViewportForBrowserUI();
+}
+
+// 监听窗口大小变化和方向变化
+window.addEventListener('resize', adjustViewportForBrowserUI);
+window.addEventListener('orientationchange', () => {
+  setTimeout(adjustViewportForBrowserUI, 100);
+});
+
+// 监听视口变化（移动端浏览器UI显示/隐藏）
+let lastHeight = window.innerHeight;
+window.addEventListener('resize', () => {
+  const currentHeight = window.innerHeight;
+  if (Math.abs(currentHeight - lastHeight) > 50) {
+    // 高度变化超过50px，可能是浏览器UI显示/隐藏
+    setTimeout(adjustViewportForBrowserUI, 100);
+    lastHeight = currentHeight;
+  }
+});
+
 // 分身名称变量（全局变量，供多个页面复用）
 let 分身名称 = '';
 
 // 用户称呼变量（全局变量，供多个页面复用）
 let 用户称呼 = '';
+
+/**
+ * 重置页面滚动位置（解决手机端键盘收起或切换页面后界面整体上移、顶部被遮挡）
+ */
+function resetPageScroll() {
+  if (typeof window.scrollTo === 'function') window.scrollTo(0, 0);
+  if (document.documentElement) document.documentElement.scrollTop = 0;
+  if (document.body) document.body.scrollTop = 0;
+}
 
 /**
  * 打开R1输入框
@@ -35,7 +109,8 @@ function openR1Input() {
       分身名称 = input.value.trim();
       display.textContent = 分身名称;
       input.style.display = 'none';
-      
+      // 手机端：键盘收起后恢复滚动位置，避免界面整体上移、顶部被遮挡
+      resetPageScroll();
       // 更新下一步按钮状态
       updateR1NextButtonState();
     };
@@ -281,6 +356,8 @@ function showPage(pageNumber) {
     targetPage.classList.add('active');
     Register2Config.currentPage = pageNumber;
     updateProgressIndicator();
+    // 手机端：切换页面后恢复滚动位置，避免顶部被遮挡
+    resetPageScroll();
     
     // R2页面：更新分身名称显示
     if (pageNumber === 2) {
@@ -1803,7 +1880,7 @@ function initR4VoiceInput() {
     analyser = audioContext.createAnalyser();
     analyser.fftSize = 256;
     analyser.smoothingTimeConstant = 0.6;
-    analyser.connect(audioContext.destination);
+    // 仅做波形分析，不连接 destination，避免麦克风声音从扬声器播放
     var src = audioContext.createMediaStreamSource(micStream);
     src.connect(analyser);
     freqData = new Uint8Array(analyser.frequencyBinCount);
