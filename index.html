@@ -378,7 +378,7 @@
       display: none;
       transition: left 0.35s ease, top 0.35s ease, transform 0.35s ease;
     }
-    .state2-avatar-icon.is-visible { display: block; }
+    .state2-avatar-icon.is-visible { display: block; pointer-events: auto; }
     /* 默认收拢：与渐变圆中心一致 (309,630)，缩放 0.1 */
     .state2-avatar-icon.icon-301-584 {
       left: 309px;
@@ -417,7 +417,7 @@
       display: none;
       transition: transform 0.35s ease;
     }
-    .state2-avatar-glow.is-visible { display: block; }
+    .state2-avatar-glow.is-visible { display: block; pointer-events: auto; cursor: pointer; }
     .main-frame.state2-avatars-expanded .state2-avatar-glow {
       transform: translate(-50%, -50%) scale(1);
     }
@@ -1229,16 +1229,37 @@
         if (icon301) icon301.classList.add("is-visible");
         if (icon251) icon251.classList.add("is-visible");
 
-        // 点击 R6 头像（圆圈出的那个）：切换渐变圆与两个头像 ICON 的收拢/展开
+        // 点击 R6 头像（热区限制为直径 50px 的圆）：切换渐变圆与两个头像 ICON 的收拢/展开；点击即切换，收拢/展开态一致
+        var mainFrame = document.querySelector(".main-frame");
+        var avatarHotZoneRadius = 25;
+        function isInAvatarHotZone(clientX, clientY) {
+          if (!squareDialogFace || !squareDialogFace.classList.contains("is-visible")) return false;
+          var r = squareDialogFace.getBoundingClientRect();
+          var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          return Math.hypot(clientX - cx, clientY - cy) <= avatarHotZoneRadius;
+        }
+        function tryToggleAvatarsExpand(e) {
+          var x = e.clientX, y = e.clientY;
+          if (e.type === "touchend" && e.changedTouches && e.changedTouches.length) { x = e.changedTouches[0].clientX; y = e.changedTouches[0].clientY; }
+          if (!isInAvatarHotZone(x, y)) return;
+          e.stopPropagation();
+          if (mainFrame && squareDialogFace.classList.contains("is-visible")) mainFrame.classList.toggle("state2-avatars-expanded");
+        }
         if (squareDialogFace) {
-          var mainFrame = document.querySelector(".main-frame");
-          function toggleAvatarsExpand() {
-            if (mainFrame && squareDialogFace.classList.contains("is-visible")) {
-              mainFrame.classList.toggle("state2-avatars-expanded");
-            }
-          }
-          squareDialogFace.addEventListener("click", function(e) { e.stopPropagation(); toggleAvatarsExpand(); });
-          squareDialogFace.addEventListener("touchend", function(e) { e.stopPropagation(); toggleAvatarsExpand(); });
+          squareDialogFace.addEventListener("click", tryToggleAvatarsExpand);
+          squareDialogFace.addEventListener("touchend", tryToggleAvatarsExpand);
+        }
+        if (avatarGlow) {
+          avatarGlow.addEventListener("click", tryToggleAvatarsExpand);
+          avatarGlow.addEventListener("touchend", tryToggleAvatarsExpand);
+        }
+        if (icon301) {
+          icon301.addEventListener("click", tryToggleAvatarsExpand);
+          icon301.addEventListener("touchend", tryToggleAvatarsExpand);
+        }
+        if (icon251) {
+          icon251.addEventListener("click", tryToggleAvatarsExpand);
+          icon251.addEventListener("touchend", tryToggleAvatarsExpand);
         }
 
         if (introDecided) {
