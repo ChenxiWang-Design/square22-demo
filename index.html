@@ -1358,6 +1358,7 @@
       }
       var activeIframe = null;
       var bubblesHidden = false;
+      var toggleTimeoutIds = []; // 用于取消上一轮切换的定时器，避免重复点击导致只显示/只隐藏一部分
       var mainFrame = document.querySelector(".main-frame");
       
       // 调试：检查 bubble6 iframe 加载状态
@@ -1695,6 +1696,10 @@
 
       /** 切换所有气泡的显示/隐藏状态，带随机延迟 */
       function toggleBubblesVisibility() {
+        // 取消上一轮切换的所有定时器，避免“只消失/只出现一部分”的错乱
+        toggleTimeoutIds.forEach(function(id) { clearTimeout(id); });
+        toggleTimeoutIds.length = 0;
+
         bubblesHidden = !bubblesHidden;
         var wrappers = [
           document.getElementById("wrapper-bubble1"),
@@ -1715,45 +1720,36 @@
               // 隐藏：随机延迟 0-500ms
               var delay = Math.random() * 500;
               maxDelay = Math.max(maxDelay, delay);
-              setTimeout(function() {
-                // 移除显示动画类（如果存在）
+              var tid = setTimeout(function() {
                 wrapper.classList.remove("is-showing");
-                // 强制浏览器重新计算样式，确保从当前状态开始动画
                 void wrapper.offsetWidth;
-                // 添加隐藏动画类
                 wrapper.classList.add("is-hidden");
               }, delay);
+              toggleTimeoutIds.push(tid);
             } else {
               // 显示：随机延迟 0-500ms
               var delay = Math.random() * 500;
-              setTimeout(function() {
-                // 清除拖拽/惯性设置的内联 transform 和 transition，避免覆盖显示动画和最终状态
-                // 注意：bubble6和bubble7使用居中定位，需要保留transform
+              var tidOuter = setTimeout(function() {
                 if (wrapper.id !== "wrapper-bubble6" && wrapper.id !== "wrapper-bubble7") {
                   wrapper.style.transform = "";
                 }
                 wrapper.style.transition = "";
-                // 移除隐藏动画类
                 wrapper.classList.remove("is-hidden");
-                // 强制浏览器重新计算样式，确保从 scale(0.01) 状态开始动画
                 void wrapper.offsetWidth;
-                // 添加显示动画类
                 wrapper.classList.add("is-showing");
-                // 动画结束后（0.5s）移除 is-showing 类，恢复默认可见状态
-                setTimeout(function() {
+                var tidInner = setTimeout(function() {
                   wrapper.classList.remove("is-showing");
-                  // bubble6和bubble7使用居中定位，确保transform正确
                   if (wrapper.id === "wrapper-bubble6" || wrapper.id === "wrapper-bubble7") {
-                    // 如果wrapper没有内联的left/top（即使用CSS居中定位），恢复transform
                     if (!wrapper.style.left && !wrapper.style.top) {
                       wrapper.style.transform = "translate(-50%, -50%)";
                     } else {
-                      // 如果已经转换为绝对定位，保持transform为空
                       wrapper.style.transform = "translate(0, 0)";
                     }
                   }
                 }, 500);
+                toggleTimeoutIds.push(tidInner);
               }, delay);
+              toggleTimeoutIds.push(tidOuter);
             }
           }
         });
@@ -1764,18 +1760,12 @@
         var islandColor = document.querySelector(".island-color");
         
         if (bubblesHidden) {
-          // 气泡隐藏时，等所有气泡完成缩小动画后再显示 islandText，同时调整 island 和 islandColor
-          setTimeout(function() {
-            if (islandText) {
-              islandText.classList.add("is-visible");
-            }
-            if (island) {
-              island.classList.add("is-dimmed");
-            }
-            if (islandColor) {
-              islandColor.classList.add("is-blurred");
-            }
+          var tidIsland = setTimeout(function() {
+            if (islandText) islandText.classList.add("is-visible");
+            if (island) island.classList.add("is-dimmed");
+            if (islandColor) islandColor.classList.add("is-blurred");
           }, maxDelay + animationDuration);
+          toggleTimeoutIds.push(tidIsland);
         } else {
           // 气泡显示时，立即隐藏 islandText，恢复 island 和 islandColor
           if (islandText) {
@@ -2564,27 +2554,26 @@
         };
         
         preDragTouchEndHandler = function(endEv) {
-          // 清理预拖拽事件监听器
           document.removeEventListener("touchmove", preDragTouchMoveHandler);
           document.removeEventListener("touchend", preDragTouchEndHandler);
+          document.removeEventListener("touchcancel", preDragTouchEndHandler);
           preDragTouchMoveHandler = null;
           preDragTouchEndHandler = null;
-          
+
           if (longPressTimer) {
             clearTimeout(longPressTimer);
             longPressTimer = null;
-            
-            if (!hasMoved && Date.now() - clickStartTime < 500 && !wasLongPress) {
+            // 仅在 touchend 时视为一次点击并切换气泡；touchcancel 只清理，不切换
+            if (endEv.type === "touchend" && !hasMoved && Date.now() - clickStartTime < 500 && !wasLongPress) {
               toggleBubblesVisibility();
             }
           }
-          if (!isDragging) {
-            wasLongPress = false;
-          }
+          if (!isDragging) wasLongPress = false;
         };
-        
+
         document.addEventListener("touchmove", preDragTouchMoveHandler, { passive: false });
         document.addEventListener("touchend", preDragTouchEndHandler);
+        document.addEventListener("touchcancel", preDragTouchEndHandler);
         
         // 设置长按计时器（300ms，与鼠标一致，缩短以更快进入拖拽）
         longPressTimer = setTimeout(function() {
@@ -2612,15 +2601,11 @@
       });
       
       mainFrame.addEventListener("touchend", function(ev) {
+        // 只清除长按计时器，不在这里调用 toggle：由 document 的 preDragTouchEndHandler 统一处理，
+        // 避免同一次松手触发两次 toggle（mainFrame 与 document 都会收到 touchend），导致只消失/只出现一部分
         if (longPressTimer) {
-          // 如果只是点击（没有长按），清除计时器并切换显示状态
           clearTimeout(longPressTimer);
           longPressTimer = null;
-          
-          // 如果没有移动，且是快速点击，切换气泡显示/隐藏
-          if (!hasMoved && Date.now() - clickStartTime < 500 && !wasLongPress) {
-            toggleBubblesVisibility();
-          }
         }
       });
 
