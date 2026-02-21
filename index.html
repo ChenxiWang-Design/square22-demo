@@ -2435,10 +2435,10 @@
         
         // 思路7：在预拖拽阶段就开始跟踪移动，一旦检测到移动就立即开始拖拽
         var preDragStartHandler = function(moveEv) {
-          // 如果鼠标移动超过阈值，立即开始拖拽（不等500ms）
+          // 如果鼠标移动超过阈值，立即开始拖拽（不等长按）；阈值改小以便更早进入拖拽
           var moveX = Math.abs(moveEv.clientX - clickStartX);
           var moveY = Math.abs(moveEv.clientY - clickStartY);
-          if ((moveX > 10 || moveY > 10) && longPressTimer) {
+          if ((moveX > 5 || moveY > 5) && longPressTimer) {
             // 立即开始拖拽
             clearTimeout(longPressTimer);
             longPressTimer = null;
@@ -2462,11 +2462,11 @@
           }
         };
         
-        // 设置长按计时器（500ms）
+        // 设置长按计时器（300ms，缩短以更快进入拖拽）
         longPressTimer = setTimeout(function() {
           longPressTimer = null;
           wasLongPress = true;
-          
+
           // 清理预拖拽事件监听器
           document.removeEventListener("mousemove", preDragMoveHandler);
           document.removeEventListener("mousemove", preDragStartHandler);
@@ -2474,16 +2474,16 @@
           preDragMoveHandler = null;
           preDragStartHandler = null;
           preDragUpHandler = null;
-          
+
           // 长按后开始拖拽（气泡不消失）
-          // 使用当前实时鼠标位置初始化拖拽，而不是500ms前的位置！
+          // 使用当前实时鼠标位置初始化拖拽，而不是按下时的位置
           var currentEv = { 
             clientX: currentMouseX, 
             clientY: currentMouseY,
             touches: ev.touches
           };
           startDrag(currentEv);
-        }, 500);
+        }, 300);
         
         // 思路7：立即绑定移动检测，一旦移动就立即开始拖拽
         document.addEventListener("mousemove", preDragStartHandler);
@@ -2530,7 +2530,7 @@
           longPressTimer = null;
         }
         
-        // 立即绑定 touchmove 和 touchend，用于跟踪触摸位置
+        // 立即绑定 touchmove 和 touchend：跟踪触摸位置，并在移动超过阈值时立即开始拖拽（与鼠标一致）
         preDragTouchMoveHandler = function(moveEv) {
           if (moveEv.touches.length > 0) {
             var currentTouch = moveEv.touches[0];
@@ -2543,6 +2543,21 @@
               var moveY = Math.abs(currentTouch.clientY - clickStartY);
               if (moveX > 5 || moveY > 5) {
                 hasMoved = true;
+                // 触摸移动超过阈值时立即开始拖拽（不等长按），与鼠标行为一致
+                moveEv.preventDefault();
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+                wasLongPress = true;
+                document.removeEventListener("touchmove", preDragTouchMoveHandler);
+                document.removeEventListener("touchend", preDragTouchEndHandler);
+                preDragTouchMoveHandler = null;
+                preDragTouchEndHandler = null;
+                startDrag({
+                  clientX: currentMouseX,
+                  clientY: currentMouseY,
+                  touches: moveEv.touches
+                });
+                return;
               }
             }
           }
@@ -2571,7 +2586,7 @@
         document.addEventListener("touchmove", preDragTouchMoveHandler, { passive: false });
         document.addEventListener("touchend", preDragTouchEndHandler);
         
-        // 设置长按计时器（500ms）
+        // 设置长按计时器（300ms，与鼠标一致，缩短以更快进入拖拽）
         longPressTimer = setTimeout(function() {
           longPressTimer = null;
           wasLongPress = true;
@@ -2583,14 +2598,13 @@
           preDragTouchEndHandler = null;
           
           // 长按后开始拖拽（气泡不消失）
-          // 使用当前实时触摸位置初始化拖拽，而不是500ms前的位置！
-          var currentTouch = ev.touches[0];
+          // 使用当前实时触摸位置初始化拖拽
           startDrag({ 
             clientX: currentMouseX, 
             clientY: currentMouseY,
             touches: ev.touches
           });
-        }, 500);
+        }, 300);
       });
       
       mainFrame.addEventListener("touchmove", function(ev) {
