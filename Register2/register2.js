@@ -1844,15 +1844,25 @@ function initR4VoiceInput() {
   let holdTimer = null;
   let waveBars = [];
   let waveAnimId = null;
+  let r4MicStream = null;
+  let r4AudioContext = null;
+  let r4Analyser = null;
+  let r4FreqData = null;
 
-  /* R4 不再请求麦克风流，仅用语音识别，避免手机端从扬声器回放自己声音 */
+  /* R4 请求麦克风与语音识别同源，提升识别准确率；仅用于波形/管线，不接扬声器，离开 R4 时释放 */
   r4VoiceReleaseMic = function () {
     stopR4Wave();
+    if (r4MicStream) {
+      r4MicStream.getTracks().forEach(function (t) { t.stop(); });
+      r4MicStream = null;
+    }
   };
 
   const BASE_H = 2;
   const MIN_H = 1;
   const MAX_H = 16;
+  const R4_VISIBLE_BARS = 48;
+  const R4_VOLUME_THRESHOLD = 18;
 
   function setR4VoiceState(state) {
     layerIdle.classList.remove('active');
@@ -1866,8 +1876,13 @@ function initR4VoiceInput() {
     } else if (state === 'recording') {
       layerRecording.classList.add('active');
       hit.style.display = '';
-      initR4WaveFake();
-      runR4WaveLoopFake();
+      if (r4MicStream) {
+        initR4Wave();
+        runR4WaveLoop();
+      } else {
+        initR4WaveFake();
+        runR4WaveLoopFake();
+      }
     } else {
       layerResult.classList.add('active');
       wrap.classList.add('r4-voice-state-result');
@@ -1875,14 +1890,14 @@ function initR4VoiceInput() {
     }
   }
 
-  /** 假波形：只取 DOM 条形，不请求麦克风 */
+  /** 假波形：流未就绪时仅用 DOM 条形做动效 */
   function initR4WaveFake() {
     if (!waveSvg) return;
     waveBars = Array.from(waveSvg.querySelectorAll('.r4-voice-wave-bar'));
     waveBars.forEach(function (b) { b.style.transform = 'scaleY(1)'; });
   }
 
-  /** 假波形动画：识别中显示动效，不依赖麦克风数据，绝不播放声音 */
+  /** 假波形动画：不依赖麦克风，绝不播放声音 */
   function runR4WaveLoopFake() {
     if (waveAnimId != null) return;
     var startTime = Date.now();
@@ -1902,15 +1917,68 @@ function initR4VoiceInput() {
     animate();
   }
 
+  /** 真实波形：用麦克风流做频谱，不连接 destination，绝不播放到扬声器 */
+  function initR4Wave() {
+    if (!waveSvg || !r4MicStream) return;
+    waveBars = Array.from(waveSvg.querySelectorAll('.r4-voice-wave-bar'));
+    waveBars.forEach(function (b) { b.style.transform = 'scaleY(1)'; });
+    r4AudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    r4Analyser = r4AudioContext.createAnalyser();
+    r4Analyser.fftSize = 256;
+    r4Analyser.smoothingTimeConstant = 0.6;
+    /* 不连接 destination，避免手机端扬声器回放自己声音 */
+    var src = r4AudioContext.createMediaStreamSource(r4MicStream);
+    src.connect(r4Analyser);
+    r4FreqData = new Uint8Array(r4Analyser.frequencyBinCount);
+  }
+
+  function runR4WaveLoop() {
+    if (waveAnimId != null) return;
+    function animate() {
+      if (!layerRecording.classList.contains('active')) {
+        waveAnimId = null;
+        return;
+      }
+      var avg = 0, binPerBar = 0;
+      if (r4Analyser && r4FreqData && r4FreqData.length) {
+        r4Analyser.getByteFrequencyData(r4FreqData);
+        for (var i = 0; i < r4FreqData.length; i++) avg += r4FreqData[i];
+        avg = avg / r4FreqData.length;
+        binPerBar = Math.max(1, Math.floor(r4FreqData.length / R4_VISIBLE_BARS));
+      }
+      waveBars.forEach(function (bar, index) {
+        var barIndex = index % R4_VISIBLE_BARS;
+        if (avg < R4_VOLUME_THRESHOLD || !r4FreqData || !binPerBar) {
+          bar.style.transform = 'scaleY(1)';
+          return;
+        }
+        var sum = 0, start = barIndex * binPerBar, end = Math.min(start + binPerBar, r4FreqData.length);
+        for (var j = start; j < end; j++) sum += r4FreqData[j];
+        var val = end > start ? sum / (end - start) : 0;
+        var normalized = Math.min(255, val) / 255;
+        var h = MIN_H + normalized * (MAX_H - MIN_H);
+        bar.style.transform = 'scaleY(' + (h / BASE_H) + ')';
+      });
+      waveAnimId = requestAnimationFrame(animate);
+    }
+    animate();
+  }
+
   function stopR4Wave() {
     if (waveAnimId != null) {
       cancelAnimationFrame(waveAnimId);
       waveAnimId = null;
     }
     if (waveBars.length) waveBars.forEach(function (b) { b.style.transform = 'scaleY(1)'; });
+    if (r4AudioContext) {
+      r4AudioContext.close().catch(function () {});
+      r4AudioContext = null;
+    }
+    r4Analyser = null;
+    r4FreqData = null;
   }
 
-  /** 仅用语音识别，不请求 getUserMedia，保证不播放自己声音 */
+  /** 与 B1chat 一致：在识别开始时请求麦克风，使浏览器使用同一路音频提升识别准确率；流仅用于波形，不接扬声器 */
   function startListening() {
     if (isListening) return;
     finalTranscript = '';
@@ -1921,6 +1989,20 @@ function initR4VoiceInput() {
     recognition.onstart = function () {
       isListening = true;
       setR4VoiceState('recording');
+      if (!r4MicStream && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          if (!r4MicStream) {
+            r4MicStream = stream;
+            if (layerRecording.classList.contains('active')) {
+              stopR4Wave();
+              initR4Wave();
+              runR4WaveLoop();
+            }
+          } else {
+            stream.getTracks().forEach(function (t) { t.stop(); });
+          }
+        }).catch(function () {});
+      }
     };
     recognition.onresult = function (e) {
       var any = '';
