@@ -1229,37 +1229,62 @@
         if (icon301) icon301.classList.add("is-visible");
         if (icon251) icon251.classList.add("is-visible");
 
-        // 点击 R6 头像（热区限制为直径 50px 的圆）：切换渐变圆与两个头像 ICON 的收拢/展开；点击即切换，收拢/展开态一致
+        // 点击 R6 头像（热区直径 100px，圆心与头像 SVG 中心一致）：切换渐变圆与两个头像 ICON 的收拢/展开；点击即切换
         var mainFrame = document.querySelector(".main-frame");
-        var avatarHotZoneRadius = 25;
+        var avatarHotZoneRadius = 50;
+        function getAvatarHotZoneCenter() {
+          var avatarEl = squareDialogFace && squareDialogFace.querySelector(".r6-avatar");
+          if (avatarEl) {
+            var r = avatarEl.getBoundingClientRect();
+            return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+          }
+          if (squareDialogFace) {
+            var fr = squareDialogFace.getBoundingClientRect();
+            return { cx: fr.left + fr.width / 2, cy: fr.top + fr.height / 2 };
+          }
+          return null;
+        }
         function isInAvatarHotZone(clientX, clientY) {
           if (!squareDialogFace || !squareDialogFace.classList.contains("is-visible")) return false;
-          var r = squareDialogFace.getBoundingClientRect();
-          var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-          return Math.hypot(clientX - cx, clientY - cy) <= avatarHotZoneRadius;
+          var c = getAvatarHotZoneCenter();
+          if (!c) return false;
+          return Math.hypot(clientX - c.cx, clientY - c.cy) <= avatarHotZoneRadius;
+        }
+        function getEventXY(e) {
+          if (e.clientX != null) return { x: e.clientX, y: e.clientY };
+          if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+          if (e.changedTouches && e.changedTouches.length) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+          return null;
         }
         function tryToggleAvatarsExpand(e) {
-          var x = e.clientX, y = e.clientY;
-          if (e.type === "touchend" && e.changedTouches && e.changedTouches.length) { x = e.changedTouches[0].clientX; y = e.changedTouches[0].clientY; }
-          if (!isInAvatarHotZone(x, y)) return;
+          var xy = getEventXY(e);
+          if (!xy || !isInAvatarHotZone(xy.x, xy.y)) return;
           e.stopPropagation();
           if (mainFrame && squareDialogFace.classList.contains("is-visible")) mainFrame.classList.toggle("state2-avatars-expanded");
+        }
+        function stopAvatarTouchPropagation(e) {
+          var xy = getEventXY(e);
+          if (xy && isInAvatarHotZone(xy.x, xy.y)) { e.stopPropagation(); if (e.cancelable) e.preventDefault(); }
         }
         if (squareDialogFace) {
           squareDialogFace.addEventListener("click", tryToggleAvatarsExpand);
           squareDialogFace.addEventListener("touchend", tryToggleAvatarsExpand);
+          squareDialogFace.addEventListener("touchstart", stopAvatarTouchPropagation, { passive: false });
         }
         if (avatarGlow) {
           avatarGlow.addEventListener("click", tryToggleAvatarsExpand);
           avatarGlow.addEventListener("touchend", tryToggleAvatarsExpand);
+          avatarGlow.addEventListener("touchstart", stopAvatarTouchPropagation, { passive: false });
         }
         if (icon301) {
           icon301.addEventListener("click", tryToggleAvatarsExpand);
           icon301.addEventListener("touchend", tryToggleAvatarsExpand);
+          icon301.addEventListener("touchstart", stopAvatarTouchPropagation, { passive: false });
         }
         if (icon251) {
           icon251.addEventListener("click", tryToggleAvatarsExpand);
           icon251.addEventListener("touchend", tryToggleAvatarsExpand);
+          icon251.addEventListener("touchstart", stopAvatarTouchPropagation, { passive: false });
         }
 
         if (introDecided) {
@@ -1830,6 +1855,19 @@
         return contains(overlay, target) || contains(introCard, target) || contains(introText, target) || contains(carouselWrap, target) || contains(topEyes, target);
       }
 
+      /** 是否点击在右下角头像区域或发布/暂不按钮上（不触发气泡出现/消失） */
+      function isAvatarOrIntroButtonArea(target) {
+        if (!target || !target.closest) return false;
+        var face = document.getElementById("square-dialog-face");
+        var glow = document.getElementById("state2-avatar-glow");
+        var icon1 = document.getElementById("state2-avatar-icon-301-584");
+        var icon2 = document.getElementById("state2-avatar-icon-251-609");
+        var btnSkip = document.getElementById("state2-card-btn-skip");
+        var btnPublish = document.getElementById("state2-card-btn-publish");
+        function contains(el, t) { return el && (t === el || el.contains(t)); }
+        return contains(face, target) || contains(glow, target) || contains(icon1, target) || contains(icon2, target) || target === btnSkip || target === btnPublish;
+      }
+
       /** 长按拖拽功能 */
       var longPressTimer = null;
       var isDragging = false;
@@ -2378,6 +2416,8 @@
         if (ev.target === overlay || overlay.contains(ev.target)) return;
         // 状态2：点击半透明层及其上方元素（卡片、轮播、眼睛等）不触发气泡缩放/拖拽
         if (isState2Layer(ev.target)) return;
+        // 右下角头像、发布/暂不按钮：不触发气泡出现/消失
+        if (isAvatarOrIntroButtonArea(ev.target)) return;
         // 如果点击的是岛屿层，不处理
         if (islandLayer && (ev.target === islandLayer || islandLayer.contains(ev.target))) return;
         
@@ -2518,6 +2558,8 @@
         if (ev.target === overlay || overlay.contains(ev.target)) return;
         // 状态2：点击半透明层及其上方元素（卡片、轮播、眼睛等）不触发气泡缩放/拖拽
         if (ev.touches.length > 0 && isState2Layer(ev.target)) return;
+        // 右下角头像、发布/暂不按钮：不触发气泡出现/消失
+        if (isAvatarOrIntroButtonArea(ev.target)) return;
         // 如果点击的是岛屿层，不处理
         if (islandLayer && (ev.target === islandLayer || islandLayer.contains(ev.target))) return;
         
