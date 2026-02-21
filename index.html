@@ -209,7 +209,7 @@
       width: 270px;
       top: 176px;
       min-height: 48px;
-      z-index: 18;
+      z-index: 2002;
       display: none;
       pointer-events: none;
       align-items: center;
@@ -221,14 +221,14 @@
     .state2-carousel-wrap.is-visible {
       display: flex;
     }
-    /* 状态2：眼睛动画，置于 X46-314、Y390-483 区域内，置顶层级；容器留足余量避免上下左右移动时被裁切（P3 上移 30） */
+    /* 状态2：眼睛动画，置于 X46-314、Y390-483 区域内，高于卡片以便显示在卡片上方（P3 上移 30） */
     .state2-top-eyes {
       position: absolute;
       left: 46px;
       top: 390px;
       width: 200px;
       height: 100px;
-      z-index: 19;
+      z-index: 2003;
       display: none;
       pointer-events: none;
       overflow: hidden;
