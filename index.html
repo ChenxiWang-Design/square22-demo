@@ -135,13 +135,13 @@
       display: block;
       pointer-events: auto; /* 状态2 时遮罩接收点击，避免穿透到下方气泡 */
     }
-    /* 状态2：自我介绍卡片，置于遮罩上方，中心点 X 与容器中轴对齐，Y=384 */
+    /* 状态2：自我介绍卡片，置于遮罩上方，中心点 X 与容器中轴对齐，Y=384；z-index 高于右下角头像(2000) 以便发布/暂不按钮可点 */
     .state2-intro-card {
       position: absolute;
       left: 50%;
       top: 354px;
       transform: translate(-50%, -50%);
-      z-index: 16;
+      z-index: 2001;
       display: none;
     }
     .state2-intro-card.is-visible {
