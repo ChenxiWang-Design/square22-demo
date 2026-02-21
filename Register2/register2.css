@@ -1900,7 +1900,7 @@ body {
 .page-4 .r4-voice-wrap .r4-voice-send-btn {
   position: absolute;
   right: 0;
-  top: calc(50% - 20px);
+  top: calc(50% - 10px);
   transform: translateY(-50%);
   width: 52px;
   height: 52px;

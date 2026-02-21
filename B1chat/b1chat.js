@@ -100,7 +100,8 @@ let b1chatVoiceInputInited = false;
 let b1chatVoiceReleaseMic = null;
 
 /**
- * 初始化 B1chat 语音输入组件：三态（常规态 / 按住说 / 识别结果），发送后调用 sendVoiceMessage
+ * 初始化 B1chat 语音输入组件（与 R4 一致）：三态（常规态 / 按住说 / 识别结果），发送后调用 sendVoiceMessage
+ * 逻辑原样来自 R4：假波形、麦克风不接扬声器、长按 300ms 再录、document 全局 pointerup 等
  */
 function initB1chatVoiceInput() {
   const wrap = document.getElementById('b1chat-voice-wrap');
@@ -127,23 +128,24 @@ function initB1chatVoiceInput() {
   let holdTimer = null;
   let waveBars = [];
   let waveAnimId = null;
-  let micStream = null;
-  let audioContext = null;
-  let analyser = null;
-  let freqData = null;
+  let b1chatMicStream = null;
+  let b1chatAudioContext = null;
+  let b1chatAnalyser = null;
+  let b1chatFreqData = null;
 
   b1chatVoiceReleaseMic = function () {
     stopB1chatWave();
-    if (micStream) {
-      micStream.getTracks().forEach(function (t) { t.stop(); });
-      micStream = null;
+    if (b1chatMicStream) {
+      b1chatMicStream.getTracks().forEach(function (t) { t.stop(); });
+      b1chatMicStream = null;
     }
   };
+
   const BASE_H = 2;
   const MIN_H = 1;
   const MAX_H = 16;
-  const VISIBLE_BARS = 48;
-  const VOLUME_THRESHOLD = 18;
+  const B1CHAT_VISIBLE_BARS = 48;
+  const B1CHAT_VOLUME_THRESHOLD = 18;
 
   function setB1chatVoiceState(state) {
     layerIdle.classList.remove('active');
@@ -157,11 +159,12 @@ function initB1chatVoiceInput() {
     } else if (state === 'recording') {
       layerRecording.classList.add('active');
       hit.style.display = '';
-      if (micStream) {
+      if (b1chatMicStream) {
         initB1chatWave();
         runB1chatWaveLoop();
       } else {
-        runB1chatWaveLoop();
+        initB1chatWaveFake();
+        runB1chatWaveLoopFake();
       }
     } else {
       layerResult.classList.add('active');
@@ -170,19 +173,42 @@ function initB1chatVoiceInput() {
     }
   }
 
-  /** 仅用已有流初始化波形（不再在此处调用 getUserMedia，避免与语音识别重复请求） */
-  function initB1chatWave() {
-    if (!waveSvg || !micStream) return;
+  function initB1chatWaveFake() {
+    if (!waveSvg) return;
     waveBars = Array.from(waveSvg.querySelectorAll('.b1chat-voice-wave-bar'));
     waveBars.forEach(function (b) { b.style.transform = 'scaleY(1)'; });
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = 0.6;
-    analyser.connect(audioContext.destination);
-    var src = audioContext.createMediaStreamSource(micStream);
-    src.connect(analyser);
-    freqData = new Uint8Array(analyser.frequencyBinCount);
+  }
+
+  function runB1chatWaveLoopFake() {
+    if (waveAnimId != null) return;
+    var startTime = Date.now();
+    function animate() {
+      if (!layerRecording.classList.contains('active')) {
+        waveAnimId = null;
+        return;
+      }
+      var t = (Date.now() - startTime) / 200;
+      waveBars.forEach(function (bar, index) {
+        var noise = 0.7 + 0.3 * Math.sin(t + index * 0.5);
+        var h = MIN_H + noise * (MAX_H - MIN_H);
+        bar.style.transform = 'scaleY(' + (h / BASE_H) + ')';
+      });
+      waveAnimId = requestAnimationFrame(animate);
+    }
+    animate();
+  }
+
+  function initB1chatWave() {
+    if (!waveSvg || !b1chatMicStream) return;
+    waveBars = Array.from(waveSvg.querySelectorAll('.b1chat-voice-wave-bar'));
+    waveBars.forEach(function (b) { b.style.transform = 'scaleY(1)'; });
+    b1chatAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    b1chatAnalyser = b1chatAudioContext.createAnalyser();
+    b1chatAnalyser.fftSize = 256;
+    b1chatAnalyser.smoothingTimeConstant = 0.6;
+    var src = b1chatAudioContext.createMediaStreamSource(b1chatMicStream);
+    src.connect(b1chatAnalyser);
+    b1chatFreqData = new Uint8Array(b1chatAnalyser.frequencyBinCount);
   }
 
   function runB1chatWaveLoop() {
@@ -193,20 +219,20 @@ function initB1chatVoiceInput() {
         return;
       }
       var avg = 0, binPerBar = 0;
-      if (analyser && freqData && freqData.length) {
-        analyser.getByteFrequencyData(freqData);
-        for (var i = 0; i < freqData.length; i++) avg += freqData[i];
-        avg = avg / freqData.length;
-        binPerBar = Math.max(1, Math.floor(freqData.length / VISIBLE_BARS));
+      if (b1chatAnalyser && b1chatFreqData && b1chatFreqData.length) {
+        b1chatAnalyser.getByteFrequencyData(b1chatFreqData);
+        for (var i = 0; i < b1chatFreqData.length; i++) avg += b1chatFreqData[i];
+        avg = avg / b1chatFreqData.length;
+        binPerBar = Math.max(1, Math.floor(b1chatFreqData.length / B1CHAT_VISIBLE_BARS));
       }
       waveBars.forEach(function (bar, index) {
-        var barIndex = index % VISIBLE_BARS;
-        if (avg < VOLUME_THRESHOLD || !freqData || !binPerBar) {
+        var barIndex = index % B1CHAT_VISIBLE_BARS;
+        if (avg < B1CHAT_VOLUME_THRESHOLD || !b1chatFreqData || !binPerBar) {
           bar.style.transform = 'scaleY(1)';
           return;
         }
-        var sum = 0, start = barIndex * binPerBar, end = Math.min(start + binPerBar, freqData.length);
-        for (var j = start; j < end; j++) sum += freqData[j];
+        var sum = 0, start = barIndex * binPerBar, end = Math.min(start + binPerBar, b1chatFreqData.length);
+        for (var j = start; j < end; j++) sum += b1chatFreqData[j];
         var val = end > start ? sum / (end - start) : 0;
         var normalized = Math.min(255, val) / 255;
         var h = MIN_H + normalized * (MAX_H - MIN_H);
@@ -217,23 +243,20 @@ function initB1chatVoiceInput() {
     animate();
   }
 
-  /** 停止波形动画并释放 AudioContext，但不释放麦克风流，以便下次按住时不再弹授权 */
   function stopB1chatWave() {
     if (waveAnimId != null) {
       cancelAnimationFrame(waveAnimId);
       waveAnimId = null;
     }
     if (waveBars.length) waveBars.forEach(function (b) { b.style.transform = 'scaleY(1)'; });
-    if (audioContext) {
-      audioContext.close().catch(function () {});
-      audioContext = null;
+    if (b1chatAudioContext) {
+      b1chatAudioContext.close().catch(function () {});
+      b1chatAudioContext = null;
     }
-    analyser = null;
-    freqData = null;
-    /* 不在此处 stop micStream，保留流以便复用，仅离开页面时释放 */
+    b1chatAnalyser = null;
+    b1chatFreqData = null;
   }
 
-  /** 在用户点击时同步调用，保证 recognition.start() 在用户手势内，否则识别会失败 */
   function startListening() {
     if (isListening) return;
     finalTranscript = '';
@@ -244,12 +267,17 @@ function initB1chatVoiceInput() {
     recognition.onstart = function () {
       isListening = true;
       setB1chatVoiceState('recording');
-      if (!micStream) {
+      if (!b1chatMicStream && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-          if (!micStream) {
-            micStream = stream;
-            initB1chatWave();
-            runB1chatWaveLoop();
+          if (!b1chatMicStream) {
+            b1chatMicStream = stream;
+            if (layerRecording.classList.contains('active')) {
+              stopB1chatWave();
+              initB1chatWave();
+              runB1chatWaveLoop();
+            }
+          } else {
+            stream.getTracks().forEach(function (t) { t.stop(); });
           }
         }).catch(function () {});
       }
@@ -285,13 +313,12 @@ function initB1chatVoiceInput() {
     isListening = false;
   }
 
-  /** 点击时先同步启动语音识别（保证在用户手势内），波形在 onstart 或此处用已有流初始化 */
   function ensureMicAndStartRecording() {
     if (layerResult.classList.contains('active')) {
       resultText.textContent = '';
     }
     startListening();
-    if (micStream) setB1chatVoiceState('recording');
+    setB1chatVoiceState('recording');
   }
 
   function onPointerDown(e) {
@@ -314,7 +341,6 @@ function initB1chatVoiceInput() {
       return;
     }
     stopListening();
-    // 长按结束：若当前在识别中，立即切换到呈现文字状态，不依赖 recognition.onend 触发时机
     if (layerRecording.classList.contains('active')) {
       if (finalTranscript) resultText.textContent = finalTranscript;
       setB1chatVoiceState('result');
@@ -351,7 +377,6 @@ function initB1chatVoiceInput() {
   layerResult.addEventListener('touchend', function (e) { e.preventDefault(); onPointerUp(e); }, { passive: false });
   layerResult.addEventListener('touchcancel', function (e) { e.preventDefault(); onPointerUp(e); }, { passive: false });
 
-  // 在 document 上监听松开，避免手指移出按钮后 touchend 未在 hit 上触发导致一直停在识别态
   function docPointerUp(e) {
     if (!layerRecording.classList.contains('active')) return;
     if (e.target && (e.target.closest('.b1chat-voice-send-btn') || e.target.closest('.b1chat-voice-back-btn'))) return;
@@ -361,25 +386,41 @@ function initB1chatVoiceInput() {
   document.addEventListener('touchend', docPointerUp, { passive: false });
   document.addEventListener('touchcancel', docPointerUp, { passive: false });
 
+  function doBackToIdle() {
+    resultText.textContent = '';
+    setB1chatVoiceState('idle');
+  }
   if (backBtn) {
     backBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       e.preventDefault();
+      doBackToIdle();
+    });
+    backBtn.addEventListener('touchend', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      doBackToIdle();
+    }, { passive: false });
+  }
+  function doSendFromResult() {
+    var text = (resultText.textContent || '').trim();
+    if (text) {
+      sendVoiceMessage(text);
       resultText.textContent = '';
       setB1chatVoiceState('idle');
-    });
+    }
   }
   if (sendBtn) {
     sendBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       e.preventDefault();
-      var text = (resultText.textContent || '').trim();
-      if (text) {
-        sendVoiceMessage(text);
-        resultText.textContent = '';
-        setB1chatVoiceState('idle');
-      }
+      doSendFromResult();
     });
+    sendBtn.addEventListener('touchend', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      doSendFromResult();
+    }, { passive: false });
   }
 
   setB1chatVoiceState('idle');

@@ -674,19 +674,32 @@ body {
   transform: translateY(-50%);
   width: 52px;
   height: 52px;
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
-  z-index: 2;
+  z-index: 10;
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .b1chat-voice-wrap .b1chat-voice-send-btn {
   position: absolute;
-  right: 11px;
-  top: calc(50% - 12px);
+  right: 0;
+  top: calc(50% - 10px);
   transform: translateY(-50%);
-  width: 23px;
-  height: 23px;
+  width: 52px;
+  height: 52px;
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
-  z-index: 2;
+  z-index: 10;
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
 }
 
 .b1chat-voice-wrap .b1chat-voice-send-btn:hover {
@@ -699,8 +712,9 @@ body {
 
 .b1chat-voice-wrap .b1chat-voice-send-btn svg {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 23px;
+  height: 23px;
+  pointer-events: none;
 }
 
 /* ========== Bubble2 展开态（等比缩放到宽�?23px�?========== */
