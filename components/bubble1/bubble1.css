@@ -158,6 +158,8 @@
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
+  user-select: none;
+  -webkit-user-select: none;
   backdrop-filter: blur(0);
   -webkit-backdrop-filter: blur(0);
   transition: opacity var(--bubble1-transition-duration) ease,
@@ -198,6 +200,11 @@
   opacity: 0;
   transition: transform var(--bubble1-transition-duration) var(--bubble1-transition-ease),
               opacity var(--bubble1-transition-duration) ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .bubble1__overlay.is-visible .bubble1__expanded {
@@ -230,7 +237,6 @@
   -webkit-line-clamp: 8;
   -webkit-box-orient: vertical;
   max-width: 180px;
-  margin-top: 42px;
 }
 
 /* 点击遮罩关闭 */
